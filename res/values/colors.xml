@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="theme_color_cantedit">#FF00FF00</color>
+    <color name="text_color_important">#FFFFFFFF</color>
+    
+</resources>
