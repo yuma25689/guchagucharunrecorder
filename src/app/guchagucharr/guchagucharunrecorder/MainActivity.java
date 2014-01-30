@@ -1,9 +1,12 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.util.Date;
+
 import com.example.guchagucharunrecorder.R;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,9 +19,11 @@ import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
@@ -26,8 +31,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
+import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
 import app.guchagucharr.interfaces.IViewController;
+import app.guchagucharr.service.RunningLogStocker;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -35,12 +42,13 @@ import app.guchagucharr.interfaces.IViewController;
  * 
  * @see SystemUiHider
  */
-public class MainActivity extends Activity implements LocationListener,IViewController {
+public class MainActivity extends Activity implements LocationListener,IViewController, OnClickListener {
 
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
 	private LocationManager mLocationManager;
 	private MainHandler handler;
+	private RunningLogStocker runLogStocker;
 	// private ResourceAccessor res;
 	
 	// コントロール
@@ -252,6 +260,10 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 
 	@Override
 	public void onLocationChanged(Location location) {
+		if( runLogStocker != null )
+		{
+			runLogStocker.putLocationLog(location);
+		}
 		Log.v("----------", "----------");
         Log.v("Latitude", String.valueOf(location.getLatitude()));
         Log.v("Longitude", String.valueOf(location.getLongitude()));
@@ -264,14 +276,12 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
+		imgGPS.setBackgroundResource(R.drawable.gps_bad);		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
+		imgGPS.setBackgroundResource(R.drawable.gps_good);
 	}
 
 	// コントロールの初期化、配置
@@ -320,6 +330,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		rlBtnCenter.addRule(RelativeLayout.CENTER_VERTICAL);
 		btnCenter.setLayoutParams(rlBtnCenter);
 		btnCenter.setScaleType(ScaleType.FIT_XY);
+		btnCenter.setOnClickListener(this);
 		componentContainer.addView(btnCenter);
 		
 		// GPSボタン
@@ -341,6 +352,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		
 		btnGPS.setLayoutParams(rlBtnGps);
 		btnGPS.setScaleType(ScaleType.FIT_XY);
+		btnGPS.setOnClickListener(this);
 		componentContainer.addView(btnGPS);
 
 		// GPSインジケータ
@@ -452,12 +464,15 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	     switch (status) {
 	     case LocationProvider.AVAILABLE:
 	    	 Log.v("Status", "AVAILABLE");
+	    	 imgGPS.setBackgroundResource(R.drawable.gps_good);
 	         break;
 	     case LocationProvider.OUT_OF_SERVICE:
 	    	 Log.v("Status", "OUT_OF_SERVICE");
+	    	 imgGPS.setBackgroundResource(R.drawable.gps_bad);
 	    	 break;
 	     case LocationProvider.TEMPORARILY_UNAVAILABLE:
 	    	 Log.v("Status", "TEMPORARILY_UNAVAILABLE");
+	    	 imgGPS.setBackgroundResource(R.drawable.gps_soso);
 	    	 break;
 	     }		
 	}
@@ -645,5 +660,27 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
         //lp.addRule(verb);//RelativeLayout.ALIGN_PARENT_TOP);
         
         return lp;
+	}
+
+	@Override
+	public void onClick(View v) {
+		if( v == btnGPS )
+		{
+			String providers = Settings.Secure.getString(
+					getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+			Log.v("GPS", "Location Providers = " + providers);
+			if(providers.indexOf("gps", 0) < 0) {
+				// 設定画面の呼出し
+				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+				startActivity(intent);
+			} else {
+				Toast.makeText(getApplicationContext(), R.string.GPS_ON, Toast.LENGTH_LONG).show();
+			}
+		}
+		else if( v == btnCenter )
+		{
+			Date now = new Date();
+			runLogStocker = new RunningLogStocker(now.getTime());
+		}
 	}
 }
