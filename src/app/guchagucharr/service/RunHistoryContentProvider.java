@@ -14,6 +14,7 @@ public class RunHistoryContentProvider extends ContentProvider {
 
 	public static String DB_NAME = "GuchaGuchaRunRecorder.db";
 	public static String HISTORY_TABLE_NAME = "tbl_history";
+	public static String HISTORY_RAP_TABLE_NAME = "tbl_history_rap";
 	
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
@@ -25,8 +26,13 @@ public class RunHistoryContentProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + HISTORY_TABLE_NAME 
             		+ " (" + BaseColumns._ID + " INTEGER PRIMARY KEY," 
-            		+ "col2 TEXT,"
-                    + "col3 TEXT"
+            		+ "RAP_COUNT INTEGER,"
+                    + "TOTAL_DISTANCE INTEGER,"
+            		+ ");");
+            db.execSQL("CREATE TABLE " + HISTORY_RAP_TABLE_NAME 
+            		+ " (" + BaseColumns._ID + " INTEGER PRIMARY KEY," 
+            		+ "RAP_INDEX INTEGER,"
+                    + "RAP_DISTANCE INTEGER,"
             		+ ");");
         }
  

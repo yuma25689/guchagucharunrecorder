@@ -1,5 +1,7 @@
 package app.guchagucharr.service;
 
+import java.util.Vector;
+
 public class RapData {
 	public void clear()
 	{
@@ -14,6 +16,8 @@ public class RapData {
 	long totalTime = 0;
 	double distance = 0;
 	double speed = 0;
+	final int SPEED_QUEUE_MAX = 100;
+	Vector<Double> vSpeedQueue = new Vector<Double>();
 	/**
 	 * @return the startTime
 	 */
@@ -77,10 +81,21 @@ public class RapData {
 	public double getSpeed() {
 		return speed;
 	}
-	public void addSpeedData( double speed )
+	public void addSpeedData( double speed_ )
 	{
-		// TODO: これでは、件数が増えるほど誤差が大きくなるが、とりあえずそれでいい
-		speed = ( speed + speed ) / 2;
+		// TODO: 微妙。誤差もだいぶあると思われるし、最大件数の指定も難しい
+		double sumVal = 0;
+		vSpeedQueue.add( speed_ );
+		if( SPEED_QUEUE_MAX < vSpeedQueue.size() )
+		{
+			// サンプルが増えすぎたら、まん中くらいのサンプルを抜く？
+			vSpeedQueue.remove(SPEED_QUEUE_MAX/2);
+		}
+		for( Double val : vSpeedQueue )
+		{
+			sumVal += val;
+		}
+		speed = sumVal / vSpeedQueue.size();
 	}
 	
 	/**

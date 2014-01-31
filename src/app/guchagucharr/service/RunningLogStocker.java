@@ -26,6 +26,7 @@ public class RunningLogStocker {
 	
 	SparseArray<RapData> rapTime = new SparseArray<RapData>();
 	Vector<Location> vLocation = new Vector<Location>();
+	Location prevLocation = null;
 
 	public RunningLogStocker(long time)
 	{
@@ -53,14 +54,14 @@ public class RunningLogStocker {
 			float[] result = new float[3];
 			//float distance = 0;
 			Location.distanceBetween(
-					vLocation.lastElement().getLatitude(),
-					vLocation.lastElement().getAltitude(),
+					prevLocation.getLatitude(),//vLocation.lastElement().getLatitude(),
+					prevLocation.getAltitude(),//vLocation.lastElement().getAltitude(),
 					location.getLatitude(),
 					location.getAltitude(), result);
 			//distance = result[0];
 			currentRapData.increaseDistance(result[0]);
 			// long time = location.getTime() - vLocation.lastElement().getTime();
-			currentRapData.increaseTime(location.getTime() - vLocation.lastElement().getTime());
+			currentRapData.increaseTime(location.getTime() - prevLocation.getTime());//vLocation.lastElement().getTime());
 			currentRapData.addSpeedData(location.getSpeed());
 		}
         // Log.v("Speed", String.valueOf(location.getSpeed()));
@@ -68,10 +69,18 @@ public class RunningLogStocker {
 		{
 			vLocation.remove(0);
 		}
-		
 		// óvëfí«â¡
 		vLocation.add(location);
-	}		
+		prevLocation = new Location(location);
+	}
+	public void nextRap(Long time)
+	{
+		iRap++;
+		currentRapData.clear();
+		prevLocation = new Location( vLocation.lastElement() );
+		// éûä‘ÇæÇØèëÇ´ä∑Ç¶ÇÈ
+		prevLocation.setTime(time);
+	}
 	public void stop( long time )
 	{
 		totalStopTime = time;
