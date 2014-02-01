@@ -37,6 +37,7 @@ public class MainHandler extends Handler {
         		
         		// TODO:ディスプレイの作成
         		mViewController.initControls();
+        		mViewController.initGPS();
 	    		break;
         	}
 		}

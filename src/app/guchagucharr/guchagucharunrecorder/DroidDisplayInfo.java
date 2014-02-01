@@ -9,7 +9,6 @@ import android.util.DisplayMetrics;
 import android.view.View;
 //import android.view.ViewGroup;
 //import android.view.ViewParent;
-import android.view.Window;
 
 /**
  * 画面情報取得用クラスの実装(android用)

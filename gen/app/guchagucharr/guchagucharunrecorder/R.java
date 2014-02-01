@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.example.guchagucharunrecorder;
+package app.guchagucharr.guchagucharunrecorder;
 
 public final class R {
     public static final class attr {
@@ -41,9 +41,15 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int main_runstartbutton_focus=0x7f02000e;
         public static final int main_runstartbutton_normal=0x7f02000f;
         public static final int main_runstartbutton_press=0x7f020010;
-        public static final int selector_gps_button_image=0x7f020011;
-        public static final int selector_history_button_image=0x7f020012;
-        public static final int selector_runstart_button_image=0x7f020013;
+        public static final int main_stopbutton_disable=0x7f020011;
+        public static final int main_stopbutton_focus=0x7f020012;
+        public static final int main_stopbutton_normal=0x7f020013;
+        public static final int main_stopbutton_press=0x7f020014;
+        public static final int selector_gps_button_image=0x7f020015;
+        public static final int selector_history_button_image=0x7f020016;
+        public static final int selector_runstart_button_image=0x7f020017;
+        public static final int selector_runstop_button_image=0x7f020018;
+        public static final int selector_save_button_image=0x7f020019;
     }
     public static final class id {
         public static final int dummy_button=0x7f070002;
@@ -56,6 +62,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class string {
         public static final int GPS_ON=0x7f050005;
         public static final int app_name=0x7f050000;
+        public static final int cant_get=0x7f05000d;
         public static final int dummy_button=0x7f050001;
         public static final int dummy_content=0x7f050002;
         /**  Do not translate. Duration format for duration >= 1 hour 
@@ -66,6 +73,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f050003;
+        public static final int hour=0x7f05000a;
+        public static final int killometer=0x7f050007;
+        public static final int killoperhour=0x7f05000c;
+        public static final int meter=0x7f050006;
+        public static final int meterpersecond=0x7f05000b;
+        public static final int minute=0x7f050009;
+        public static final int second=0x7f050008;
     }
     public static final class style {
         /** 
@@ -111,8 +125,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarButtonStyle com.example.guchagucharunrecorder:buttonBarButtonStyle}</code></td><td></td></tr>
-           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarStyle com.example.guchagucharunrecorder:buttonBarStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarButtonStyle app.guchagucharr.guchagucharunrecorder:buttonBarButtonStyle}</code></td><td></td></tr>
+           <tr><td><code>{@link #ButtonBarContainerTheme_buttonBarStyle app.guchagucharr.guchagucharunrecorder:buttonBarStyle}</code></td><td></td></tr>
            </table>
            @see #ButtonBarContainerTheme_buttonBarButtonStyle
            @see #ButtonBarContainerTheme_buttonBarStyle
@@ -121,23 +135,23 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             0x7f010000, 0x7f010001
         };
         /**
-          <p>This symbol is the offset where the {@link com.example.guchagucharunrecorder.R.attr#buttonBarButtonStyle}
+          <p>This symbol is the offset where the {@link app.guchagucharr.guchagucharunrecorder.R.attr#buttonBarButtonStyle}
           attribute's value can be found in the {@link #ButtonBarContainerTheme} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.example.guchagucharunrecorder:buttonBarButtonStyle
+          @attr name app.guchagucharr.guchagucharunrecorder:buttonBarButtonStyle
         */
         public static final int ButtonBarContainerTheme_buttonBarButtonStyle = 1;
         /**
-          <p>This symbol is the offset where the {@link com.example.guchagucharunrecorder.R.attr#buttonBarStyle}
+          <p>This symbol is the offset where the {@link app.guchagucharr.guchagucharunrecorder.R.attr#buttonBarStyle}
           attribute's value can be found in the {@link #ButtonBarContainerTheme} array.
 
 
           <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
-          @attr name com.example.guchagucharunrecorder:buttonBarStyle
+          @attr name app.guchagucharr.guchagucharunrecorder:buttonBarStyle
         */
         public static final int ButtonBarContainerTheme_buttonBarStyle = 0;
     };

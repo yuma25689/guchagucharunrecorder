@@ -8,7 +8,10 @@ import android.util.SparseArray;
 // ランニング中のデータを貯めるのクラス
 public class RunningLogStocker {
 
-	private final int MAX_LOCATION_LOG_CNT = 5000;
+	private final int MAX_LOCATION_LOG_CNT = 72000;	
+	// 一番速くても0.1秒周期でしかログを取得できないはずなので、最高で2.4時間分
+	// ただし、メーターの方も1m以上はなれないと計測されない制御があるので、
+	// 0.1秒周期も何か乗り物に乗っていない限り無理だと思う
 	static long removeMilli( long val )
 	{
 		return val * 1000;
@@ -27,6 +30,10 @@ public class RunningLogStocker {
 	SparseArray<RapData> rapTime = new SparseArray<RapData>();
 	Vector<Location> vLocation = new Vector<Location>();
 	Location prevLocation = null;
+	public RapData getCurrentRapData()
+	{
+		return currentRapData;
+	}
 
 	public RunningLogStocker(long time)
 	{
@@ -67,7 +74,8 @@ public class RunningLogStocker {
         // Log.v("Speed", String.valueOf(location.getSpeed()));
 		if( MAX_LOCATION_LOG_CNT < vLocation.size() )
 		{
-			vLocation.remove(0);
+			// マックス値を超えたら、真ん中らへんから抜いていく
+			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
 		}
 		// 要素追加
 		vLocation.add(location);
@@ -84,5 +92,21 @@ public class RunningLogStocker {
 	public void stop( long time )
 	{
 		totalStopTime = time;
+	}
+	
+	/**
+	 * 取得されたログデータの保存
+	 * @return
+	 */
+	public boolean save()
+	{
+		boolean bRet = false;
+		
+		// gpxデータへの変換、保存
+		
+		// databaseへの保存
+		
+		
+		return bRet;
 	}
 }

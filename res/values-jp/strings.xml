@@ -9,5 +9,13 @@
     <!-- Do not translate. Duration format for duration >= 1 hour -->
     <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d:%3$02d:%5$02d</xliff:g></string>
     <string name="GPS_ON">GPSは有効に設定されています。</string>
+    <string name="meter">メートル</string>
+    <string name="killometer">キロ</string>
+    <string name="second">秒</string>
+    <string name="minute">分</string>
+    <string name="hour">時間</string>
+    <string name="meterpersecond">メートル/秒</string>
+    <string name="killoperhour">キロ/時間</string>
+    <string name="cant_get">取得不可</string>
     
 </resources>

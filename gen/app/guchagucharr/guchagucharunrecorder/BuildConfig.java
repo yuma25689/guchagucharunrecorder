@@ -1,5 +1,5 @@
 /** Automatically generated file. DO NOT MODIFY */
-package com.example.guchagucharunrecorder;
+package app.guchagucharr.guchagucharunrecorder;
 
 public final class BuildConfig {
     public final static boolean DEBUG = true;

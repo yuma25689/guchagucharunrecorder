@@ -10,15 +10,12 @@ import java.io.File;
 import java.util.Formatter;
 import java.util.Locale;
 
-import com.example.guchagucharunrecorder.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 //import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -40,6 +37,15 @@ import android.util.SparseArray;
 public final class ResourceAccessor {
 	
 	public static String SELECTOR_PREFIX ="selector_";
+	
+	public static String IND_M = null;
+	public static String IND_KM = null;
+	public static String IND_MPERS = null;
+	public static String IND_KMPERHOUR = null;
+	public static String IND_SEC = null;
+	public static String IND_MINUTE = null;
+	public static String IND_HOUR = null;
+	
 	
 	public static final int SOUND_MAX_COUNT = 9;
 	public static final int SOUND_RES_IDS[] =
@@ -77,6 +83,14 @@ public final class ResourceAccessor {
 	private ResourceAccessor(Activity activity) 
 	{
 		this.activity = activity;
+		IND_M = activity.getString(R.string.meter);
+		IND_KM = activity.getString(R.string.killometer);
+		IND_MPERS = activity.getString(R.string.meterpersecond);
+		IND_KMPERHOUR = activity.getString(R.string.killoperhour);
+		IND_SEC = getString(R.string.second);
+		IND_MINUTE = getString(R.string.minute);
+		IND_HOUR = getString(R.string.hour);
+		
 	}
 	public static void CreateInstance( Activity activity )
 	{

@@ -1,8 +1,9 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import com.example.guchagucharunrecorder.R;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -49,7 +50,35 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	private LocationManager mLocationManager;
 	private MainHandler handler;
 	private RunningLogStocker runLogStocker;
+	private boolean bGPSCanUse = false;
+	private Timer mTimer = null;
+	private UpdateTimeDisplayTask timerTask = null;
+	class UpdateTimeDisplayTask extends TimerTask{
+		 
+	     @Override
+	     public void run() {
+	         // mHandlerを通じてUI Threadへ処理をキューイング
+	    	 handler.post( new Runnable() {
+	             public void run() {	 
+	                 //現在のTimeを更新
+	         		if( runLogStocker != null && mode == eMode.MODE_MEASURING )
+	        		{
+	         			long lapTime = new Date().getTime() 
+	         					- runLogStocker.getCurrentRapData().getStartTime();
+	        			txtTime.setText( createTimeFormatText( lapTime ) );
+	        		}	            	 
+	             }
+	         });
+	     }
+	 }	
 	// private ResourceAccessor res;
+	private enum eMode {
+		MODE_NORMAL,
+		MODE_MEASURING,
+		MODE_SAVE_OR_CLEAR
+	};
+	//static eMode mode2; 
+	private eMode mode = eMode.MODE_NORMAL;
 	
 	// コントロール
 	// 中央のボタン
@@ -192,30 +221,35 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 
 	@Override
     protected void onResume() {
-        if (mLocationManager != null) {
-            mLocationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-//                LocationManager.NETWORK_PROVIDER,
-                0,
-                0,
-                this);
-        }
     	// 画面のサイズ等の情報を更新する
 		// 終わったらhandlerッセージが送られる
 		// 現在、そこで初めて画面位置の初期化を行っている
         dispInfo.init(this, componentContainer, handler,false);
-                
         super.onResume();
-    }	
+    }
+	
+	public void initGPS()
+	{
+		final long MIN_TIME = 100;
+		final long MIN_METER = 1;
+        if (mLocationManager != null) {
+            mLocationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+//                LocationManager.NETWORK_PROVIDER,
+                MIN_TIME,
+                MIN_METER,
+                this);
+        }
+	}
+	
 	@Override
 	protected void onPause()
 	{
         if (mLocationManager != null) {
             mLocationManager.removeUpdates(this);
         }
-        super.onPause();		
+        super.onPause();	
 	}
-	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
@@ -258,11 +292,95 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 
+	public String createDistanceFormatText(double distance)
+	{
+		String ret = null;
+		final double DISTANCE_KM = 1000;
+		// TODO: 設定によって、m/sとkm/hourを切り替え
+		
+		if( distance < DISTANCE_KM )
+		{
+			ret = String.format( "%.0f", distance ) + ResourceAccessor.IND_M;
+		}
+		else
+		{
+			ret = String.format( "%.3f", distance / DISTANCE_KM ) + ResourceAccessor.IND_KM;
+		}			
+		
+		return ret;
+	}
+	public String createTimeFormatText(long time)
+	{
+		String ret = null;
+		// Math.absは一応テスト用のつもりだが・・・
+		long second_all = Math.abs(time) / 1000;
+		long second = 0;
+		long min = 0;
+		long hour = 0;
+		String strHour = "00:";
+		String strMin = "00:";
+		String strSecond = "00";
+		
+		final long TIME_MIN = 60;
+		final long TIME_HOUR = 60 * 60;
+		
+		if( second_all < TIME_MIN )
+		{
+			second = second_all;
+			strSecond = String.format( "%02d", second ); //+ ResourceAccessor.IND_SEC;			
+	
+		}
+		else if( second_all < TIME_HOUR )
+		{
+			min = second_all / TIME_MIN;
+			second = second_all % TIME_MIN;
+			strMin = //String.valueOf( min ) + ResourceAccessor.IND_MINUTE;
+					String.format( "%02d:", min );
+			strSecond = String.format( "%02d", second );// + ResourceAccessor.IND_SEC;			
+			
+		}
+		else
+		{
+			hour = second_all / TIME_HOUR;
+			min = (second_all - hour * TIME_HOUR) / TIME_MIN;
+			second = second_all % TIME_HOUR % TIME_MIN;
+			strHour = String.format( "%02d:", hour );// + ResourceAccessor.IND_HOUR;
+			strMin = String.format( "%02d:", min );// + ResourceAccessor.IND_MINUTE; 
+			strSecond = String.format( "%02d", second ); // + ResourceAccessor.IND_SEC;	
+		}
+		ret = strHour + strMin + strSecond;
+		return ret;
+	}
+	public String createSpeedFormatText(double speed)
+	{
+		String ret = null;
+		
+		// TODO: 設定によって、m/sとkm/hourを切り替え
+		ret = String.format("%.2f", speed) + ResourceAccessor.IND_MPERS;
+		return ret;
+	}
+	
 	@Override
 	public void onLocationChanged(Location location) {
-		if( runLogStocker != null )
+		bGPSCanUse = true;
+		btnCenter.setEnabled(true);
+		if( runLogStocker != null && mode == eMode.MODE_MEASURING )
 		{
+//			if( bGPSCanUse == false )
+//			{
+//				// TODO:インジケータでもつける？
+//				txtDistance.setText( getString(R.string.cant_get) );
+//				txtTime.setText( getString(R.string.cant_get) );
+//				txtSpeed.setText( getString(R.string.cant_get) );				
+//			}
+//			else
+//			{
 			runLogStocker.putLocationLog(location);
+			txtDistance.setText( createDistanceFormatText( runLogStocker.getCurrentRapData().getDistance() ) );
+			// txtTime.setText( createTimeFormatText( runLogStocker.getCurrentRapData().getTotalTime() ) );
+			// 速度はラップの値じゃなく、その時の値でOK
+			txtSpeed.setText( createSpeedFormatText( location.getSpeed() ) );//runLogStocker.getCurrentRapData().getSpeed() ) );
+//			}
 		}
 		Log.v("----------", "----------");
         Log.v("Latitude", String.valueOf(location.getLatitude()));
@@ -271,17 +389,23 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
         Log.v("Altitude", String.valueOf(location.getAltitude()));
         Log.v("Time", String.valueOf(location.getTime()));
         Log.v("Speed", String.valueOf(location.getSpeed()));
-        Log.v("Bearing", String.valueOf(location.getBearing()));		
+        Log.v("Bearing", String.valueOf(location.getBearing()));
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		imgGPS.setBackgroundResource(R.drawable.gps_bad);		
+		bGPSCanUse = false;
+		Log.v("gps","onProviderDisabled");
+		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
+		//btnCenter.setEnabled(false);
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		imgGPS.setBackgroundResource(R.drawable.gps_good);
+		//bGPSCanUse = true;
+		Log.v("gps","onProviderEnabled");
+		//imgGPS.setBackgroundResource(R.drawable.gps_good);
+		//btnCenter.setEnabled(true);
 	}
 
 	// コントロールの初期化、配置
@@ -401,7 +525,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		txtTime.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		txtTime.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));
 		txtTime.setSingleLine();
-		txtTime.setText("99:99:99.999");
+		//txtTime.setText("99:99:99.999");
 		txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
 		componentContainer.addView(txtTime);
 		
@@ -420,7 +544,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		txtTime.setLayoutParams(rlTxtTime);
 		txtDistance.setLayoutParams(rlTxtDistance);
 		txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-		txtDistance.setText("42.5353 km");
+		//txtDistance.setText("42.5353 km");
 		txtDistance.setSingleLine();
 		txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
@@ -441,7 +565,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
 		txtSpeed.setSingleLine();
-		txtSpeed.setText("12.5 km/h");
+		//txtSpeed.setText("12.5 km/h");
 		txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		componentContainer.addView(txtSpeed);
 		
@@ -464,14 +588,23 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	     switch (status) {
 	     case LocationProvider.AVAILABLE:
 	    	 Log.v("Status", "AVAILABLE");
+	    	 bGPSCanUse = true;
+	    	 btnCenter.setEnabled(true);
 	    	 imgGPS.setBackgroundResource(R.drawable.gps_good);
 	         break;
 	     case LocationProvider.OUT_OF_SERVICE:
 	    	 Log.v("Status", "OUT_OF_SERVICE");
+	    	 bGPSCanUse = false;
+	    	 if( mode == eMode.MODE_NORMAL )
+	    		 btnCenter.setEnabled(false);
 	    	 imgGPS.setBackgroundResource(R.drawable.gps_bad);
 	    	 break;
 	     case LocationProvider.TEMPORARILY_UNAVAILABLE:
 	    	 Log.v("Status", "TEMPORARILY_UNAVAILABLE");
+	    	 bGPSCanUse = false;
+	    	 if( mode == eMode.MODE_NORMAL )
+	    		 btnCenter.setEnabled(false);	    	 
+	    	 //btnCenter.setEnabled(false);
 	    	 imgGPS.setBackgroundResource(R.drawable.gps_soso);
 	    	 break;
 	     }		
@@ -679,8 +812,58 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		}
 		else if( v == btnCenter )
 		{
-			Date now = new Date();
-			runLogStocker = new RunningLogStocker(now.getTime());
+			// TODO:中央ボタンは特殊な形状なので、クリッピング領域をここで設定し、
+			// その領域の場合、OnTouchListenerを作ってはじくこと
+			if( mode == eMode.MODE_NORMAL )
+			{
+				// 開始
+				// ボタンを変更
+				btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
+				Date now = new Date();
+				long time = now.getTime();
+			    if(mTimer == null){
+			    	 
+			        //タイマーの初期化処理
+			        timerTask = new UpdateTimeDisplayTask();
+			        mTimer = new Timer(true);
+			        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
+			    }				
+				runLogStocker = new RunningLogStocker(time);
+				
+				txtDistance.setText( createDistanceFormatText( 0 ) );
+				txtTime.setText( createTimeFormatText( 0 ) );
+				txtSpeed.setText( createSpeedFormatText( 0 ) );
+				
+				txtDistance.setVisibility(View.VISIBLE);
+				txtSpeed.setVisibility(View.VISIBLE);
+				txtTime.setVisibility(View.VISIBLE);
+				
+				
+				mode = eMode.MODE_MEASURING;
+			}
+			else if( mode == eMode.MODE_MEASURING )
+			{
+				// 終了
+	            if(mTimer != null){
+	                mTimer.cancel();
+	                mTimer = null;
+	            }				
+				btnCenter.setBackgroundResource(R.drawable.selector_save_button_image);
+				runLogStocker.stop(new Date().getTime());
+//				txtDistance.setVisibility(View.VISIBLE);
+//				txtSpeed.setVisibility(View.VISIBLE);
+//				txtTime.setVisibility(View.VISIBLE);
+				mode = eMode.MODE_SAVE_OR_CLEAR;				
+			}
+			else if( mode == eMode.MODE_SAVE_OR_CLEAR )
+			{
+				if( runLogStocker != null )
+				{
+					runLogStocker.save();
+				}
+				btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+				mode = eMode.MODE_NORMAL;
+			}
 		}
 	}
 }

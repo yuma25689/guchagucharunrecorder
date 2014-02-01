@@ -8,6 +8,14 @@
     <string translatable="false" name="durationformatshort"><xliff:g id="format">%2$d:%5$02d</xliff:g></string>
     <!-- Do not translate. Duration format for duration >= 1 hour -->
     <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d:%3$02d:%5$02d</xliff:g></string>
-    <string name="GPS_ON">GPS is set enabled.</string>
+    <string name="GPS_ON">GPS setting is enabled.</string>
+    <string name="meter">m</string>
+    <string name="killometer">km</string>
+    <string name="second">s</string>
+    <string name="minute">m</string>
+    <string name="hour">h</string>
+    <string name="meterpersecond">m/s</string>
+    <string name="killoperhour">km/h</string>
+    <string name="cant_get">--</string>
     
 </resources>
