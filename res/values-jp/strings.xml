@@ -9,6 +9,7 @@
     <!-- Do not translate. Duration format for duration >= 1 hour -->
     <string translatable="false" name="durationformatlong"><xliff:g id="format">%1$d:%3$02d:%5$02d</xliff:g></string>
     <string name="GPS_ON">GPSは有効に設定されています。</string>
+    <string name="GPS_OFF">GPSは無効に設定されています。</string>
     <string name="meter">メートル</string>
     <string name="killometer">キロ</string>
     <string name="second">秒</string>
@@ -18,4 +19,7 @@
     <string name="killoperhour">キロ/時間</string>
     <string name="cant_get">取得不可</string>
     
+     <string name="DLG_TITLE_EXPORT_PROGRESS">保存中</string>
+     <string name="MSG_EXPORT_PROGRESS">GPXファイル保存中。。。</string>
+     
 </resources>

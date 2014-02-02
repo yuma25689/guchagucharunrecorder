@@ -41,28 +41,38 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int main_runstartbutton_focus=0x7f02000e;
         public static final int main_runstartbutton_normal=0x7f02000f;
         public static final int main_runstartbutton_press=0x7f020010;
-        public static final int main_stopbutton_disable=0x7f020011;
-        public static final int main_stopbutton_focus=0x7f020012;
-        public static final int main_stopbutton_normal=0x7f020013;
-        public static final int main_stopbutton_press=0x7f020014;
-        public static final int selector_gps_button_image=0x7f020015;
-        public static final int selector_history_button_image=0x7f020016;
-        public static final int selector_runstart_button_image=0x7f020017;
-        public static final int selector_runstop_button_image=0x7f020018;
-        public static final int selector_save_button_image=0x7f020019;
+        public static final int main_savebutton_disable=0x7f020011;
+        public static final int main_savebutton_focus=0x7f020012;
+        public static final int main_savebutton_normal=0x7f020013;
+        public static final int main_savebutton_press=0x7f020014;
+        public static final int main_stopbutton_disable=0x7f020015;
+        public static final int main_stopbutton_focus=0x7f020016;
+        public static final int main_stopbutton_normal=0x7f020017;
+        public static final int main_stopbutton_press=0x7f020018;
+        public static final int selector_gps_button_image=0x7f020019;
+        public static final int selector_history_button_image=0x7f02001a;
+        public static final int selector_runstart_button_image=0x7f02001b;
+        public static final int selector_runstop_button_image=0x7f02001c;
+        public static final int selector_save_button_image=0x7f02001d;
     }
     public static final class id {
         public static final int dummy_button=0x7f070002;
         public static final int fullscreen_content_controls=0x7f070001;
         public static final int main_content=0x7f070000;
+        public static final int viewpager1=0x7f070003;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
+        public static final int activity_viewpager=0x7f030001;
+        public static final int result_page=0x7f030002;
     }
     public static final class string {
+        public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f05000f;
+        public static final int GPS_OFF=0x7f050006;
         public static final int GPS_ON=0x7f050005;
+        public static final int MSG_EXPORT_PROGRESS=0x7f050010;
         public static final int app_name=0x7f050000;
-        public static final int cant_get=0x7f05000d;
+        public static final int cant_get=0x7f05000e;
         public static final int dummy_button=0x7f050001;
         public static final int dummy_content=0x7f050002;
         /**  Do not translate. Duration format for duration >= 1 hour 
@@ -73,13 +83,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f050003;
-        public static final int hour=0x7f05000a;
-        public static final int killometer=0x7f050007;
-        public static final int killoperhour=0x7f05000c;
-        public static final int meter=0x7f050006;
-        public static final int meterpersecond=0x7f05000b;
-        public static final int minute=0x7f050009;
-        public static final int second=0x7f050008;
+        public static final int hour=0x7f05000b;
+        public static final int killometer=0x7f050008;
+        public static final int killoperhour=0x7f05000d;
+        public static final int meter=0x7f050007;
+        public static final int meterpersecond=0x7f05000c;
+        public static final int minute=0x7f05000a;
+        public static final int second=0x7f050009;
     }
     public static final class style {
         /** 

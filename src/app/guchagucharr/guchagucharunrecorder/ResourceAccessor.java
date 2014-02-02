@@ -19,12 +19,14 @@ import android.graphics.BitmapFactory;
 //import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
+import app.guchagucharr.service.RunningLogStocker;
 
 /**
  * リソースにアクセスするためのクラス
@@ -45,7 +47,10 @@ public final class ResourceAccessor {
 	public static String IND_SEC = null;
 	public static String IND_MINUTE = null;
 	public static String IND_HOUR = null;
-	
+		
+	public static final long TIME_MINUTE = 60;
+	public static final long TIME_HOUR = 60 * 60;
+	public static final String DISPINFO_KEY = "DISP_INFO";
 	
 	public static final int SOUND_MAX_COUNT = 9;
 	public static final int SOUND_RES_IDS[] =
@@ -65,7 +70,31 @@ public final class ResourceAccessor {
 	private SoundPool soundPool;
 	
 	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();
+	private RunningLogStocker runLogStocker = null;
 	
+	public void createLogStocker(long time)
+	{
+		runLogStocker = new RunningLogStocker(time);
+	}
+	public RunningLogStocker getLogStocker()
+	{
+		return runLogStocker;
+	}
+	public void putLocationLog( Location data )
+	{
+		runLogStocker.putLocationLog(data);
+	}
+	public boolean isEmptyLogStocker()
+	{
+		if( runLogStocker == null )
+			return false;
+		
+		return true;
+	}
+	public void clearRunLogStocker()
+	{
+		runLogStocker = null;
+	}
 	
 	// リソースを取得するためのアクティビティを設定
 	// TODO: しかし、ここに保持しておくと、
@@ -308,4 +337,5 @@ public final class ResourceAccessor {
 //		String imageType = options.outMimeType;
 		return options;
 	}
+	
 }

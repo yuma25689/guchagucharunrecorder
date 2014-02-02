@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 //import android.graphics.drawable.BitmapDrawable;
@@ -17,6 +18,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,8 +36,10 @@ import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
-import app.guchagucharr.interfaces.IViewController;
-import app.guchagucharr.service.RunningLogStocker;
+import app.guchagucharr.interfaces.IMainViewController;
+//import app.guchagucharr.service.RunningLogStocker;
+import app.guchagucharr.service.LapData;
+import app.guchagucharr.service.RunHistoryTableContract;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -43,16 +47,15 @@ import app.guchagucharr.service.RunningLogStocker;
  * 
  * @see SystemUiHider
  */
-public class MainActivity extends Activity implements LocationListener,IViewController, OnClickListener {
+public class MainActivity extends Activity implements LocationListener,IMainViewController, OnClickListener {
 
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
 	private LocationManager mLocationManager;
 	private MainHandler handler;
-	private RunningLogStocker runLogStocker;
-	private boolean bGPSCanUse = false;
-	private Timer mTimer = null;
-	private UpdateTimeDisplayTask timerTask = null;
+	//private boolean bGPSCanUse = false;
+	private static Timer mTimer = null;
+	private static UpdateTimeDisplayTask timerTask = null;
 	class UpdateTimeDisplayTask extends TimerTask{
 		 
 	     @Override
@@ -61,11 +64,12 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	    	 handler.post( new Runnable() {
 	             public void run() {	 
 	                 //現在のTimeを更新
-	         		if( runLogStocker != null && mode == eMode.MODE_MEASURING )
+	         		if( ResourceAccessor.getInstance().getLogStocker() != null 
+	         				&& mode == eMode.MODE_MEASURING )
 	        		{
 	         			long lapTime = new Date().getTime() 
-	         					- runLogStocker.getCurrentRapData().getStartTime();
-	        			txtTime.setText( createTimeFormatText( lapTime ) );
+	         					- ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getStartTime();
+	        			txtTime.setText( LapData.createTimeFormatText( lapTime ) );
 	        		}	            	 
 	             }
 	         });
@@ -74,11 +78,11 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	// private ResourceAccessor res;
 	private enum eMode {
 		MODE_NORMAL,
-		MODE_MEASURING,
-		MODE_SAVE_OR_CLEAR
+		MODE_MEASURING//,
+		// MODE_SAVE_OR_CLEAR
 	};
 	//static eMode mode2; 
-	private eMode mode = eMode.MODE_NORMAL;
+	private static eMode mode = eMode.MODE_NORMAL;
 	
 	// コントロール
 	// 中央のボタン
@@ -91,11 +95,11 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	ImageButton btnHistory = null;
 	// 初期は隠し
 	// 時間表時ラベル
-	TextView txtTime = null;
+	static TextView txtTime = null;
 	// 距離
-	TextView txtDistance = null;
+	static TextView txtDistance = null;
 	// 速度
-	TextView txtSpeed = null;
+	static TextView txtSpeed = null;
 	// キャンセル？
 	ImageButton btnCancel = null;
 	
@@ -204,7 +208,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		
 		// GPSの設定
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		
+		initGPS();		
         // handlerクラス作成
         handler = new MainHandler( this, this );
         // リソースアクセッサの作成
@@ -233,6 +237,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		final long MIN_TIME = 100;
 		final long MIN_METER = 1;
         if (mLocationManager != null) {
+        	clearGPS();
             mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
 //                LocationManager.NETWORK_PROVIDER,
@@ -245,10 +250,17 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	@Override
 	protected void onPause()
 	{
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-        }
+//        if (mLocationManager != null) {
+//            mLocationManager.removeUpdates(this);
+//        }
+        // clearGPS();
         super.onPause();	
+	}
+	@Override
+	protected void onStop()
+	{
+        clearGPS();
+        super.onStop();
 	}
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -292,79 +304,12 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 
-	public String createDistanceFormatText(double distance)
-	{
-		String ret = null;
-		final double DISTANCE_KM = 1000;
-		// TODO: 設定によって、m/sとkm/hourを切り替え
-		
-		if( distance < DISTANCE_KM )
-		{
-			ret = String.format( "%.0f", distance ) + ResourceAccessor.IND_M;
-		}
-		else
-		{
-			ret = String.format( "%.3f", distance / DISTANCE_KM ) + ResourceAccessor.IND_KM;
-		}			
-		
-		return ret;
-	}
-	public String createTimeFormatText(long time)
-	{
-		String ret = null;
-		// Math.absは一応テスト用のつもりだが・・・
-		long second_all = Math.abs(time) / 1000;
-		long second = 0;
-		long min = 0;
-		long hour = 0;
-		String strHour = "00:";
-		String strMin = "00:";
-		String strSecond = "00";
-		
-		final long TIME_MIN = 60;
-		final long TIME_HOUR = 60 * 60;
-		
-		if( second_all < TIME_MIN )
-		{
-			second = second_all;
-			strSecond = String.format( "%02d", second ); //+ ResourceAccessor.IND_SEC;			
-	
-		}
-		else if( second_all < TIME_HOUR )
-		{
-			min = second_all / TIME_MIN;
-			second = second_all % TIME_MIN;
-			strMin = //String.valueOf( min ) + ResourceAccessor.IND_MINUTE;
-					String.format( "%02d:", min );
-			strSecond = String.format( "%02d", second );// + ResourceAccessor.IND_SEC;			
-			
-		}
-		else
-		{
-			hour = second_all / TIME_HOUR;
-			min = (second_all - hour * TIME_HOUR) / TIME_MIN;
-			second = second_all % TIME_HOUR % TIME_MIN;
-			strHour = String.format( "%02d:", hour );// + ResourceAccessor.IND_HOUR;
-			strMin = String.format( "%02d:", min );// + ResourceAccessor.IND_MINUTE; 
-			strSecond = String.format( "%02d", second ); // + ResourceAccessor.IND_SEC;	
-		}
-		ret = strHour + strMin + strSecond;
-		return ret;
-	}
-	public String createSpeedFormatText(double speed)
-	{
-		String ret = null;
-		
-		// TODO: 設定によって、m/sとkm/hourを切り替え
-		ret = String.format("%.2f", speed) + ResourceAccessor.IND_MPERS;
-		return ret;
-	}
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		bGPSCanUse = true;
+		//bGPSCanUse = true;
 		btnCenter.setEnabled(true);
-		if( runLogStocker != null && mode == eMode.MODE_MEASURING )
+		if( ResourceAccessor.getInstance().isEmptyLogStocker() && mode == eMode.MODE_MEASURING )
 		{
 //			if( bGPSCanUse == false )
 //			{
@@ -375,11 +320,12 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 //			}
 //			else
 //			{
-			runLogStocker.putLocationLog(location);
-			txtDistance.setText( createDistanceFormatText( runLogStocker.getCurrentRapData().getDistance() ) );
-			// txtTime.setText( createTimeFormatText( runLogStocker.getCurrentRapData().getTotalTime() ) );
+			ResourceAccessor.getInstance().putLocationLog(location);
+			txtDistance.setText( LapData.createDistanceFormatText( 
+					ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getDistance() ) );
+			// txtTime.setText( createTimeFormatText( runLogStocker.getCurrentLapData().getTotalTime() ) );
 			// 速度はラップの値じゃなく、その時の値でOK
-			txtSpeed.setText( createSpeedFormatText( location.getSpeed() ) );//runLogStocker.getCurrentRapData().getSpeed() ) );
+			txtSpeed.setText( LapData.createSpeedFormatText( location.getSpeed() ) );//runLogStocker.getCurrentLapData().getSpeed() ) );
 //			}
 		}
 		Log.v("----------", "----------");
@@ -394,7 +340,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		bGPSCanUse = false;
+		//bGPSCanUse = false;
 		Log.v("gps","onProviderDisabled");
 		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
 		//btnCenter.setEnabled(false);
@@ -439,16 +385,22 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	
 	public int initControls()
 	{
+		componentContainer.removeAllViews();
 		int ret = 0;
 		//ViewGroup contentView = ((ViewGroup)findViewById(android.R.id.content));
 		BitmapFactory.Options bmpoptions = null;
 		// 中央のボタン
+		int iCenterButtonImageID = R.drawable.selector_runstop_button_image;
+		if( mode == eMode.MODE_NORMAL )
+		{
+			iCenterButtonImageID = R.drawable.selector_runstart_button_image;
+		}
 		btnCenter = new ImageButton(this);
 		btnCenter.setId(CENTER_BUTTON_ID);
-		btnCenter.setBackgroundResource( R.drawable.selector_runstart_button_image );
+		btnCenter.setBackgroundResource( iCenterButtonImageID );//R.drawable.selector_runstart_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_runstartbutton_normal);
 		RelativeLayout.LayoutParams rlBtnCenter 
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
 		rlBtnCenter.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		rlBtnCenter.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -463,7 +415,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		btnGPS.setBackgroundResource( R.drawable.selector_gps_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_gpsbutton_normal);
 		RelativeLayout.LayoutParams rlBtnGps 
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
 		//rlBtnGps.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -485,7 +437,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		imgGPS.setBackgroundResource( R.drawable.gps_bad );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.gps_bad);
 		RelativeLayout.LayoutParams rlIndGps 
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
 		//rlIndGps.addRule(RelativeLayout.BELOW, GPS_BUTTON_ID);
 		//rlIndGps.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -501,7 +453,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
 		RelativeLayout.LayoutParams rlBtnHistory
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
 		rlBtnHistory.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		rlBtnHistory.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
@@ -516,7 +468,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		// 時間表時ラベル
 		txtTime = new TextView(this);
 		RelativeLayout.LayoutParams rlTxtTime
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
 		rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
 		rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
@@ -533,7 +485,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		txtDistance = new TextView(this);
 		txtDistance.setId(DISTANCE_TEXT_ID);
 		RelativeLayout.LayoutParams rlTxtDistance
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
 //		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
 //		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
@@ -553,7 +505,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		// 速度
 		txtSpeed = new TextView(this);
 		RelativeLayout.LayoutParams rlTxtSpeed
-		= createLayoutParamForNoPosOnBk( 
+		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
 //		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
 //		rlTxtSpeed.leftMargin = LEFT_CENTER_CTRL_MARGIN;
@@ -572,13 +524,36 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 		// キャンセル？
 		//btnCancel = new ImageButton(this);
 		
-		// TODO: ちゃんと制御する
-		txtTime.setVisibility(View.GONE);
-		txtDistance.setVisibility(View.GONE);
-		txtSpeed.setVisibility(View.GONE);
-
-		btnCenter.setEnabled(false);
-		btnHistory.setEnabled(false);
+		if( mode == eMode.MODE_NORMAL )
+		{
+			// TODO: ちゃんと制御する
+			txtTime.setVisibility(View.GONE);
+			txtDistance.setVisibility(View.GONE);
+			txtSpeed.setVisibility(View.GONE);
+			btnCenter.setEnabled(false);
+		}
+		else if( mode == eMode.MODE_MEASURING )
+		{
+			txtDistance.setVisibility(View.VISIBLE);
+			txtSpeed.setVisibility(View.VISIBLE);
+			txtTime.setVisibility(View.VISIBLE);			
+		}
+		
+		
+		Cursor c = getContentResolver().query(
+				Uri.parse("content://" 
+				+ RunHistoryTableContract.AUTHORITY + "/" 
+				+ RunHistoryTableContract.HISTORY_TABLE_NAME ), null, null, null, null);
+		
+		if( c != null && 0 < c.getCount() )
+		{
+			btnHistory.setEnabled(true);
+		}
+		else
+		{
+			btnHistory.setEnabled(false);
+		}
+		c.close();
 		
 		return ret;
 	}
@@ -588,20 +563,20 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	     switch (status) {
 	     case LocationProvider.AVAILABLE:
 	    	 Log.v("Status", "AVAILABLE");
-	    	 bGPSCanUse = true;
+	    	 //bGPSCanUse = true;
 	    	 btnCenter.setEnabled(true);
 	    	 imgGPS.setBackgroundResource(R.drawable.gps_good);
 	         break;
 	     case LocationProvider.OUT_OF_SERVICE:
 	    	 Log.v("Status", "OUT_OF_SERVICE");
-	    	 bGPSCanUse = false;
+	    	 //bGPSCanUse = false;
 	    	 if( mode == eMode.MODE_NORMAL )
 	    		 btnCenter.setEnabled(false);
 	    	 imgGPS.setBackgroundResource(R.drawable.gps_bad);
 	    	 break;
 	     case LocationProvider.TEMPORARILY_UNAVAILABLE:
 	    	 Log.v("Status", "TEMPORARILY_UNAVAILABLE");
-	    	 bGPSCanUse = false;
+	    	 //bGPSCanUse = false;
 	    	 if( mode == eMode.MODE_NORMAL )
 	    		 btnCenter.setEnabled(false);	    	 
 	    	 //btnCenter.setEnabled(false);
@@ -610,190 +585,6 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	     }		
 	}
 	
-///////////////////////////// ユーティリティ関数
-    /**
-     * ベース画像上での絶対座標を指定した位置を表すLayoutParamを作成する
-     * 幅、高さはFILL_PARENT
-     * @param left
-     * @param top
-     * @return LayoutParam
-     */
-	public static RelativeLayout.LayoutParams 
-	createLayoutParamForAbsolutePosOnBk(
-			int left, int top )
-	{
-		// 指定された左位置に対して、ディスプレイサイズを考慮した調整を行う
-		int xCorrect = dispInfo.getCorrectionXConsiderDensity(left);
-		int yCorrect = dispInfo.getCorrectionYConsiderDensity(top);
-		
-		// 幅と高さの指定がないので、親を埋めるように設定する
-		RelativeLayout.LayoutParams lp = 
-				new RelativeLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		// ここで、縦横の変換をかます
-		// ソースコードに書いてある座標、大きさは縦用のものがだが、横向きの場合、横用に変換して座標を返す		
-		if( true == dispInfo.isPortrait() )
-		{
-	        lp.topMargin = yCorrect;
-	        lp.leftMargin = xCorrect;
-		}
-		else
-		{
-			lp.leftMargin = yCorrect;
-			lp.topMargin = xCorrect;
-		}
-        // このアプリケーションでは、bottomとrightのmarginはゼロだが・・・。
-        lp.bottomMargin = 0;
-        lp.rightMargin = 0;
-        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        
-        return lp;
-	}
-    
-	
-    /**
-     * ベース画像上での絶対座標を指定した位置を表すLayoutParamを作成する
-     * @param left
-     * @param top
-     * @param width
-     * @param height
-     * @return LayoutParam
-     */
-	public static RelativeLayout.LayoutParams 
-	createLayoutParamForAbsolutePosOnBk(
-			int left, int top, int width, int height )
-	{
-		return createLayoutParamForAbsolutePosOnBk(left, top, width, height, true );
-	}
-	
-	public static RelativeLayout.LayoutParams 
-	createLayoutParamForAbsolutePosOnBk(
-			int left, int top, int width, int height, boolean bConvertPortraitAndHorz )
-	{
-		int widthCorrect = 0;
-		if( width == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| width == RelativeLayout.LayoutParams.WRAP_CONTENT )
-		{
-			widthCorrect = width;
-		}
-		else
-		{
-			widthCorrect = dispInfo.getCorrectionXConsiderDensity(width);
-		}
-		int heightCorrect = 0;
-		if( height == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| height == RelativeLayout.LayoutParams.WRAP_CONTENT )
-		{
-			heightCorrect = height;
-		}
-		else
-		{
-			heightCorrect = dispInfo.getCorrectionYConsiderDensity(height);
-		}
-		int xCorrect = 0;
-			xCorrect = dispInfo.getCorrectionXConsiderDensity(left);
-//		}
-//		else
-//		{
-//			xCorrect = dispInfo.getCorrectionYConsiderDensity(top);			
-//		}
-		int yCorrect = 0;
-		int topRule = RelativeLayout.ALIGN_PARENT_TOP;
-//		if(dispInfo.isPortrait())
-//		{		
-			yCorrect = dispInfo.getCorrectionYConsiderDensity(top);
-//		}
-//		else
-//		{
-//			yCorrect = dispInfo.getCorrectionXConsiderDensity(left);
-//		}
-
-		if( yCorrect < 0 )
-		{
-			yCorrect = -1 * dispInfo.getCorrectionYConsiderDensity(top);
-			topRule = RelativeLayout.ALIGN_PARENT_BOTTOM;
-		}
-//		else
-//		{
-//			yCorrect = dispInfo.getCorrectionYConsiderDensity(top);
-//		}
-		
-		RelativeLayout.LayoutParams lp = null;
-
-		// ここで、縦横の変換をかます
-		// ソースコードに書いてある座標、大きさは縦用のものがだが、横向きの場合、横用に変換して座標を返す		
-		if( true == dispInfo.isPortrait() || bConvertPortraitAndHorz == false )
-		{
-			lp = new RelativeLayout.LayoutParams(
-					widthCorrect, heightCorrect);
-	        lp.topMargin = yCorrect;
-	        lp.leftMargin = xCorrect;
-	        // このアプリケーションでは、bottomとrightのmarginはゼロだが・・・。
-	        lp.bottomMargin = 0;
-	        lp.rightMargin = 0;
-		}
-		else
-		{
-			lp = new RelativeLayout.LayoutParams(
-					heightCorrect, widthCorrect);
-	        lp.topMargin = xCorrect;
-	        lp.leftMargin = yCorrect;
-	        // このアプリケーションでは、bottomとrightのmarginはゼロだが・・・。
-	        lp.bottomMargin = 0;
-	        lp.rightMargin = 0;
-		}
-		
-        lp.addRule(topRule);//RelativeLayout.ALIGN_PARENT_TOP);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        
-        return lp;
-	}
-	public static RelativeLayout.LayoutParams createLayoutParamForNoPosOnBk(
-			int width, int height, boolean bConvertPortraitAndHorz )
-	{
-		int widthCorrect = 0;
-		if( width == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| width == RelativeLayout.LayoutParams.WRAP_CONTENT )
-		{
-			widthCorrect = width;
-		}
-		else
-		{
-			widthCorrect = dispInfo.getCorrectionXConsiderDensity(width);
-			Log.i("width convert", width +"=>" + widthCorrect); 
-		}
-		int heightCorrect = 0;
-		if( height == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| height == RelativeLayout.LayoutParams.WRAP_CONTENT )
-		{
-			heightCorrect = height;
-		}
-		else
-		{
-			heightCorrect = dispInfo.getCorrectionYConsiderDensity(height);
-			Log.i("height convert", height +"=>" + heightCorrect); 
-		}
-		
-		RelativeLayout.LayoutParams lp = null;
-
-		// ここで、縦横の変換をかます
-		// ソースコードに書いてある座標、大きさは縦用のものがだが、横向きの場合、横用に変換して座標を返す		
-		if( true == dispInfo.isPortrait() || bConvertPortraitAndHorz == false )
-		{
-			lp = new RelativeLayout.LayoutParams(
-					widthCorrect, heightCorrect);
-		}
-		else
-		{
-			lp = new RelativeLayout.LayoutParams(
-					heightCorrect, widthCorrect);
-		}
-		// TODO: 複数ルール
-        //lp.addRule(verb);//RelativeLayout.ALIGN_PARENT_TOP);
-        
-        return lp;
-	}
 
 	@Override
 	public void onClick(View v) {
@@ -808,6 +599,7 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 				startActivity(intent);
 			} else {
 				Toast.makeText(getApplicationContext(), R.string.GPS_ON, Toast.LENGTH_LONG).show();
+				initGPS();
 			}
 		}
 		else if( v == btnCenter )
@@ -828,11 +620,11 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 			        mTimer = new Timer(true);
 			        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
 			    }				
-				runLogStocker = new RunningLogStocker(time);
+				ResourceAccessor.getInstance().createLogStocker(time);
 				
-				txtDistance.setText( createDistanceFormatText( 0 ) );
-				txtTime.setText( createTimeFormatText( 0 ) );
-				txtSpeed.setText( createSpeedFormatText( 0 ) );
+				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+				txtTime.setText( LapData.createTimeFormatText( 0 ) );
+				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
 				
 				txtDistance.setVisibility(View.VISIBLE);
 				txtSpeed.setVisibility(View.VISIBLE);
@@ -847,23 +639,29 @@ public class MainActivity extends Activity implements LocationListener,IViewCont
 	            if(mTimer != null){
 	                mTimer.cancel();
 	                mTimer = null;
-	            }				
-				btnCenter.setBackgroundResource(R.drawable.selector_save_button_image);
-				runLogStocker.stop(new Date().getTime());
+	            }		
+				ResourceAccessor.getInstance().getLogStocker().stop(new Date().getTime());
+
+				// TODO: 保存アクティビティの起動
+				Intent intent = new Intent( this, ResultActivity.class );
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
+		        startActivity(intent);				
+				
+				btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 //				txtDistance.setVisibility(View.VISIBLE);
 //				txtSpeed.setVisibility(View.VISIBLE);
 //				txtTime.setVisibility(View.VISIBLE);
-				mode = eMode.MODE_SAVE_OR_CLEAR;				
-			}
-			else if( mode == eMode.MODE_SAVE_OR_CLEAR )
-			{
-				if( runLogStocker != null )
-				{
-					runLogStocker.save();
-				}
-				btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 				mode = eMode.MODE_NORMAL;
+				clearGPS();
 			}
 		}
 	}
+
+	@Override
+	public void clearGPS() {
+        if (mLocationManager != null) {
+            mLocationManager.removeUpdates(this);
+        }
+	}
+
 }
