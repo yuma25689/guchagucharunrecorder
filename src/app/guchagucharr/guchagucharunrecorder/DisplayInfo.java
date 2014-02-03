@@ -1,7 +1,5 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-import java.io.Serializable;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.util.Log;
@@ -11,7 +9,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
 /**
- * ‰æ–Êî•ñæ“¾—pƒNƒ‰ƒX‚Ìƒnƒ“ƒhƒ‹B
+ * ï¿½ï¿½Êï¿½ï¿½æ“¾ï¿½pï¿½Nï¿½ï¿½ï¿½Xï¿½Ìƒnï¿½ï¿½ï¿½hï¿½ï¿½ï¿½B
  * @author 25689
  *
  */
@@ -30,7 +28,7 @@ public final class DisplayInfo {
 	private DroidDisplayInfo _impl = new DroidDisplayInfo();
 	
 	/**
-	 * ‰Šú‰» ‚±‚ÌŠÖ”‚Í”÷–­‚ÉandroidŒÅ—L‚É‚È‚Á‚Ä‚µ‚Ü‚Á‚½‚ªAd•û‚È‚¢B
+	 * ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÌŠÖï¿½ï¿½Í”ï¿½ï¿½ï¿½ï¿½ï¿½androidï¿½Å—Lï¿½É‚È‚ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½dï¿½ï¿½È‚ï¿½ï¿½B
 	 * @param activity
 	 * @param viewForMeasureBarHeight
 	 */
@@ -43,7 +41,7 @@ public final class DisplayInfo {
 	}
 	
 	/**
-	 * ƒTƒCƒY‚Ì•â³’l‚ğæ“¾
+	 * ï¿½Tï¿½Cï¿½Yï¿½Ì•â³ï¿½lï¿½ï¿½ï¿½æ“¾
 	 * @return
 	 */
 	public int getCorrectionXConsiderDensity( int orgX )
@@ -66,10 +64,10 @@ public final class DisplayInfo {
 	{
 		return _impl.isPortrait();
 	}
-	///////////////////////////// ƒ†[ƒeƒBƒŠƒeƒBŠÖ”
+	///////////////////////////// ï¿½ï¿½ï¿½[ï¿½eï¿½Bï¿½ï¿½ï¿½eï¿½Bï¿½Öï¿½
 	/**
-	* ƒx[ƒX‰æ‘œã‚Å‚Ìâ‘ÎÀ•W‚ğw’è‚µ‚½ˆÊ’u‚ğ•\‚·LayoutParam‚ğì¬‚·‚é
-	* •A‚‚³‚ÍFILL_PARENT
+	* ï¿½xï¿½[ï¿½Xï¿½æ‘œï¿½ï¿½Å‚Ìï¿½Îï¿½ï¿½Wï¿½ï¿½ï¿½wï¿½è‚µï¿½ï¿½ï¿½Ê’uï¿½ï¿½\ï¿½ï¿½LayoutParamï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
+	* ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½FILL_PARENT
 	* @param left
 	* @param top
 	* @return LayoutParam
@@ -78,16 +76,16 @@ public final class DisplayInfo {
 	createLayoutParamForAbsolutePosOnBk(
 	int left, int top )
 	{
-		// w’è‚³‚ê‚½¶ˆÊ’u‚É‘Î‚µ‚ÄAƒfƒBƒXƒvƒŒƒCƒTƒCƒY‚ğl—¶‚µ‚½’²®‚ğs‚¤
+		// ï¿½wï¿½è‚³ï¿½ê‚½ï¿½ï¿½ï¿½Ê’uï¿½É‘Î‚ï¿½ï¿½ÄAï¿½fï¿½Bï¿½Xï¿½vï¿½ï¿½ï¿½Cï¿½Tï¿½Cï¿½Yï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
 		int xCorrect = getCorrectionXConsiderDensity(left);
 		int yCorrect = getCorrectionYConsiderDensity(top);
 		
-		// •‚Æ‚‚³‚Ìw’è‚ª‚È‚¢‚Ì‚ÅAe‚ğ–„‚ß‚é‚æ‚¤‚Éİ’è‚·‚é
+		// ï¿½ï¿½ï¿½Æï¿½ï¿½ï¿½ï¿½Ìwï¿½è‚ªï¿½È‚ï¿½ï¿½Ì‚ÅAï¿½eï¿½ğ–„‚ß‚ï¿½æ‚¤ï¿½Éİ’è‚·ï¿½ï¿½
 		RelativeLayout.LayoutParams lp = 
 		new RelativeLayout.LayoutParams(
 		LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		// ‚±‚±‚ÅAc‰¡‚Ì•ÏŠ·‚ğ‚©‚Ü‚·
-		// ƒ\[ƒXƒR[ƒh‚É‘‚¢‚Ä‚ ‚éÀ•WA‘å‚«‚³‚Íc—p‚Ì‚à‚Ì‚ª‚¾‚ªA‰¡Œü‚«‚Ìê‡A‰¡—p‚É•ÏŠ·‚µ‚ÄÀ•W‚ğ•Ô‚·		
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ÅAï¿½cï¿½ï¿½ï¿½Ì•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
+		// ï¿½\ï¿½[ï¿½Xï¿½Rï¿½[ï¿½hï¿½Éï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½Aï¿½å‚«ï¿½ï¿½ï¿½Ícï¿½pï¿½Ì‚ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Aï¿½ï¿½ï¿½pï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½Äï¿½ï¿½Wï¿½ï¿½Ô‚ï¿½		
 		if( true == isPortrait() )
 		{
 			lp.topMargin = yCorrect;
@@ -98,7 +96,7 @@ public final class DisplayInfo {
 			lp.leftMargin = yCorrect;
 			lp.topMargin = xCorrect;
 		}
-		// ‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å‚ÍAbottom‚Æright‚Ìmargin‚Íƒ[ƒ‚¾‚ªEEEB
+		// ï¿½ï¿½ï¿½ÌƒAï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Å‚ÍAbottomï¿½ï¿½rightï¿½ï¿½marginï¿½Íƒ[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Eï¿½Eï¿½B
 		lp.bottomMargin = 0;
 		lp.rightMargin = 0;
 		lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -109,7 +107,7 @@ public final class DisplayInfo {
 	
 	
 	/**
-	* ƒx[ƒX‰æ‘œã‚Å‚Ìâ‘ÎÀ•W‚ğw’è‚µ‚½ˆÊ’u‚ğ•\‚·LayoutParam‚ğì¬‚·‚é
+	* ï¿½xï¿½[ï¿½Xï¿½æ‘œï¿½ï¿½Å‚Ìï¿½Îï¿½ï¿½Wï¿½ï¿½ï¿½wï¿½è‚µï¿½ï¿½ï¿½Ê’uï¿½ï¿½\ï¿½ï¿½LayoutParamï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
 	* @param left
 	* @param top
 	* @param width
@@ -161,15 +159,15 @@ public final class DisplayInfo {
 		
 		RelativeLayout.LayoutParams lp = null;
 		
-		// ‚±‚±‚ÅAc‰¡‚Ì•ÏŠ·‚ğ‚©‚Ü‚·
-		// ƒ\[ƒXƒR[ƒh‚É‘‚¢‚Ä‚ ‚éÀ•WA‘å‚«‚³‚Íc—p‚Ì‚à‚Ì‚ª‚¾‚ªA‰¡Œü‚«‚Ìê‡A‰¡—p‚É•ÏŠ·‚µ‚ÄÀ•W‚ğ•Ô‚·		
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ÅAï¿½cï¿½ï¿½ï¿½Ì•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
+		// ï¿½\ï¿½[ï¿½Xï¿½Rï¿½[ï¿½hï¿½Éï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½Aï¿½å‚«ï¿½ï¿½ï¿½Ícï¿½pï¿½Ì‚ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Aï¿½ï¿½ï¿½pï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½Äï¿½ï¿½Wï¿½ï¿½Ô‚ï¿½		
 		if( true == isPortrait() || bConvertPortraitAndHorz == false )
 		{
 			lp = new RelativeLayout.LayoutParams(
 			widthCorrect, heightCorrect);
 			lp.topMargin = yCorrect;
 			lp.leftMargin = xCorrect;
-			// ‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å‚ÍAbottom‚Æright‚Ìmargin‚Íƒ[ƒ‚¾‚ªEEEB
+			// ï¿½ï¿½ï¿½ÌƒAï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Å‚ÍAbottomï¿½ï¿½rightï¿½ï¿½marginï¿½Íƒ[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Eï¿½Eï¿½B
 			lp.bottomMargin = 0;
 			lp.rightMargin = 0;
 		}
@@ -179,7 +177,7 @@ public final class DisplayInfo {
 			heightCorrect, widthCorrect);
 			lp.topMargin = xCorrect;
 			lp.leftMargin = yCorrect;
-			// ‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å‚ÍAbottom‚Æright‚Ìmargin‚Íƒ[ƒ‚¾‚ªEEEB
+			// ï¿½ï¿½ï¿½ÌƒAï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Å‚ÍAbottomï¿½ï¿½rightï¿½ï¿½marginï¿½Íƒ[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½Eï¿½Eï¿½B
 			lp.bottomMargin = 0;
 			lp.rightMargin = 0;
 		}
@@ -217,8 +215,8 @@ public final class DisplayInfo {
 		
 		RelativeLayout.LayoutParams lp = null;
 		
-		// ‚±‚±‚ÅAc‰¡‚Ì•ÏŠ·‚ğ‚©‚Ü‚·
-		// ƒ\[ƒXƒR[ƒh‚É‘‚¢‚Ä‚ ‚éÀ•WA‘å‚«‚³‚Íc—p‚Ì‚à‚Ì‚ª‚¾‚ªA‰¡Œü‚«‚Ìê‡A‰¡—p‚É•ÏŠ·‚µ‚ÄÀ•W‚ğ•Ô‚·		
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ÅAï¿½cï¿½ï¿½ï¿½Ì•ÏŠï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½
+		// ï¿½\ï¿½[ï¿½Xï¿½Rï¿½[ï¿½hï¿½Éï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½Aï¿½å‚«ï¿½ï¿½ï¿½Ícï¿½pï¿½Ì‚ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Aï¿½ï¿½ï¿½pï¿½É•ÏŠï¿½ï¿½ï¿½ï¿½Äï¿½ï¿½Wï¿½ï¿½Ô‚ï¿½		
 		if( true == isPortrait() || bConvertPortraitAndHorz == false )
 		{
 			lp = new RelativeLayout.LayoutParams(
@@ -229,7 +227,7 @@ public final class DisplayInfo {
 			lp = new RelativeLayout.LayoutParams(
 			heightCorrect, widthCorrect);
 		}
-		// TODO: •¡”ƒ‹[ƒ‹
+		// TODO: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½
 		//lp.addRule(verb);//RelativeLayout.ALIGN_PARENT_TOP);
 		
 		return lp;

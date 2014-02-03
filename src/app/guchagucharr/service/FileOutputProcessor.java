@@ -31,7 +31,7 @@ public class FileOutputProcessor implements Runnable {
         thread = new FileOutputThread(
         	activity,
 			vData,
-			lapData,
+			//lapData,
         	handler,
         	this,
         	FileOutputThread.PROC_TYPE_EXPORT_GPX,

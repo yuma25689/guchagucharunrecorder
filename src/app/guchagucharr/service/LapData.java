@@ -100,12 +100,12 @@ public class LapData {
 	}
 	public void addSpeedData( double speed_ )
 	{
-		// TODO: ”÷–­BŒë·‚à‚¾‚¢‚Ô‚ ‚é‚Æv‚í‚ê‚é‚µAÅ‘åŒ”‚Ìw’è‚à“ï‚µ‚¢
+		// TODO: ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½ë·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½ï¿½Ævï¿½ï¿½ï¿½é‚µï¿½Aï¿½Å‘åŒï¿½ï¿½ï¿½Ìwï¿½ï¿½ï¿½ï¿½ï‚µï¿½ï¿½
 		double sumVal = 0;
 		vSpeedQueue.add( speed_ );
 		if( SPEED_QUEUE_MAX < vSpeedQueue.size() )
 		{
-			// ƒTƒ“ƒvƒ‹‚ª‘‚¦‚·‚¬‚½‚çA‚Ü‚ñ’†‚­‚ç‚¢‚ÌƒTƒ“ƒvƒ‹‚ğ”²‚­H
+			// ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½Ü‚ñ’†‚ï¿½ï¿½ç‚¢ï¿½ÌƒTï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ğ”²‚ï¿½ï¿½H
 			vSpeedQueue.remove(SPEED_QUEUE_MAX/2);
 		}
 		for( Double val : vSpeedQueue )
@@ -125,7 +125,7 @@ public class LapData {
 	{
 		String ret = null;
 		final double DISTANCE_KM = 1000;
-		// TODO: İ’è‚É‚æ‚Á‚ÄAm/s‚Ækm/hour‚ğØ‚è‘Ö‚¦
+		// TODO: ï¿½İ’ï¿½É‚ï¿½ï¿½ï¿½ÄAm/sï¿½ï¿½km/hourï¿½ï¿½Ø‚ï¿½Ö‚ï¿½
 		
 		if( distance < DISTANCE_KM )
 		{
@@ -141,7 +141,7 @@ public class LapData {
 	public static String createTimeFormatText(long time)
 	{
 		String ret = null;
-		// Math.abs‚Íˆê‰ƒeƒXƒg—p‚Ì‚Â‚à‚è‚¾‚ªEEE
+		// Math.absï¿½Íˆê‰ï¿½eï¿½Xï¿½gï¿½pï¿½Ì‚Â‚ï¿½ï¿½è‚¾ï¿½ï¿½ï¿½Eï¿½Eï¿½E
 		long second_all = Math.abs(time) / 1000;
 		long second = 0;
 		long min = 0;
@@ -180,10 +180,18 @@ public class LapData {
 	public static String createSpeedFormatText(double speed)
 	{
 		String ret = null;
-		
-		// TODO: İ’è‚É‚æ‚Á‚ÄAm/s‚Ækm/hour‚ğØ‚è‘Ö‚¦
+
+		// m/s
 		ret = String.format("%.2f", speed) + ResourceAccessor.IND_MPERS;
 		return ret;
 	}
-
+	public static String createSpeedFormatTextKmPerH(double speed)
+	{
+		String ret = null;
+		double meterperhour = speed * 60 * 60;
+		
+		ret = String.format("%.2f", meterperhour / 1000 ) + ResourceAccessor.IND_KMPERHOUR;
+		return ret;
+		
+	}
 }

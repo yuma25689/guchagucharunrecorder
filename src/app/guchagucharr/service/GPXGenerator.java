@@ -4,45 +4,49 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.Vector;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.SparseArray;
 
 /**
- * location�f�[�^����AGPX�t�@�C���𐶐�����
+ * location�ｽf�ｽ[�ｽ^�ｽ�ｽ�ｽ�ｽAGPX�ｽt�ｽ@�ｽC�ｽ�ｽ�ｽ�生撰ｿｽ�ｽ�ｽ�ｽ�ｽ
  * @author 25689
  *
  */
 public class GPXGenerator {
 	// public static final String EXPORT_FILE_DIR = "/sdcard/patiman/export";
-	public static final String EXPORT_FILE_NAME = ".gpx";
-	private static final String[][] ESC_CHRS = {
-		{"&","&amp;"},
-		{"'","&apos;"},
-		{"<","&lt;"},
-		{">","&gt;"},
-		{"\"","&quot;"}
-	};
+	public static final String EXPORT_FILE_EXT = ".gpx";
+	public static final String LAP_TEXT = "Lap";
+//	private static final String[][] ESC_CHRS = {
+//		{"&","&amp;"},
+//		{"'","&apos;"},
+//		{"<","&lt;"},
+//		{">","&gt;"},
+//		{"\"","&quot;"}
+//	};
 	
 	private Exporter _exporter = null;
 
 	/*
-trk><name>仙人ヶ岳</name>
+	 * <?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<trk><name>莉吩ｺｺ繝ｶ蟯ｳ</name>
 <number>1</number>
 <trkseg>
 <trkpt lat="36.415416275733136" lon="139.4245576551685"><ele>253</ele><time>2010-09-18T23:08:00Z</time></trkpt>
 <trkpt lat="36.415147339915855" lon="139.42455766633571"><ele>253</ele><time>2010-09-18T23:08:32Z</time></trkpt>
-・・・
-・・・
-・・・
-</trkseg></trk> 
+繝ｻ繝ｻ繝ｻ
+繝ｻ繝ｻ繝ｻ
+繝ｻ繝ｻ繝ｻ
+</trkseg></trk></gpx> 
 	 */
 	
 	public static final String XML_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -52,7 +56,8 @@ trk><name>仙人ヶ岳</name>
 	= "</gpx>";
 	
 	public static final String TAG_LEFT_BLANCKET = "<";
-	public static final String TAG_LEFT_BLANCKET_OF_CLOSE = "<";
+	public static final String TAG_LEFT_BLANCKET_OF_CLOSE = "</";
+	public static final String TAG_RIGHT_BLANCKET_OF_CLOSE = "/>";
 	public static final String TAG_RIGHT_BLANCKET = ">";
 	
 	public static final String TAG_NAME_TRACK = "trk";
@@ -64,23 +69,26 @@ trk><name>仙人ヶ岳</name>
 	public static final String TAG_NAME_TIME = "time";
 	public static final String TAG_NAME_SPEED = "speed";
 	
-	public static final String ATTR_NAME_LATITUDE = "lat";
-	public static final String ATTR_NAME_LONGITUDE = "lon";
+	public static final String ATTR_NAME_LATITUDE = "lat=";
+	public static final String ATTR_NAME_LONGITUDE = "lon=";
+
+	public static final String ATTR_LAT_AND_LONGITUDE = " lat=\"%15f\" lon=\"%15f\" ";
 	
 	
 	public static final int NG_ERROR_UNKNOWN = -1;
 	public static final int RETURN_OK = 0;
 	public static final int NG_DIR_CREATE = 1;
 	
+	int iCurrentOutputLap = -1;
 	Vector<Location> vData = null;
-	SparseArray<LapData> lapData = null;
+	// SparseArray<LapData> lapData = null;
 	Handler handler = null;
 
-	public GPXGenerator(Vector<Location> vData_, SparseArray<LapData> lapData_, Handler hdr_)
+	public GPXGenerator(Vector<Location> vData_, Handler hdr_ )//SparseArray<LapData> lapData_, Handler hdr_)
 	{
-		// かなりデカいデータだが、シャローコピーになってくれるだろうか・・・
+		// 縺九↑繧翫ョ繧ｫ縺�ョ繝ｼ繧ｿ縺�縺後�√す繝｣繝ｭ繝ｼ繧ｳ繝斐�縺ｫ縺ｪ縺｣縺ｦ縺上ｌ繧九□繧阪≧縺九�繝ｻ繝ｻ
 		vData = vData_;
-		lapData = lapData_;
+		// lapData = lapData_;
 		handler = hdr_;
 	}
 	
@@ -127,7 +135,7 @@ trk><name>仙人ヶ岳</name>
 
 			_exporter = new Exporter( bos );
 		
-			// プログレスバー用の処理
+			// 繝励Ο繧ｰ繝ｬ繧ｹ繝舌�逕ｨ縺ｮ蜃ｦ逅�
 			if( handler != null )
 			{
 				int iAllRecCnt = getAllRecordCount();
@@ -142,11 +150,11 @@ trk><name>仙人ヶ岳</name>
 				handler.sendMessage( _msg );
 			}
 			_exporter.startExport();
-	        for( String tableName:tblNames )
+	        for( Location loc:vData )
 	        {
-		        exportTable( tableName );
+	        	_exporter.exportLoc( loc );
 			}			
-	        _exporter.endDbExport();
+	        _exporter.endExport();
 			_exporter.close();
 		}
 		catch ( Exception e)
@@ -175,16 +183,20 @@ trk><name>仙人ヶ岳</name>
 
 		public void startExport() throws IOException
 		{
-			String stg = XML_FORMAT + GPX_START_TAG;
+			// ...
+			String stg = XML_FORMAT + GPX_START_TAG; 
 			_bos.write( stg.getBytes() );
 		}
 
 		public void endExport() throws IOException
 		{
-			_bos.write( GPX_END_TAG.getBytes() );
+			// </gpx>
+			String stg = GPX_END_TAG;
+			
+			_bos.write( stg.getBytes() );
 		}
 		/**
-		 * ↓形式
+		 * 竊灘ｽ｢蠑�
 		 * <export-database name=''>
 		 * <table name=''>
 		 * <row>
@@ -197,86 +209,96 @@ trk><name>仙人ヶ岳</name>
 		 * @param tableName
 		 * @throws IOException
 		 */
-		private void exportTable( String tableName ) throws IOException
+		private void exportLoc( Location loc ) throws IOException
 		{
-	        _exporter.startTable(tableName);
-
-			// get everything from the table
-			String sql = "select * from " + tableName;
-			Cursor cur = _db.rawQuery( sql, new String[0] );
-			int numcols = cur.getColumnCount();
-			
-			cur.moveToFirst();
-
-			// move through the table, creating rows
-			// and adding each column with name and value
-			// to the row
-			while( cur.getPosition() < cur.getCount() )
+			// NOTICE: 縺薙�繧｢繝励Μ縺ｧ縺ｯ縲∵悴菴ｿ逕ｨ縺ｮ鬆�岼Bearing繧鱈ap縺ｫ菴ｿ縺｣縺ｦ縺�ｋ
+			int iLapOfLocation = (int)loc.getBearing();
+			if( iCurrentOutputLap != iLapOfLocation )
 			{
-				_exporter.startRow();
-				String name;
-				String val;
-
-				for( int idx = 0; idx < numcols; idx++ )
+				if( iCurrentOutputLap != -1 )
 				{
-					name = cur.getColumnName(idx);
-					val = cur.getString( idx );
+					_exporter.endLap();
+				}
+				_exporter.startLap(iLapOfLocation);
+				iCurrentOutputLap = iLapOfLocation;
+			}
+
+			_exporter.startLoc(loc);
+
+			_exporter.endLoc();
+
+		}
+
+		public void startLap( int iLap ) throws IOException
+		{
+			/*
+			<trk>
+			<name>莉吩ｺｺ繝ｶ蟯ｳ</name>
+			<number>1</number>
+			<trkseg>
+			*/			
+			String stg = 
+					TAG_LEFT_BLANCKET + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+					+ TAG_LEFT_BLANCKET + TAG_NAME_NAME + TAG_RIGHT_BLANCKET 
+					+ LAP_TEXT + String.valueOf( iLap + 1 )
+					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NAME + TAG_RIGHT_BLANCKET
+					+ TAG_LEFT_BLANCKET + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET 
+					+ String.valueOf( iLap + 1 )
+					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET
+					+ TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET;
 					
-					_exporter.addColumn( name, val );
-				}
-
-				_exporter.endRow();
-				cur.moveToNext();
-				if( _hdr != null )
-				{
-					_msg = new Message();
-					_msg.what = PatiLogger.PROGRESS_VAL_INCL_MSG_ID;
-					_hdr.sendMessage( _msg );
-					//iProgressCnt++;
-				}
-			}
-
-			cur.close();
-
-			_exporter.endTable();
-		}
-
-		public void startTable( String tableName ) throws IOException
-		{
-			String stg = START_TABLE + tableName + CLOSING_WITH_TICK;
 			_bos.write( stg.getBytes() );
 		}
 
-		public void endTable() throws IOException
+		public void endLap() throws IOException
 		{
-			_bos.write( END_TABLE.getBytes() );
+			// </trkseg></trk>
+			String out = TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET;					
+			
+			_bos.write( out.getBytes() );
 		}
 
-		public void startRow() throws IOException
+		public void startLoc(Location loc) throws IOException
 		{
-			_bos.write( START_ROW.getBytes() );
+			//<trkpt lat="36.415416275733136" lon="139.4245576551685"><ele>253</ele>
+			// <time>2010-09-18T23:08:00Z</time></trkpt>
+			StringBuilder builder = new StringBuilder();
+			builder.append( TAG_LEFT_BLANCKET );
+			builder.append( TAG_NAME_TRK_POINT );
+			builder.append( String.format( ATTR_LAT_AND_LONGITUDE,
+					loc.getLatitude(), loc.getLongitude() ) );
+			builder.append( TAG_RIGHT_BLANCKET );
+			
+			builder.append( TAG_LEFT_BLANCKET );
+			builder.append( TAG_NAME_ELEVATION );
+			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( loc.getAltitude() );
+			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
+			builder.append( TAG_NAME_ELEVATION );
+			builder.append( TAG_RIGHT_BLANCKET );
+			
+			builder.append( TAG_LEFT_BLANCKET );
+			builder.append( TAG_NAME_TIME );
+			builder.append( TAG_LEFT_BLANCKET );
+			Date date = new Date(loc.getTime());
+			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.US);
+			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+			String strTmp = dateFormatGmt.format(date);
+			builder.append( strTmp );
+			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
+			builder.append( TAG_NAME_TIME );
+			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
+			builder.append( TAG_NAME_TRK_POINT );
+			builder.append( TAG_RIGHT_BLANCKET );
+			
+			_bos.write( builder.toString().getBytes() );
 		}
 
-		public void endRow() throws IOException
+		public void endLoc() throws IOException
 		{
-			_bos.write( END_ROW.getBytes() );
-		}
-
-		public void addColumn( String name, String val ) throws IOException
-		{
-			if( val != null )
-			{
-				//エスケープ文字のチェックを行う。あれば置換する。
-				for( int i=0; i < ESC_CHRS.length; i++ )
-				{
-					if( val.indexOf( ESC_CHRS[i][0] ) != -1 )
-					{
-						val = val.replace( ESC_CHRS[i][0], ESC_CHRS[i][1] );
-					}
-				}
-			}
-			String stg = START_COL + name + CLOSING_WITH_TICK + val + END_COL;
-			_bos.write( stg.getBytes() );
+			//_bos.write( END_ROW.getBytes() );
 		}
 	}
 	

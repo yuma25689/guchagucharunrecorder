@@ -60,16 +60,17 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		 
 	     @Override
 	     public void run() {
-	         // mHandler‚ğ’Ê‚¶‚ÄUI Thread‚Öˆ—‚ğƒLƒ…[ƒCƒ“ƒO
+	         // mHandler through UI Thread to queueing
 	    	 handler.post( new Runnable() {
 	             public void run() {	 
-	                 //Œ»İ‚ÌTime‚ğXV
+	                 // update now Time
 	         		if( ResourceAccessor.getInstance().getLogStocker() != null 
 	         				&& mode == eMode.MODE_MEASURING )
 	        		{
 	         			long lapTime = new Date().getTime() 
 	         					- ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getStartTime();
 	        			txtTime.setText( LapData.createTimeFormatText( lapTime ) );
+	        			initGPS();
 	        		}	            	 
 	             }
 	         });
@@ -84,25 +85,26 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	//static eMode mode2; 
 	private static eMode mode = eMode.MODE_NORMAL;
 	
-	// ƒRƒ“ƒgƒ[ƒ‹
-	// ’†‰›‚Ìƒ{ƒ^ƒ“
+	// contorls
+	// center button
 	ImageButton btnCenter = null;
-	// GPSƒ{ƒ^ƒ“
+	// GPS button
 	ImageButton btnGPS = null;
-	// GPSƒCƒ“ƒWƒP[ƒ^
+	// GPS indicator
 	ImageView imgGPS = null;
-	// —š—ğƒ{ƒ^ƒ“
+	// history button
 	ImageButton btnHistory = null;
-	// ‰Šú‚Í‰B‚µ
-	// ŠÔ•\ƒ‰ƒxƒ‹
+	// init invisible
+	// time label
 	static TextView txtTime = null;
-	// ‹——£
+	// distance
 	static TextView txtDistance = null;
-	// ‘¬“x
+	// speed
 	static TextView txtSpeed = null;
-	// ƒLƒƒƒ“ƒZƒ‹H
+	// speed2
+	static TextView txtSpeed2 = null;
+	// cancel
 	ImageButton btnCancel = null;
-	
 	
 	/**
 	 * Whether or not the system UI should be auto-hidden after
@@ -139,7 +141,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		setContentView(R.layout.activity_main);
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        // ƒŒƒCƒAƒEƒg‚Ìæ“¾
+        // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
 		final View contentView = componentContainer;//findViewById(R.id.main_content);
 
@@ -206,16 +208,16 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
 		
-		// GPS‚Ìİ’è
+		// GPS setting
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		initGPS();		
-        // handlerƒNƒ‰ƒXì¬
+        // create handler
         handler = new MainHandler( this, this );
-        // ƒŠƒ\[ƒXƒAƒNƒZƒbƒT‚Ìì¬
+        // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
 		
-		// GPSˆê‘ğ‚È‚Ì‚ÅAandroid‚É‘I‚ñ‚Å‚à‚ç‚¤•K—v‚Í‚È‚¢
+		// only use GPS or not
 //		Criteria criteria = new Criteria();
 //		    criteria.setAccuracy(Criteria.ACCURACY_FINE);
 //		    criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
@@ -225,9 +227,9 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 
 	@Override
     protected void onResume() {
-    	// ‰æ–Ê‚ÌƒTƒCƒY“™‚Ìî•ñ‚ğXV‚·‚é
-		// I‚í‚Á‚½‚çhandlerƒbƒZ[ƒW‚ª‘—‚ç‚ê‚é
-		// Œ»İA‚»‚±‚Å‰‚ß‚Ä‰æ–ÊˆÊ’u‚Ì‰Šú‰»‚ğs‚Á‚Ä‚¢‚é
+    	// update display size etc.
+		// when end update, send message to handler
+		// now, initialize there.
         dispInfo.init(this, componentContainer, handler,false);
         super.onResume();
     }
@@ -237,7 +239,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		final long MIN_TIME = 100;
 		final long MIN_METER = 1;
         if (mLocationManager != null) {
-        	clearGPS();
+        	//clearGPS();
             mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
 //                LocationManager.NETWORK_PROVIDER,
@@ -307,25 +309,30 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	
 	@Override
 	public void onLocationChanged(Location location) {
+		clearGPS();
 		//bGPSCanUse = true;
+		Log.v("onLocationChanged","come");
 		btnCenter.setEnabled(true);
-		if( ResourceAccessor.getInstance().isEmptyLogStocker() && mode == eMode.MODE_MEASURING )
+		if( false == ResourceAccessor.getInstance().isEmptyLogStocker() 
+				&& mode == eMode.MODE_MEASURING )
 		{
 //			if( bGPSCanUse == false )
 //			{
-//				// TODO:ƒCƒ“ƒWƒP[ƒ^‚Å‚à‚Â‚¯‚éH
+//				// TODO:create indicator? 
 //				txtDistance.setText( getString(R.string.cant_get) );
 //				txtTime.setText( getString(R.string.cant_get) );
 //				txtSpeed.setText( getString(R.string.cant_get) );				
 //			}
 //			else
 //			{
+			Log.v("add","location info");
 			ResourceAccessor.getInstance().putLocationLog(location);
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getDistance() ) );
 			// txtTime.setText( createTimeFormatText( runLogStocker.getCurrentLapData().getTotalTime() ) );
-			// ‘¬“x‚Íƒ‰ƒbƒv‚Ì’l‚¶‚á‚È‚­A‚»‚Ì‚Ì’l‚ÅOK
+			// speed isn't lap's value. current speed show.
 			txtSpeed.setText( LapData.createSpeedFormatText( location.getSpeed() ) );//runLogStocker.getCurrentLapData().getSpeed() ) );
+			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( location.getSpeed() ) );//runLogStocker.getCurrentLapData().getSpeed() ) );
 //			}
 		}
 		Log.v("----------", "----------");
@@ -336,6 +343,18 @@ public class MainActivity extends Activity implements LocationListener,IMainView
         Log.v("Time", String.valueOf(location.getTime()));
         Log.v("Speed", String.valueOf(location.getSpeed()));
         Log.v("Bearing", String.valueOf(location.getBearing()));
+		if( location.getAccuracy() < 2 )
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_bad);
+		}
+		else if( 2 < location.getAccuracy() )
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_soso);
+		}
+		else if( 6 < location.getAccuracy() )
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_good);
+		}
 	}
 
 	@Override
@@ -354,11 +373,12 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		//btnCenter.setEnabled(true);
 	}
 
-	// ƒRƒ“ƒgƒ[ƒ‹‚Ì‰Šú‰»A”z’u
+	// init controls
 	static final int CENTER_BUTTON_ID = 1000;
 	static final int GPS_BUTTON_ID = 1001;
 	static final int GPS_INDICATOR_ID = 1002;
 	static final int DISTANCE_TEXT_ID = 1010;
+	static final int SPEED_TEXT_ID = 1011;
 	
 	static final int LEFT_TOP_CTRL_1_LEFT_MARGIN = 20;
 	static final int LEFT_TOP_CTRL_1_TOP_MARGIN = 40;
@@ -389,7 +409,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		int ret = 0;
 		//ViewGroup contentView = ((ViewGroup)findViewById(android.R.id.content));
 		BitmapFactory.Options bmpoptions = null;
-		// ’†‰›‚Ìƒ{ƒ^ƒ“
+		// center button 
 		int iCenterButtonImageID = R.drawable.selector_runstop_button_image;
 		if( mode == eMode.MODE_NORMAL )
 		{
@@ -409,7 +429,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		btnCenter.setOnClickListener(this);
 		componentContainer.addView(btnCenter);
 		
-		// GPSƒ{ƒ^ƒ“
+		// GPSbutton
 		btnGPS = new ImageButton(this);
 		btnGPS.setId(GPS_BUTTON_ID);
 		btnGPS.setBackgroundResource( R.drawable.selector_gps_button_image );
@@ -431,7 +451,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		btnGPS.setOnClickListener(this);
 		componentContainer.addView(btnGPS);
 
-		// GPSƒCƒ“ƒWƒP[ƒ^
+		// GPSindicator
 		imgGPS = new ImageView(this);
 		imgGPS.setId(GPS_INDICATOR_ID);
 		imgGPS.setBackgroundResource( R.drawable.gps_bad );
@@ -448,7 +468,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		imgGPS.setScaleType(ScaleType.FIT_XY);
 		componentContainer.addView(imgGPS);
 
-		// —š—ğƒ{ƒ^ƒ“
+		// history button
 		btnHistory = new ImageButton(this);
 		btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
@@ -464,8 +484,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		btnHistory.setScaleType(ScaleType.FIT_XY);
 		componentContainer.addView(btnHistory);
 		
-		// ‰Šú‚Í‰B‚µ
-		// ŠÔ•\ƒ‰ƒxƒ‹
+		// time label
 		txtTime = new TextView(this);
 		RelativeLayout.LayoutParams rlTxtTime
 		= dispInfo.createLayoutParamForNoPosOnBk( 
@@ -481,7 +500,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
 		componentContainer.addView(txtTime);
 		
-		// ‹——£
+		// distance
 		txtDistance = new TextView(this);
 		txtDistance.setId(DISTANCE_TEXT_ID);
 		RelativeLayout.LayoutParams rlTxtDistance
@@ -502,8 +521,9 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
 		componentContainer.addView(txtDistance);
 
-		// ‘¬“x
+		// speed
 		txtSpeed = new TextView(this);
+		txtSpeed.setId(SPEED_TEXT_ID);
 		RelativeLayout.LayoutParams rlTxtSpeed
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
@@ -520,22 +540,40 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		//txtSpeed.setText("12.5 km/h");
 		txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		componentContainer.addView(txtSpeed);
+
+		// speed
+		txtSpeed2 = new TextView(this);
+		RelativeLayout.LayoutParams rlTxtSpeed2
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		txtSpeed2.setLayoutParams(rlTxtSpeed2);
+		txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+		txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+		txtSpeed2.setSingleLine();
+		//txtSpeed.setText("12.5 km/h");
+		txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+		componentContainer.addView(txtSpeed2);
 		
-		// ƒLƒƒƒ“ƒZƒ‹H
+		// cancel?
 		//btnCancel = new ImageButton(this);
 		
 		if( mode == eMode.MODE_NORMAL )
 		{
-			// TODO: ‚¿‚á‚ñ‚Æ§Œä‚·‚é
+			// TODO: ï¿½ï¿½ï¿½ï¿½ï¿½Æï¿½ï¿½ä‚·ï¿½ï¿½
 			txtTime.setVisibility(View.GONE);
 			txtDistance.setVisibility(View.GONE);
 			txtSpeed.setVisibility(View.GONE);
+			txtSpeed2.setVisibility(View.GONE);
 			btnCenter.setEnabled(false);
 		}
 		else if( mode == eMode.MODE_MEASURING )
 		{
 			txtDistance.setVisibility(View.VISIBLE);
 			txtSpeed.setVisibility(View.VISIBLE);
+			txtSpeed2.setVisibility(View.VISIBLE);
 			txtTime.setVisibility(View.VISIBLE);			
 		}
 		
@@ -560,29 +598,30 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-	     switch (status) {
-	     case LocationProvider.AVAILABLE:
-	    	 Log.v("Status", "AVAILABLE");
-	    	 //bGPSCanUse = true;
-	    	 btnCenter.setEnabled(true);
-	    	 imgGPS.setBackgroundResource(R.drawable.gps_good);
-	         break;
-	     case LocationProvider.OUT_OF_SERVICE:
-	    	 Log.v("Status", "OUT_OF_SERVICE");
-	    	 //bGPSCanUse = false;
-	    	 if( mode == eMode.MODE_NORMAL )
-	    		 btnCenter.setEnabled(false);
-	    	 imgGPS.setBackgroundResource(R.drawable.gps_bad);
-	    	 break;
-	     case LocationProvider.TEMPORARILY_UNAVAILABLE:
-	    	 Log.v("Status", "TEMPORARILY_UNAVAILABLE");
-	    	 //bGPSCanUse = false;
-	    	 if( mode == eMode.MODE_NORMAL )
-	    		 btnCenter.setEnabled(false);	    	 
-	    	 //btnCenter.setEnabled(false);
-	    	 imgGPS.setBackgroundResource(R.drawable.gps_soso);
-	    	 break;
-	     }		
+		// ã©ã†ã‚„ã‚‰ã€å®›ã¦ã«ãªã‚‰ãªã„ã‚ˆã†ãªã®ã§ã€å»ƒæ­¢ã™ã‚‹
+//	     switch (status) {
+//	     case LocationProvider.AVAILABLE:
+//	    	 Log.v("Status", "AVAILABLE");
+//	    	 //bGPSCanUse = true;
+//	    	 btnCenter.setEnabled(true);
+//	    	 imgGPS.setBackgroundResource(R.drawable.gps_good);
+//	         break;
+//	     case LocationProvider.OUT_OF_SERVICE:
+//	    	 Log.v("Status", "OUT_OF_SERVICE");
+//	    	 //bGPSCanUse = false;
+//	    	 if( mode == eMode.MODE_NORMAL )
+//	    		 btnCenter.setEnabled(false);
+//	    	 imgGPS.setBackgroundResource(R.drawable.gps_bad);
+//	    	 break;
+//	     case LocationProvider.TEMPORARILY_UNAVAILABLE:
+//	    	 Log.v("Status", "TEMPORARILY_UNAVAILABLE");
+//	    	 //bGPSCanUse = false;
+//	    	 if( mode == eMode.MODE_NORMAL )
+//	    		 btnCenter.setEnabled(false);	    	 
+//	    	 //btnCenter.setEnabled(false);
+//	    	 imgGPS.setBackgroundResource(R.drawable.gps_soso);
+//	    	 break;
+//	     }		
 	}
 	
 
@@ -594,28 +633,26 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 					getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
 			Log.v("GPS", "Location Providers = " + providers);
 			if(providers.indexOf("gps", 0) < 0) {
-				// İ’è‰æ–Ê‚ÌŒÄo‚µ
 				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				startActivity(intent);
 			} else {
-				Toast.makeText(getApplicationContext(), R.string.GPS_ON, Toast.LENGTH_LONG).show();
+				// Toast.makeText(getApplicationContext(), R.string.GPS_ON, Toast.LENGTH_LONG).show();
 				initGPS();
 			}
 		}
 		else if( v == btnCenter )
 		{
-			// TODO:’†‰›ƒ{ƒ^ƒ“‚Í“Áê‚ÈŒ`ó‚È‚Ì‚ÅAƒNƒŠƒbƒsƒ“ƒO—Ìˆæ‚ğ‚±‚±‚Åİ’è‚µA
-			// ‚»‚Ì—Ìˆæ‚Ìê‡AOnTouchListener‚ğì‚Á‚Ä‚Í‚¶‚­‚±‚Æ
+			// TODO:cliping not button region
 			if( mode == eMode.MODE_NORMAL )
 			{
-				// ŠJn
-				// ƒ{ƒ^ƒ“‚ğ•ÏX
+				// ï¿½Jï¿½n
+				// ï¿½{ï¿½^ï¿½ï¿½ï¿½ï¿½ÏX
 				btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
 				Date now = new Date();
 				long time = now.getTime();
 			    if(mTimer == null){
 			    	 
-			        //ƒ^ƒCƒ}[‚Ì‰Šú‰»ˆ—
+			        //ï¿½^ï¿½Cï¿½}ï¿½[ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½
 			        timerTask = new UpdateTimeDisplayTask();
 			        mTimer = new Timer(true);
 			        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
@@ -625,9 +662,11 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
 				txtTime.setText( LapData.createTimeFormatText( 0 ) );
 				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
+				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
 				
 				txtDistance.setVisibility(View.VISIBLE);
 				txtSpeed.setVisibility(View.VISIBLE);
+				txtSpeed2.setVisibility(View.VISIBLE);
 				txtTime.setVisibility(View.VISIBLE);
 				
 				
@@ -635,14 +674,14 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			}
 			else if( mode == eMode.MODE_MEASURING )
 			{
-				// I—¹
+				// ï¿½Iï¿½ï¿½
 	            if(mTimer != null){
 	                mTimer.cancel();
 	                mTimer = null;
 	            }		
 				ResourceAccessor.getInstance().getLogStocker().stop(new Date().getTime());
 
-				// TODO: •Û‘¶ƒAƒNƒeƒBƒrƒeƒB‚Ì‹N“®
+				// launch activity for save
 				Intent intent = new Intent( this, ResultActivity.class );
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
 		        startActivity(intent);				

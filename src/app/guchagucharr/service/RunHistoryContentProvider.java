@@ -1,7 +1,5 @@
 package app.guchagucharr.service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -15,7 +13,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.widget.Toast;
 
 public class RunHistoryContentProvider extends ContentProvider {
 
@@ -23,7 +20,7 @@ public class RunHistoryContentProvider extends ContentProvider {
 	//public static String CONTENT_PROVIDER_URI = "content://app.guchagucharr.service.RunHistoryContentProvider";
     //public static final String PATH = "persons";
 	
-    // UriMatcher‚Ì’è‹`
+    // UriMatcherï¿½Ì’ï¿½`
     private static final UriMatcher mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -59,7 +56,7 @@ public class RunHistoryContentProvider extends ContentProvider {
  
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        	// TODO: ƒf[ƒ^‚ÌˆÚs
+        	// TODO: ï¿½fï¿½[ï¿½^ï¿½ÌˆÚs
             db.execSQL("DROP TABLE IF EXISTS " + RunHistoryTableContract.HISTORY_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + RunHistoryTableContract.HISTORY_LAP_TABLE_NAME);
             onCreate(db);

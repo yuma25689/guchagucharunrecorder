@@ -29,10 +29,10 @@ import android.util.SparseArray;
 import app.guchagucharr.service.RunningLogStocker;
 
 /**
- * ƒŠƒ\[ƒX‚ÉƒAƒNƒZƒX‚·‚é‚½‚ß‚ÌƒNƒ‰ƒX
- * dalvik‚Ì§ŒÀ(‚¨‚»‚ç‚­A24MB`48MB‚­‚ç‚¢‚Ìƒƒ‚ƒŠŠm•Û‚Å—‚¿‚é)
- * ‚ğ‰ñ”ğ‚·‚é‚½‚ß‚ÉA‚È‚é‚×‚­Drawable‚ª20MBˆÈã‚É‚È‚ç‚È‚¢‚æ‚¤‚É‚·‚é
- * (1‰æ–Ê‚Åg‚¤Drawable‚ÌƒTƒCƒY‚ª‚»‚ê‚ğ’´‚¦‚Ä‚µ‚Ü‚¤A‚È‚Ç‚Ì‚Ç‚¤‚µ‚æ‚¤‚à‚È‚¢ê‡‚Íœ‚­)
+ * ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½ÉƒAï¿½Nï¿½Zï¿½Xï¿½ï¿½ï¿½é‚½ï¿½ß‚ÌƒNï¿½ï¿½ï¿½X
+ * dalvikï¿½Ìï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ç‚­ï¿½A24MBï¿½`48MBï¿½ï¿½ï¿½ç‚¢ï¿½Ìƒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½Û‚Å—ï¿½ï¿½ï¿½ï¿½ï¿½)
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ß‚ÉAï¿½È‚ï¿½×‚ï¿½Drawableï¿½ï¿½20MBï¿½Èï¿½É‚È‚ï¿½È‚ï¿½ï¿½æ‚¤ï¿½É‚ï¿½ï¿½ï¿½
+ * (1ï¿½ï¿½Ê‚Ågï¿½ï¿½Drawableï¿½ÌƒTï¿½Cï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ğ’´‚ï¿½ï¿½Ä‚ï¿½ï¿½Ü‚ï¿½ï¿½Aï¿½È‚Ç‚Ì‚Ç‚ï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Íï¿½ï¿½ï¿½)
  * @author 25689
  *
  */
@@ -87,18 +87,18 @@ public final class ResourceAccessor {
 	public boolean isEmptyLogStocker()
 	{
 		if( runLogStocker == null )
-			return false;
+			return true;
 		
-		return true;
+		return false;
 	}
 	public void clearRunLogStocker()
 	{
 		runLogStocker = null;
 	}
 	
-	// ƒŠƒ\[ƒX‚ğæ“¾‚·‚é‚½‚ß‚ÌƒAƒNƒeƒBƒrƒeƒB‚ğİ’è
-	// TODO: ‚µ‚©‚µA‚±‚±‚É•Û‚µ‚Ä‚¨‚­‚ÆA
-	// Ä‹N“®Œã‚È‚Ç‚ÉƒAƒNƒeƒBƒrƒeƒB‚ª—LŒø‚©‚Ç‚¤‚©’²‚×‚È‚­‚Ä‚¢‚¢‚Ì‚¾‚ë‚¤‚©H
+	// ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½é‚½ï¿½ß‚ÌƒAï¿½Nï¿½eï¿½Bï¿½rï¿½eï¿½Bï¿½ï¿½İ’ï¿½
+	// TODO: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½É•Ûï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ÆA
+	// ï¿½Ä‹Nï¿½ï¿½ï¿½ï¿½È‚Ç‚ÉƒAï¿½Nï¿½eï¿½Bï¿½rï¿½eï¿½Bï¿½ï¿½ï¿½Lï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×‚È‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ë‚¤ï¿½ï¿½ï¿½H
 	Activity activity;
 	
 	public void setActivity(Activity activity) {
@@ -138,7 +138,7 @@ public final class ResourceAccessor {
 	}
 	public void initSound()
 	{
-		// ‰¹ºo—Íİ’è‚Ì‰Šú‰»‚ğs‚¤
+		// ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½Íİ’ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
 		soundPool = new SoundPool(SOUND_MAX_COUNT,AudioManager.STREAM_MUSIC,100);
 		soundPool.setOnLoadCompleteListener(
 				new OnLoadCompleteListener()
@@ -163,7 +163,7 @@ public final class ResourceAccessor {
 		|| idIndex < 0 
 		|| SOUND_RES_IDS.length <= idIndex)
 		{
-			// –¢‰Šú‰»‚Ìê‡A‚à‚µ‚­‚ÍAindex‚ª–³Œø‚Ìê‡AÄ¶‚µ‚È‚¢
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÍAindexï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìê‡ï¿½Aï¿½Äï¿½ï¿½ï¿½ï¿½È‚ï¿½
 			return;
 		}
 		// id, leftVol, rightVol, priority, loop, speedrate
@@ -189,8 +189,8 @@ public final class ResourceAccessor {
 		
 		Bitmap ret = null;
 		
-		// selector‚Ìê‡Aƒ[ƒh‚Å‚«‚È‚¢
-		// ƒl[ƒ~ƒ“ƒO‹K–ñ‚É‚æ‚Á‚Ä“ª‚ÌƒvƒŒƒtƒBƒbƒNƒX‚ÍŒÅ’è‚Æ‚·‚é
+		// selectorï¿½Ìê‡ï¿½Aï¿½ï¿½ï¿½[ï¿½hï¿½Å‚ï¿½ï¿½È‚ï¿½
+		// ï¿½lï¿½[ï¿½~ï¿½ï¿½ï¿½Oï¿½Kï¿½ï¿½É‚ï¿½ï¿½ï¿½Ä“ï¿½ï¿½Ìƒvï¿½ï¿½ï¿½tï¿½Bï¿½bï¿½Nï¿½Xï¿½ÍŒÅ’ï¿½Æ‚ï¿½ï¿½ï¿½
 		String idString = activity.getResources().getResourceEntryName(id);
 		if(idString.startsWith(SELECTOR_PREFIX))
 		{
@@ -233,10 +233,10 @@ public final class ResourceAccessor {
 	public Drawable getResourceDrawable( int id )
 	{
 		Bitmap bitmap = createBitmapFromDrawableId(id);
-		// ƒXƒP[ƒ‹‚Ìİ’è
+		// ï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½Ìİ’ï¿½
 		//Matrix matrix = new Matrix();
-		//matrix.postScale(1f, 1f); // 2”{‚ÉŠg‘å
-		// w’è‚ÌƒXƒP[ƒ‹‚ÅbitmapÄì¬
+		//matrix.postScale(1f, 1f); // 2ï¿½{ï¿½ÉŠgï¿½ï¿½
+		// ï¿½wï¿½ï¿½ÌƒXï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½bitmapï¿½Äì¬
 		//Bitmap bitmapScale = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);		
 		BitmapDrawable bitmapDrawable = new BitmapDrawable(activity.getResources(),bitmap);
 		return bitmapDrawable;
@@ -260,9 +260,9 @@ public final class ResourceAccessor {
     private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
 	
 	/**
-	 * w’è‚³‚ê‚½•b”‚ÌŠÔ‚ğA`ŠÔ‚Æ‚¢‚¤•\¦‚É•Ï‚¦‚é
-	 * TODO:‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚Å‚ÍA•¶š—ñ‚Å‚ÌŠÔ•\‚Ís‚í‚È‚¢A‚·‚È‚í‚¿Ab’è”Å‚Å‚ ‚èA‚¢‚Â‚©•s—v‚É‚È‚é‚Ì‚ÅAíœ‚·‚é
-	 * ‚»‚à‚»‚àA‚±‚ÌƒNƒ‰ƒX‚É‚¨‚­‚Ì‚Í‚¨‚©‚µ‚¢
+	 * ï¿½wï¿½è‚³ï¿½ê‚½ï¿½bï¿½ï¿½ï¿½Ìï¿½ï¿½Ô‚ï¿½ï¿½Aï¿½`ï¿½ï¿½ï¿½Ô‚Æ‚ï¿½ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½É•Ï‚ï¿½ï¿½ï¿½
+	 * TODO:ï¿½ï¿½ï¿½ÌƒAï¿½vï¿½ï¿½ï¿½Pï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Å‚ÍAï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Ìï¿½ï¿½Ô•\ï¿½ï¿½ï¿½Ísï¿½ï¿½È‚ï¿½ï¿½Aï¿½ï¿½ï¿½È‚í‚¿ï¿½Aï¿½bï¿½ï¿½Å‚Å‚ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Â‚ï¿½ï¿½sï¿½vï¿½É‚È‚ï¿½Ì‚ÅAï¿½íœï¿½ï¿½ï¿½ï¿½
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ÌƒNï¿½ï¿½ï¿½Xï¿½É‚ï¿½ï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param context
 	 * @param secs
 	 * @return
@@ -312,7 +312,7 @@ public final class ResourceAccessor {
 	}
 	
 	public boolean isSdCanRead() {
-	  //SDƒJ[ƒh‚ª‚ ‚é‚©ƒ`ƒFƒbƒN
+	  //SDï¿½Jï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½é‚©ï¿½`ï¿½Fï¿½bï¿½N
 	  String status = Environment.getExternalStorageState();
 	  if (!status.equals(Environment.MEDIA_MOUNTED)) {
 	    return false;

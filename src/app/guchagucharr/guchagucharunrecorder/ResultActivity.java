@@ -1,10 +1,13 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.util.Vector;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -14,6 +17,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +32,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
 import app.guchagucharr.interfaces.IPageViewController;
+import app.guchagucharr.service.FileOutputProcessor;
 import app.guchagucharr.service.LapData;
 
 /**
@@ -39,30 +44,30 @@ import app.guchagucharr.service.LapData;
 public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
 
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
-	private ViewPager mViewPager;   // ƒrƒ…[ƒy[ƒWƒƒ[	
+	private ViewPager mViewPager;   // ï¿½rï¿½ï¿½ï¿½[ï¿½yï¿½[ï¿½Wï¿½ï¿½ï¿½[	
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
 	//private RunningLogStocker runLogStocker;
 	private final int RESULT_PAGE_NORMAL = 0;
 	private final int RESULT_PAGE_LAP = 1;
 	
-	// ƒRƒ“ƒgƒ[ƒ‹
-	// ’†‰›‚Ìƒ{ƒ^ƒ“
+	// ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒ{ï¿½^ï¿½ï¿½
 	ImageButton btnCenter = null;
-	// GPSƒ{ƒ^ƒ“
+	// GPSï¿½{ï¿½^ï¿½ï¿½
 	ImageButton btnGPS = null;
-	// GPSƒCƒ“ƒWƒP[ƒ^
+	// GPSï¿½Cï¿½ï¿½ï¿½Wï¿½Pï¿½[ï¿½^
 	ImageView imgGPS = null;
-	// —š—ğƒ{ƒ^ƒ“
+	// ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½^ï¿½ï¿½
 	ImageButton btnHistory = null;
-	// ‰Šú‚Í‰B‚µ
-	// ŠÔ•\ƒ‰ƒxƒ‹
+	// ï¿½ï¿½ï¿½ï¿½Í‰Bï¿½ï¿½
+	// ï¿½ï¿½ï¿½Ô•\ï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½
 	TextView txtTime = null;
-	// ‹——£
+	// ï¿½ï¿½ï¿½ï¿½
 	TextView txtDistance = null;
-	// ‘¬“x
+	// ï¿½ï¿½ï¿½x
 	TextView txtSpeed = null;
-	// ƒLƒƒƒ“ƒZƒ‹H
+	// ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½H
 	ImageButton btnCancel = null;
 	
 	
@@ -101,13 +106,13 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		setContentView(R.layout.activity_viewpager);
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        // handlerƒNƒ‰ƒXì¬
+        // handlerï¿½Nï¿½ï¿½ï¿½Xï¿½ì¬
         handler = new PagerHandler( this, this );
-        // ƒŒƒCƒAƒEƒg‚Ìæ“¾
+        // ï¿½ï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½Ìæ“¾
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
 		final View contentView = componentContainer;//findViewById(R.id.main_content);
-	    // ƒy[ƒWƒƒ[ƒrƒ…[(‚±‚Ì’†‚ªƒXƒ‰ƒCƒh‚µ‚Ä•Ï‚í‚Á‚Ä‚¢‚­)
-        // İ’è‚ÍdispInfo‰Šú‰»Œã
+	    // ï¿½yï¿½[ï¿½Wï¿½ï¿½ï¿½[ï¿½rï¿½ï¿½ï¿½[(ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Cï¿½hï¿½ï¿½ï¿½Ä•Ï‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½)
+        // ï¿½İ’ï¿½ï¿½dispInfoï¿½ï¿½ï¿½ï¿½ï¿½
         // this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         //this.mViewPager.setAdapter(new ResultPagerAdapter(this));
 		// Set up an instance of SystemUiHider to control the system UI for
@@ -178,9 +183,9 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 
 	@Override
     protected void onResume() {
-    	// ‰æ–Ê‚ÌƒTƒCƒY“™‚Ìî•ñ‚ğXV‚·‚é
-		// I‚í‚Á‚½‚çhandlerƒbƒZ[ƒW‚ª‘—‚ç‚ê‚é
-		// Œ»İA‚»‚±‚Å‰‚ß‚Ä‰æ–ÊˆÊ’u‚Ì‰Šú‰»‚ğs‚Á‚Ä‚¢‚é
+    	// ï¿½ï¿½Ê‚ÌƒTï¿½Cï¿½Yï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
+		// ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½handlerï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		// ï¿½ï¿½ï¿½İAï¿½ï¿½ï¿½ï¿½ï¿½Åï¿½ï¿½ß‚Ä‰ï¿½ÊˆÊ’uï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
         dispInfo.init(this, componentContainer, handler, false);
         super.onResume();
     }
@@ -233,7 +238,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	}
 	
 
-	// ƒRƒ“ƒgƒ[ƒ‹‚Ì‰Šú‰»A”z’u
+	// ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½Aï¿½zï¿½u
 	static final int CENTER_BUTTON_ID = 1000;
 	static final int GPS_BUTTON_ID = 1001;
 	static final int GPS_INDICATOR_ID = 1002;
@@ -264,8 +269,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	
 	public int initPager()
 	{
-	    // ƒy[ƒWƒƒ[ƒrƒ…[(‚±‚Ì’†‚ªƒXƒ‰ƒCƒh‚µ‚Ä•Ï‚í‚Á‚Ä‚¢‚­)
-        // İ’è‚ÍdispInfo‰Šú‰»Œã
+	    // ï¿½yï¿½[ï¿½Wï¿½ï¿½ï¿½[ï¿½rï¿½ï¿½ï¿½[(ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Cï¿½hï¿½ï¿½ï¿½Ä•Ï‚ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½)
+        // ï¿½İ’ï¿½ï¿½dispInfoï¿½ï¿½ï¿½ï¿½ï¿½
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(new ResultPagerAdapter(this, this));
         
@@ -278,7 +283,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		{
 			//ViewGroup contentView = ((ViewGroup)findViewById(android.R.id.content));
 			BitmapFactory.Options bmpoptions = null;
-			// ’†‰›‚Ìƒ{ƒ^ƒ“
+			// ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒ{ï¿½^ï¿½ï¿½
 			btnCenter = new ImageButton(this);
 			btnCenter.setId(CENTER_BUTTON_ID);
 			btnCenter.setBackgroundResource( R.drawable.selector_save_button_image );
@@ -294,7 +299,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			btnCenter.setOnClickListener(this);
 			rl.addView(btnCenter);
 			
-			// GPSƒ{ƒ^ƒ“
+			// GPSï¿½{ï¿½^ï¿½ï¿½
 			btnGPS = new ImageButton(this);
 			btnGPS.setId(GPS_BUTTON_ID);
 			btnGPS.setBackgroundResource( R.drawable.selector_gps_button_image );
@@ -316,7 +321,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			btnGPS.setOnClickListener(this);
 			rl.addView(btnGPS);
 	
-			// GPSƒCƒ“ƒWƒP[ƒ^
+			// GPSï¿½Cï¿½ï¿½ï¿½Wï¿½Pï¿½[ï¿½^
 			imgGPS = new ImageView(this);
 			imgGPS.setId(GPS_INDICATOR_ID);
 			imgGPS.setBackgroundResource( R.drawable.gps_bad );
@@ -333,7 +338,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			imgGPS.setScaleType(ScaleType.FIT_XY);
 			rl.addView(imgGPS);
 	
-			// —š—ğƒ{ƒ^ƒ“
+			// ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½^ï¿½ï¿½
 			btnHistory = new ImageButton(this);
 			btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
 			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
@@ -349,7 +354,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			btnHistory.setScaleType(ScaleType.FIT_XY);
 			rl.addView(btnHistory);
 			
-			// ŠÔ•\ƒ‰ƒxƒ‹
+			// ï¿½ï¿½ï¿½Ô•\ï¿½ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½
 			txtTime = new TextView(this);
 			RelativeLayout.LayoutParams rlTxtTime
 			= dispInfo.createLayoutParamForNoPosOnBk( 
@@ -365,7 +370,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
 			rl.addView(txtTime);
 			
-			// ‹——£
+			// ï¿½ï¿½ï¿½ï¿½
 			txtDistance = new TextView(this);
 			txtDistance.setId(DISTANCE_TEXT_ID);
 			RelativeLayout.LayoutParams rlTxtDistance
@@ -386,7 +391,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
 			rl.addView(txtDistance);
 	
-			// ‘¬“x
+			// ï¿½ï¿½ï¿½x
 			txtSpeed = new TextView(this);
 			RelativeLayout.LayoutParams rlTxtSpeed
 			= dispInfo.createLayoutParamForNoPosOnBk( 
@@ -405,15 +410,15 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 			rl.addView(txtSpeed);
 			
-			// ƒLƒƒƒ“ƒZƒ‹H
+			// ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½ï¿½ï¿½H
 			//btnCancel = new ImageButton(this);
 			
-			// TODO: ŠÔ‚Ì•\¦
+			// TODO: ï¿½ï¿½ï¿½Ô‚Ì•\ï¿½ï¿½
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					ResourceAccessor.getInstance().getLogStocker().getTotalDistance() ) );
 			txtTime.setText( LapData.createTimeFormatText(
 					ResourceAccessor.getInstance().getLogStocker().getTotalTime() ) );
-			// ‘¬“x‚Íƒ‰ƒbƒv‚Ì’l‚¶‚á‚È‚­A‚»‚Ì‚Ì’l‚ÅOK
+			// ï¿½ï¿½ï¿½xï¿½Íƒï¿½ï¿½bï¿½vï¿½Ì’lï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½Aï¿½ï¿½ï¿½Ìï¿½ï¿½Ì’lï¿½ï¿½OK
 			txtSpeed.setText( LapData.createSpeedFormatText( ResourceAccessor.getInstance().getLogStocker().getTotalSpeed() ) );
 			//runLogStocker.getCurrentRapData().getSpeed() ) );
 			
@@ -425,8 +430,15 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
-			// TODO: ƒ‰ƒbƒvƒrƒ…[
+			if( dispInfo.isPortrait() )
+			{
+
+			}
+			else
+			{
+				
 			
+			}			
 		}
 		return ret;
 	}
@@ -436,27 +448,26 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	public void onClick(View v) {
 		if( v == btnGPS )
 		{
-			// •Û‘¶‰æ–Ê‚Å‚ÍAOFF‚É‚µ‚½‚¢‚ñ‚¶‚á‚È‚¢‚©‚Æv‚í‚ê‚é
+			// ï¿½Û‘ï¿½ï¿½ï¿½Ê‚Å‚ÍAOFFï¿½É‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ñ‚¶‚ï¿½È‚ï¿½ï¿½ï¿½ï¿½Ævï¿½ï¿½ï¿½ï¿½
 			String providers = Settings.Secure.getString(
 					getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
 			Log.v("GPS", "Location Providers = " + providers);
 			if(providers.indexOf("gps", 0) < 0) {
 				Toast.makeText(getApplicationContext(), R.string.GPS_OFF, Toast.LENGTH_LONG).show();
 			} else {
-				// İ’è‰æ–Ê‚ÌŒÄo‚µ
+				// ï¿½İ’ï¿½ï¿½Ê‚ÌŒÄoï¿½ï¿½
 				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				startActivity(intent);
 			}
 		}
 		else if( v == btnCenter )
 		{
-			// TODO:’†‰›ƒ{ƒ^ƒ“‚Í“Áê‚ÈŒ`ó‚È‚Ì‚ÅAƒNƒŠƒbƒsƒ“ƒO—Ìˆæ‚ğ‚±‚±‚Åİ’è‚µA
-			// ‚»‚Ì—Ìˆæ‚Ìê‡AOnTouchListener‚ğì‚Á‚Ä‚Í‚¶‚­‚±‚Æ
+			// TODO:cliping
 			
-			// •Û‘¶‚·‚é
+			// ï¿½Û‘ï¿½ï¿½ï¿½ï¿½ï¿½
 			int iRet = ResourceAccessor.getInstance().getLogStocker().save(this);
 			
-			// ActivityI—¹
+			// Activityï¿½Iï¿½ï¿½
 			if( iRet != -1 )
 			{
 				finish();

@@ -1,32 +1,35 @@
 package app.guchagucharr.service;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Vector;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.SparseArray;
 import android.widget.Toast;
 
-// ƒ‰ƒ“ƒjƒ“ƒO’†‚Ìƒf[ƒ^‚ğ’™‚ß‚é‚ÌƒNƒ‰ƒX
+// ï¿½ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½Ìƒfï¿½[ï¿½^ï¿½ğ’™‚ß‚ï¿½ÌƒNï¿½ï¿½ï¿½X
 public class RunningLogStocker {
 
+	//public static String KEY_LAP_INDEX = "KEY_LAP_INDEX";
 	private final int MAX_LOCATION_LOG_CNT = 72000;	
-	// ˆê”Ô‘¬‚­‚Ä‚à0.1•büŠú‚Å‚µ‚©ƒƒO‚ğæ“¾‚Å‚«‚È‚¢‚Í‚¸‚È‚Ì‚ÅAÅ‚‚Å2.4ŠÔ•ª
-	// ‚½‚¾‚µAƒ[ƒ^[‚Ì•û‚à1mˆÈã‚Í‚È‚ê‚È‚¢‚ÆŒv‘ª‚³‚ê‚È‚¢§Œä‚ª‚ ‚é‚Ì‚ÅA
-	// 0.1•büŠú‚à‰½‚©æ‚è•¨‚Éæ‚Á‚Ä‚¢‚È‚¢ŒÀ‚è–³—‚¾‚Æv‚¤
+	// ï¿½ï¿½Ô‘ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½0.1ï¿½bï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½æ“¾ï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½Í‚ï¿½ï¿½È‚Ì‚ÅAï¿½Åï¿½ï¿½ï¿½2.4ï¿½ï¿½ï¿½Ô•ï¿½
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½[ï¿½^ï¿½[ï¿½Ì•ï¿½ï¿½1mï¿½Èï¿½Í‚È‚ï¿½È‚ï¿½ï¿½ÆŒvï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ä‚ªï¿½ï¿½ï¿½ï¿½Ì‚ÅA
+	// 0.1ï¿½bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è•¨ï¿½Éï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½è–³ï¿½ï¿½ï¿½ï¿½ï¿½Ævï¿½ï¿½
 	static long removeMilli( long val )
 	{
 		return val * 1000;
 	}
-	// 1970”N‚©‚ç‚Ì(ms)
+	// 1970ï¿½Nï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½(ms)
 	long totalStartTime = 0;
 	long totalStopTime = 0;
-	double firstCorrectDistance = 0;	// GPS‚ÅŒv‘ª‚·‚é‘O‚ÌŒë·‚Æ‚È‚é‹——£
+	double firstCorrectDistance = 0;	// GPSï¿½ÅŒvï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½ÌŒë·ï¿½Æ‚È‚é‹—ï¿½ï¿½
 	public double getTotalDistance()
 	{
 		double ret = 0;
@@ -91,10 +94,10 @@ public class RunningLogStocker {
 	{
 		if( vLocation.isEmpty() )
 		{
-			// ‹ó‚Ì=‰‰ñA‚©‚Âlap1(lap2ˆÈ~)
-			// ‚»‚Ì‚ÌSpeed‚ÆAŠÔ‚Å‹——£‚ğŒvZ‚µAGPS‚Å‚Ü‚¾Œv‘ª‚³‚ê‚Ä‚¢‚È‚¢”ÍˆÍ‚Ì‹——£‚Æ‚·‚é
-			// TODO: ‚½‚Ô‚ñA‚ ‚Ü‚è³Šm‚Å‚Í‚È‚¢‚Ì‚ÅAƒ`ƒƒƒ“ƒX‚ª‚ ‚Á‚½‚ç•Ê‚Ì‚â‚è•û‚ğl—¶
-			// ->‚Æ‚è‚ ‚¦‚¸A‰½‚à‚µ‚È‚¢
+			// ï¿½ï¿½Ìï¿½=ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½lap1(lap2ï¿½È~)
+			// ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½Speedï¿½ÆAï¿½ï¿½ï¿½Ô‚Å‹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½AGPSï¿½Å‚Ü‚ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ÍˆÍ‚Ì‹ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ï¿½
+			// TODO: ï¿½ï¿½ï¿½Ô‚ï¿½Aï¿½ï¿½ï¿½Ü‚è³ï¿½mï¿½Å‚Í‚È‚ï¿½ï¿½Ì‚ÅAï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê‚Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½
+			// ->ï¿½Æ‚è‚ ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
 			//long diffTime = location.getTime() - currentLapData.getStartTime();
 			//firstCorrectDistance = location.getSpeed() * diffTime * removeMilli(diffTime);
 			//currentLapData.increaseTime(diffTime);
@@ -102,8 +105,8 @@ public class RunningLogStocker {
 		}
 		else
 		{
-			// ‚±‚±‚ÅA‚±‚Ìƒ‰ƒbƒv‚ÌŠe’l‚É‚Â‚¢‚ÄŒvZ‚·‚é‚ªAƒpƒtƒH[ƒ}ƒ“ƒX‚ğl—¶‚µ‚ÄA
-			// ‚È‚é‚×‚­‰ß‹‚Ì’l‚ÍŒ©‚È‚­‚Ä‚à‚¢‚¢‚æ‚¤‚É‚·‚é
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ÅAï¿½ï¿½ï¿½Ìƒï¿½ï¿½bï¿½vï¿½ÌŠeï¿½lï¿½É‚Â‚ï¿½ï¿½ÄŒvï¿½Zï¿½ï¿½ï¿½é‚ªï¿½Aï¿½pï¿½tï¿½Hï¿½[ï¿½}ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ÄA
+			// ï¿½È‚ï¿½×‚ï¿½ï¿½ß‹ï¿½ï¿½Ì’lï¿½ÍŒï¿½ï¿½È‚ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ‚¤ï¿½É‚ï¿½ï¿½ï¿½
 			//float[] result = new float[1];
 			//float result = prevLocation.distanceTo(location);
 //			Location.distanceBetween(
@@ -120,10 +123,17 @@ public class RunningLogStocker {
         // Log.v("Speed", String.valueOf(location.getSpeed()));
 		if( MAX_LOCATION_LOG_CNT < vLocation.size() )
 		{
-			// ƒ}ƒbƒNƒX’l‚ğ’´‚¦‚½‚çA^‚ñ’†‚ç‚Ö‚ñ‚©‚ç”²‚¢‚Ä‚¢‚­
+			// TODO: ç²¾åº¦ã®ä½ã„ã‚‚ã®ã‚’æ¶ˆã™ï¼Ÿ
+			// ï¿½}ï¿½bï¿½Nï¿½Xï¿½lï¿½ğ’´‚ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½^ï¿½ñ’†‚ï¿½Ö‚ñ‚©‚ç”²ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
 		}
-		// —v‘f’Ç‰Á
+		// NOTICE:
+		// Lapã‚’å„ãƒ­ã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã«æ ¼ç´ã—ãŸã‹ã£ãŸãŒã€Bundleã¯ãƒ¡ãƒ¢ãƒªã‚’é£Ÿã„ãã†ãªã®ã§ã€
+		// æœªä½¿ç”¨ã®bearingã«ç„¡ç†çŸ¢ç†lapã‚’çªã£è¾¼ã‚€
+//		Bundle b = new Bundle();
+//		b.putInt(KEY_LAP_INDEX, iLap);
+//		location.setExtras(b);
+		location.setBearing(iLap);
 		vLocation.add(location);
 		prevLocation = new Location(location);
 	}
@@ -133,7 +143,7 @@ public class RunningLogStocker {
 		iLap++;
 		currentLapData.clear();
 		prevLocation = new Location( vLocation.lastElement() );
-		// ŠÔ‚¾‚¯‘‚«Š·‚¦‚é
+		// ï¿½ï¿½ï¿½Ô‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		prevLocation.setTime(time);
 	}
 	public void stop( long time )
@@ -153,7 +163,7 @@ public class RunningLogStocker {
 			ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime);
 			ret.put(RunHistoryTableContract.NAME, strExtra);
 			ret.put(RunHistoryTableContract.LAP_COUNT, getLapCount() );
-			// TODO: êŠ‚Ì“o˜^‚Í‚Ü‚¾–¢À‘•
+			// TODO: ï¿½êŠï¿½Ì“oï¿½^ï¿½Í‚Ü‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
 
 		}
@@ -166,7 +176,7 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_DISTANCE, lapData.get(iExtra).getDistance() );
             ret.put( RunHistoryTableContract.LAP_TIME, lapData.get(iExtra).getTotalTime() );
             ret.put( RunHistoryTableContract.LAP_SPEED, lapData.get(iExtra).getSpeed() );
-            // TODO: –¢À‘•
+            // TODO: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
@@ -193,7 +203,7 @@ public class RunningLogStocker {
         //SQLiteDatabase db = databaseHelper.getReadableDatabase();
         //db.beginTransaction();
         try {
-        	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
         	ContentValues values = null;
         	Date date = new Date();
         	long time = date.getTime();
@@ -224,8 +234,8 @@ public class RunningLogStocker {
         		{
 	            	values = log.createContentValues(RunHistoryTableContract.HISTORY_LAP_TABLE_ID, 
 	            			time, 
-	            			null,	// TODO: GPXƒtƒ@ƒCƒ‹‚ÌƒpƒX
-	            			id,	// e‚Ìid
+	            			null,	// TODO: GPXï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìƒpï¿½X
+	            			id,	// ï¿½eï¿½ï¿½id
 	            			iLap);	// lap index
 	            	if( values == null )
 	            	{
@@ -266,18 +276,23 @@ public class RunningLogStocker {
 	}
 	
 	/**
-	 * æ“¾‚³‚ê‚½ƒƒOƒf[ƒ^‚Ì•Û‘¶
+	 * ï¿½æ“¾ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½Oï¿½fï¿½[ï¿½^ï¿½Ì•Û‘ï¿½
 	 * @return
 	 */
 	public int save(Activity activity)
 	{
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
     	Date date = new Date();
     	String strDateTime = sdf.format( date );
 		
-		// gpxƒf[ƒ^‚Ö‚Ì•ÏŠ·A•Û‘¶
+		// gpxã€€out
+    	// TODO: SDã‚«ãƒ¼ãƒ‰ã«ã¤ãªã’ãªã„æ™‚ã®å‡¦ç†
+    	String dir = Environment.getExternalStorageDirectory() + "/" + activity.getPackageName();   
+    	FileOutputProcessor outFileProc = new FileOutputProcessor();
+		outFileProc.outputGPX(activity, vLocation, lapData, dir, 
+				strDateTime + GPXGenerator.EXPORT_FILE_EXT );
 		
-		// database‚Ö‚Ì•Û‘¶
+		// databaseï¿½Ö‚Ì•Û‘ï¿½
 		int iRet = insertRunHistoryLog(activity, strDateTime, this );
 		
 		return iRet;

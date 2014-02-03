@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.location.Location;
 import android.os.Handler;
 //import android.util.Log;
-import android.util.SparseArray;
 
 public class FileOutputThread extends Thread {
 
@@ -20,12 +19,12 @@ public class FileOutputThread extends Thread {
 	private String strFile;
 	private Boolean bRet = false;
 	Vector<Location> vData = null;
-	SparseArray<LapData> lapData = null;
+	// SparseArray<LapData> lapData = null;
 	
 	public FileOutputThread(
 			Activity _act,
 			Vector<Location> vData_,
-			SparseArray<LapData> lapData_,
+			//SparseArray<LapData> lapData_,
 			Handler _handler,
 			Runnable _listener,
 			int _iProcType,
@@ -35,7 +34,7 @@ public class FileOutputThread extends Thread {
     {
         this.act = _act;
 		this.vData = vData_;
-		this.lapData = lapData_;
+		//this.lapData = lapData_;
 		this.handler = _handler;
         this.listener = _listener;
         this.iProcType = _iProcType;
@@ -52,7 +51,7 @@ public class FileOutputThread extends Thread {
     public void run()
     {
         GPXGenerator processor = 
-        	new GPXGenerator(vData,lapData,handler);
+        	new GPXGenerator(vData,handler);
         switch( iProcType )
         {
         case PROC_TYPE_NONE:
