@@ -20,5 +20,10 @@
     <string name="cant_get">--</string>
     <string name="DLG_TITLE_EXPORT_PROGRESS">Now saving</string>
     <string name="MSG_EXPORT_PROGRESS">Now saving GPX file.</string>
+    <string name="SaveError">Failed to save the result. Please retry or give up saving.</string>
+    <string name="SaveErrorGPX">Failed to save the gpx file. Please retry or give up saving.</string>
+    <string name="SaveErrorGPXOnly">Failed to save the gpx file  but database data is saved. Please retry or give up saving.</string>
+    <string name="SaveErrorDatabaseOnly">Failed to save the database data but gpx file is saved. Please retry or give up saving.</string>
+    <string name="SaveOK">The results have saved.</string>
     
 </resources>

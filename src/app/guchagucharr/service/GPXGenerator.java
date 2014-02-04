@@ -51,7 +51,7 @@ public class GPXGenerator {
 	
 	public static final String XML_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	public static final String GPX_START_TAG 
-	= "<gpx xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">";
+	= "<gpx version=\"1.1\" creator=\"GuchaGuchaRunRecorder\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">";
 	public static final String GPX_END_TAG 
 	= "</gpx>";
 	
@@ -153,6 +153,13 @@ public class GPXGenerator {
 	        for( Location loc:vData )
 	        {
 	        	_exporter.exportLoc( loc );
+				if( handler != null )
+				{
+					Message _msg = new Message();
+					_msg.what = FileOutputProcessor.PROGRESS_VAL_INCL_MSG_ID;
+					handler.sendMessage( _msg );
+					//iProgressCnt++;
+				}	        	
 			}			
 	        _exporter.endExport();
 			_exporter.close();
@@ -270,6 +277,7 @@ public class GPXGenerator {
 					loc.getLatitude(), loc.getLongitude() ) );
 			builder.append( TAG_RIGHT_BLANCKET );
 			
+			// elevation
 			builder.append( TAG_LEFT_BLANCKET );
 			builder.append( TAG_NAME_ELEVATION );
 			builder.append( TAG_RIGHT_BLANCKET );
@@ -277,12 +285,22 @@ public class GPXGenerator {
 			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
 			builder.append( TAG_NAME_ELEVATION );
 			builder.append( TAG_RIGHT_BLANCKET );
+
+			// speed
+			// is not standard?
+			builder.append( TAG_LEFT_BLANCKET );
+			builder.append( TAG_NAME_SPEED );
+			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( loc.getSpeed() );
+			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
+			builder.append( TAG_NAME_SPEED );
+			builder.append( TAG_RIGHT_BLANCKET );
 			
 			builder.append( TAG_LEFT_BLANCKET );
 			builder.append( TAG_NAME_TIME );
 			builder.append( TAG_LEFT_BLANCKET );
 			Date date = new Date(loc.getTime());
-			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.US);
+			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 			String strTmp = dateFormatGmt.format(date);
 			builder.append( strTmp );

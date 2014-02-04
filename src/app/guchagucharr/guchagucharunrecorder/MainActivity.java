@@ -17,7 +17,6 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
-import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
 import app.guchagucharr.interfaces.IMainViewController;
 //import app.guchagucharr.service.RunningLogStocker;
@@ -62,7 +60,8 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	     public void run() {
 	         // mHandler through UI Thread to queueing
 	    	 handler.post( new Runnable() {
-	             public void run() {	 
+	             @Override
+				public void run() {	 
 	                 // update now Time
 	         		if( ResourceAccessor.getInstance().getLogStocker() != null 
 	         				&& mode == eMode.MODE_MEASURING )
@@ -234,6 +233,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
         super.onResume();
     }
 	
+	@Override
 	public void initGPS()
 	{
 		final long MIN_TIME = 100;
@@ -347,13 +347,13 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_bad);
 		}
-		else if( 2 < location.getAccuracy() )
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_soso);
-		}
 		else if( 6 < location.getAccuracy() )
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_good);
+		}
+		else if( 2 < location.getAccuracy() )
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_soso);
 		}
 	}
 
@@ -403,6 +403,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	static final int SPEED_TEXTVIEW_FONT_SIZE = 25;
 	
 	
+	@Override
 	public int initControls()
 	{
 		componentContainer.removeAllViews();

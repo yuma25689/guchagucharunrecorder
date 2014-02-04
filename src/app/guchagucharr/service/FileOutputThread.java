@@ -1,9 +1,6 @@
 package app.guchagucharr.service;
 
-import java.util.Vector;
-
 import android.app.Activity;
-import android.location.Location;
 import android.os.Handler;
 //import android.util.Log;
 
@@ -18,12 +15,13 @@ public class FileOutputThread extends Thread {
 	private String strDir;
 	private String strFile;
 	private Boolean bRet = false;
-	Vector<Location> vData = null;
+	RunningLogStocker stocker = null;
 	// SparseArray<LapData> lapData = null;
 	
 	public FileOutputThread(
 			Activity _act,
-			Vector<Location> vData_,
+			//Vector<Location> vData_,
+			RunningLogStocker stocker,
 			//SparseArray<LapData> lapData_,
 			Handler _handler,
 			Runnable _listener,
@@ -33,7 +31,7 @@ public class FileOutputThread extends Thread {
 	)
     {
         this.act = _act;
-		this.vData = vData_;
+		this.stocker = stocker;
 		//this.lapData = lapData_;
 		this.handler = _handler;
         this.listener = _listener;
@@ -50,14 +48,19 @@ public class FileOutputThread extends Thread {
     @Override
     public void run()
     {
+    	int iRet = 0;
         GPXGenerator processor = 
-        	new GPXGenerator(vData,handler);
+        	new GPXGenerator(stocker.getLocationData(),handler);
         switch( iProcType )
         {
         case PROC_TYPE_NONE:
         	break;
         case PROC_TYPE_EXPORT_GPX:
-        	processor.createGPXFileFromLocations(act, strDir, strFile);
+        	iRet = processor.createGPXFileFromLocations(act, strDir, strFile);
+        	if( iRet == GPXGenerator.RETURN_OK )
+        	{
+        		bRet = true;
+        	}
         	break;
         }
         

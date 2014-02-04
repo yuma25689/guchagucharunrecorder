@@ -73,6 +73,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int GPS_OFF=0x7f050006;
         public static final int GPS_ON=0x7f050005;
         public static final int MSG_EXPORT_PROGRESS=0x7f050010;
+        public static final int SaveError=0x7f050011;
+        public static final int SaveErrorDatabaseOnly=0x7f050014;
+        public static final int SaveErrorGPX=0x7f050012;
+        public static final int SaveErrorGPXOnly=0x7f050013;
+        public static final int SaveOK=0x7f050015;
         public static final int app_name=0x7f050000;
         public static final int cant_get=0x7f05000e;
         public static final int dummy_button=0x7f050001;

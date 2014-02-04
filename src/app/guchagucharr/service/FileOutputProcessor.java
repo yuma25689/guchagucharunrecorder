@@ -1,25 +1,30 @@
 package app.guchagucharr.service;
 
-import java.util.Vector;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.location.Location;
 import android.os.Handler;
 import android.os.Message;
-import android.util.SparseArray;
 import app.guchagucharr.guchagucharunrecorder.R;
 
 public class FileOutputProcessor implements Runnable {
 	
+	private static ProgressDialog progressDialog = null;
 	FileOutputThread thread = null;
+	Activity mActivity;
+	String dateTime;
+	RunningLogStocker stocker;
 
 	public void outputGPX(Activity activity,
-			Vector<Location> vData,
-			SparseArray<LapData> lapData,			
+			// Vector<Location> vData,
+			RunningLogStocker runStocker,
+			String dateTime_,
+			// SparseArray<LapData> lapData,			
 			String dir, String fileName)
 	{
-		progressDialog = new ProgressDialog(activity);
+		mActivity = activity;
+		dateTime = dateTime_;
+		stocker = runStocker;
+        progressDialog = new ProgressDialog(activity);
 		progressDialog.setTitle(
 				activity.getString(R.string.DLG_TITLE_EXPORT_PROGRESS));
         progressDialog.setMessage(
@@ -27,10 +32,11 @@ public class FileOutputProcessor implements Runnable {
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
-        
+
         thread = new FileOutputThread(
         	activity,
-			vData,
+			//vData,
+        	runStocker,
 			//lapData,
         	handler,
         	this,
@@ -39,8 +45,6 @@ public class FileOutputProcessor implements Runnable {
         	fileName
         );
         thread.start();
-        
-		
 	}
 	
 	public static final int END_MSG_ID = 0;
@@ -50,7 +54,6 @@ public class FileOutputProcessor implements Runnable {
 	public static final int PROGRESS_VAL_INCL_MSG_ID = 4;
 	public static final String PROGRESS_VAL_KEY = "gpxgen_progress_val";
 
-	private ProgressDialog progressDialog = null;
 	// 別スレッド実行中のイベントを処理するハンドラ
 	private final Handler handler = new Handler()
 	{
@@ -85,14 +88,35 @@ public class FileOutputProcessor implements Runnable {
 	@Override
 	public void run() {
 		// エクスポートダイアログ終了時のイベント
-		progressDialog.dismiss();
-		if( true == thread.getResult() )
+		if( progressDialog.isShowing() )
 		{
-			switch( thread.getProcType() )
-			{
-				case FileOutputThread.PROC_TYPE_EXPORT_GPX:				
-			    	break;
-			}
+			progressDialog.dismiss();
+		}
+		switch( thread.getProcType() )
+		{
+			case FileOutputThread.PROC_TYPE_EXPORT_GPX:
+				if( true == thread.getResult() )
+				{
+					RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_OK, stocker);
+					// database�ւ̕ۑ�
+					int iInsCount = stocker.insertRunHistoryLog(mActivity, dateTime, stocker );
+					if( iInsCount < 0)
+					{
+						RunningLogStocker.setRunHistorySaveResult( RunningLogStocker.SAVE_NG, stocker );
+					}
+					else
+					{
+						RunningLogStocker.setRunHistorySaveResult( RunningLogStocker.SAVE_OK, stocker );
+					}
+					
+				}
+				else
+				{
+					RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NG, stocker);					
+				}
+				
+				//mActivity.finish();
+		    	break;
 		}
 	}
 

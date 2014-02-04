@@ -1,13 +1,11 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-import java.util.Vector;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -17,7 +15,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +29,6 @@ import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
 import app.guchagucharr.interfaces.IPageViewController;
-import app.guchagucharr.service.FileOutputProcessor;
 import app.guchagucharr.service.LapData;
 
 /**
@@ -59,7 +55,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	// GPS�C���W�P�[�^
 	ImageView imgGPS = null;
 	// �����{�^��
-	ImageButton btnHistory = null;
+	// ImageButton btnHistory = null;
 	// ����͉B��
 	// ���ԕ\�����x��
 	TextView txtTime = null;
@@ -67,6 +63,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	TextView txtDistance = null;
 	// ���x
 	TextView txtSpeed = null;
+	TextView txtSpeed2 = null;
 	// �L�����Z���H
 	ImageButton btnCancel = null;
 	
@@ -243,6 +240,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	static final int GPS_BUTTON_ID = 1001;
 	static final int GPS_INDICATOR_ID = 1002;
 	static final int DISTANCE_TEXT_ID = 1010;
+	static final int SPEED_TEXT_ID = 1011;
 	
 	static final int LEFT_TOP_CTRL_1_LEFT_MARGIN = 20;
 	static final int LEFT_TOP_CTRL_1_TOP_MARGIN = 40;
@@ -267,6 +265,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	static final int SPEED_TEXTVIEW_FONT_SIZE = 25;
 	
 	
+	@Override
 	public int initPager()
 	{
 	    // �y�[�W���[�r���[(���̒����X���C�h���ĕς���Ă���)
@@ -276,6 +275,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
         
         return 0;
 	}
+	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
 		int ret = 0;
@@ -338,21 +338,21 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			imgGPS.setScaleType(ScaleType.FIT_XY);
 			rl.addView(imgGPS);
 	
-			// �����{�^��
-			btnHistory = new ImageButton(this);
-			btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
-			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
-			RelativeLayout.LayoutParams rlBtnHistory
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					bmpoptions.outWidth, bmpoptions.outHeight, true );
-			rlBtnHistory.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			rlBtnHistory.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
-			rlBtnHistory.addRule(RelativeLayout.CENTER_VERTICAL);
-			//rlBtnHistory.topMargin = RIGHT_TOP_CTRL_1_TOP_MARGIN;
-			
-			btnHistory.setLayoutParams(rlBtnHistory);
-			btnHistory.setScaleType(ScaleType.FIT_XY);
-			rl.addView(btnHistory);
+//			// �����{�^��
+//			btnHistory = new ImageButton(this);
+//			btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
+//			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
+//			RelativeLayout.LayoutParams rlBtnHistory
+//			= dispInfo.createLayoutParamForNoPosOnBk( 
+//					bmpoptions.outWidth, bmpoptions.outHeight, true );
+//			rlBtnHistory.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//			rlBtnHistory.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
+//			rlBtnHistory.addRule(RelativeLayout.CENTER_VERTICAL);
+//			//rlBtnHistory.topMargin = RIGHT_TOP_CTRL_1_TOP_MARGIN;
+//			
+//			btnHistory.setLayoutParams(rlBtnHistory);
+//			btnHistory.setScaleType(ScaleType.FIT_XY);
+//			rl.addView(btnHistory);
 			
 			// ���ԕ\�����x��
 			txtTime = new TextView(this);
@@ -393,6 +393,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	
 			// ���x
 			txtSpeed = new TextView(this);
+			txtSpeed.setId(SPEED_TEXT_ID);
 			RelativeLayout.LayoutParams rlTxtSpeed
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
@@ -410,6 +411,22 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 			rl.addView(txtSpeed);
 			
+			// speed
+			txtSpeed2 = new TextView(this);
+			RelativeLayout.LayoutParams rlTxtSpeed2
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+			//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			txtSpeed2.setLayoutParams(rlTxtSpeed2);
+			txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+			txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+			txtSpeed2.setSingleLine();
+			//txtSpeed.setText("12.5 km/h");
+			txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+			componentContainer.addView(txtSpeed2);
+			
 			// �L�����Z���H
 			//btnCancel = new ImageButton(this);
 			
@@ -421,12 +438,13 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// ���x�̓��b�v�̒l����Ȃ��A���̎��̒l��OK
 			txtSpeed.setText( LapData.createSpeedFormatText( ResourceAccessor.getInstance().getLogStocker().getTotalSpeed() ) );
 			//runLogStocker.getCurrentRapData().getSpeed() ) );
+			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( ResourceAccessor.getInstance().getLogStocker().getTotalSpeed() ) );
 			
 //			txtTime.setVisibility(View.GONE);
 //			txtDistance.setVisibility(View.GONE);
 //			txtSpeed.setVisibility(View.GONE);
 	
-			btnHistory.setEnabled(false);
+			// btnHistory.setEnabled(false);
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
@@ -465,13 +483,15 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// TODO:cliping
 			
 			// �ۑ�����
-			int iRet = ResourceAccessor.getInstance().getLogStocker().save(this);
+			// TODO: arg2 -> GPX save setting create 
+			// int iRet =
+			ResourceAccessor.getInstance().getLogStocker().save(this,true);
 			
 			// Activity�I��
-			if( iRet != -1 )
-			{
-				finish();
-			}
+//			if( iRet != -1 )
+//			{
+//				finish();
+//			}
 		}
 	}
 }

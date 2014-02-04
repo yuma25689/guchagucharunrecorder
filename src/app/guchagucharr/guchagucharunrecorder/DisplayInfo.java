@@ -126,8 +126,8 @@ public final class DisplayInfo {
 	int left, int top, int width, int height, boolean bConvertPortraitAndHorz )
 	{
 		int widthCorrect = 0;
-		if( width == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| width == RelativeLayout.LayoutParams.WRAP_CONTENT )
+		if( width == LayoutParams.MATCH_PARENT
+		|| width == LayoutParams.WRAP_CONTENT )
 		{
 			widthCorrect = width;
 		}
@@ -136,8 +136,8 @@ public final class DisplayInfo {
 			widthCorrect = getCorrectionXConsiderDensity(width);
 		}
 		int heightCorrect = 0;
-		if( height == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| height == RelativeLayout.LayoutParams.WRAP_CONTENT )
+		if( height == LayoutParams.MATCH_PARENT
+		|| height == LayoutParams.WRAP_CONTENT )
 		{
 			heightCorrect = height;
 		}
@@ -191,8 +191,8 @@ public final class DisplayInfo {
 	int width, int height, boolean bConvertPortraitAndHorz )
 	{
 		int widthCorrect = 0;
-		if( width == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| width == RelativeLayout.LayoutParams.WRAP_CONTENT )
+		if( width == LayoutParams.MATCH_PARENT
+		|| width == LayoutParams.WRAP_CONTENT )
 		{
 			widthCorrect = width;
 		}
@@ -202,8 +202,8 @@ public final class DisplayInfo {
 			Log.i("width convert", width +"=>" + widthCorrect); 
 		}
 		int heightCorrect = 0;
-		if( height == RelativeLayout.LayoutParams.MATCH_PARENT
-		|| height == RelativeLayout.LayoutParams.WRAP_CONTENT )
+		if( height == LayoutParams.MATCH_PARENT
+		|| height == LayoutParams.WRAP_CONTENT )
 		{
 			heightCorrect = height;
 		}

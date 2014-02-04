@@ -1,6 +1,5 @@
 package app.guchagucharr.service;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -13,6 +12,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.SparseArray;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.R;
 
 // �����j���O���̃f�[�^�𒙂߂�̃N���X
 public class RunningLogStocker {
@@ -76,20 +76,28 @@ public class RunningLogStocker {
 	
 	SparseArray<LapData> lapData = new SparseArray<LapData>();
 	Vector<Location> vLocation = new Vector<Location>();
+	public Vector<Location> getLocationData()
+	{
+		return vLocation;
+	}
 	Location prevLocation = null;
 	public LapData getCurrentLapData()
 	{
 		return currentLapData;
 	}
 
-	public RunningLogStocker(long time)
+	public void clear()
 	{
 		lapData.clear();
 		currentLapData.clear();
-		iLap = 0;
+		iLap = 0;		
+	}
+	public RunningLogStocker(long time)
+	{
+		clear();
 		totalStartTime = time;
 		currentLapData.setStartTime(time);
-	}	
+	}
 	public void putLocationLog( Location location )
 	{
 		if( vLocation.isEmpty() )
@@ -275,26 +283,98 @@ public class RunningLogStocker {
         return insertCount;
 	}
 	
+	static Activity mActivityWhenSave = null;
 	/**
 	 * �擾���ꂽ���O�f�[�^�̕ۑ�
 	 * @return
 	 */
-	public int save(Activity activity)
+	public void save(Activity activity, boolean bSaveGPX )
 	{
+		mActivityWhenSave = activity;
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
     	Date date = new Date();
     	String strDateTime = sdf.format( date );
-		
+    	// it's retry process too
 		// gpx　out
-    	// TODO: SDカードにつなげない時の処理
-    	String dir = Environment.getExternalStorageDirectory() + "/" + activity.getPackageName();   
-    	FileOutputProcessor outFileProc = new FileOutputProcessor();
-		outFileProc.outputGPX(activity, vLocation, lapData, dir, 
-				strDateTime + GPXGenerator.EXPORT_FILE_EXT );
+		if( bSaveGPX
+		&& ( outputGPXSaveResult == SAVE_NOT_TRY 
+		||  outputGPXSaveResult != SAVE_OK )
+		)
+		{
+			outputGPXSaveResult = SAVING;
+			runHistorySaveResult = SAVING;			
+	    	// TODO: SDカードにつなげない時の処理
+	    	String dir = Environment.getExternalStorageDirectory() + "/" + activity.getPackageName();   
+	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
+			outFileProc.outputGPX(activity, this, strDateTime, dir, 
+					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
+		}
+		else if( runHistorySaveResult == SAVE_NOT_TRY 
+		||  runHistorySaveResult != SAVE_OK )
+		{
+			
+			// GPXを保存する場合、スレッド終了後に行うのでここではやらない
+			outputGPXSaveResult = SAVE_OK;
+			runHistorySaveResult = SAVING;
+			// database�ւ̕ۑ�
+			int iInsCount = insertRunHistoryLog(activity, strDateTime, this );
+			if( iInsCount < 0)
+			{
+				setRunHistorySaveResult( SAVE_NG, this );
+			}
+			else
+			{
+				setRunHistorySaveResult( SAVE_OK, this );
+			}
+		}
+	}
+	
+	public static int SAVE_NOT_TRY = 2;
+	public static int SAVING = 1;
+	public static int SAVE_OK = 0;
+	public static int SAVE_NG = -1;
+	
+	static int runHistorySaveResult = SAVE_NOT_TRY;
+	static int outputGPXSaveResult = SAVE_NOT_TRY;
+	
+	public static void setRunHistorySaveResult( int code,RunningLogStocker stocker )
+	{
+		runHistorySaveResult = code;
+		trySaveFinish(stocker);
+	}
+	
+	public static void setOutputGPXSaveResult( int code,RunningLogStocker stocker )
+	{
+		outputGPXSaveResult = code;
+		trySaveFinish(stocker);
+	}
+	
+	public static void trySaveFinish(RunningLogStocker stocker)
+	{
+		if( outputGPXSaveResult == SAVE_NOT_TRY
+		|| runHistorySaveResult == SAVE_NOT_TRY )
+		{
+			return;
+		}
 		
-		// database�ւ̕ۑ�
-		int iRet = insertRunHistoryLog(activity, strDateTime, this );
-		
-		return iRet;
+		if( outputGPXSaveResult != SAVING
+		&& runHistorySaveResult != SAVING )
+		{
+			// 保存処理終了
+			if( outputGPXSaveResult == SAVE_NG )
+			{
+				Toast.makeText(mActivityWhenSave, R.string.SaveErrorGPX, Toast.LENGTH_LONG).show();
+				return;
+			}
+			else if( runHistorySaveResult == SAVE_NG )
+			{
+				// failed save database only 
+				Toast.makeText(mActivityWhenSave, R.string.SaveError, Toast.LENGTH_LONG).show();				
+			}
+			Toast.makeText(mActivityWhenSave, R.string.SaveOK, Toast.LENGTH_LONG).show();
+			
+			stocker.clear();
+			mActivityWhenSave.finish();
+		}
 	}
 }
