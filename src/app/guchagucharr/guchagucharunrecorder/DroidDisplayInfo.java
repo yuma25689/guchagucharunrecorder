@@ -11,9 +11,9 @@ import android.view.View;
 //import android.view.ViewParent;
 
 /**
- * ‰æ–Êî•ñæ“¾—pƒNƒ‰ƒX‚ÌÀ‘•(android—p)
- * Dip->Pixel‚Ö‚Ì•ÏŠ·‚É—˜—p
- * 1ƒsƒNƒZƒ‹~metrics.scaledDensity=1dip
+ * ï¿½ï¿½Êï¿½ï¿½æ“¾ï¿½pï¿½Nï¿½ï¿½ï¿½Xï¿½Ìï¿½ï¿½ï¿½(androidï¿½p)
+ * Dip->Pixelï¿½Ö‚Ì•ÏŠï¿½ï¿½É—ï¿½ï¿½p
+ * 1ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½~metrics.scaledDensity=1dip
  * @author 25689
  *
  */
@@ -51,7 +51,7 @@ public final class DroidDisplayInfo {
 	
 	
 	/**
-	 * ‰Šú‰»B‰æ–Êî•ñ‚Ìæ“¾‚É•K—v‚Èî•ñ‚ğ‚à‚ç‚¢A“à•”‚Ì‰æ–Êî•ñ‚ğXV‚·‚é
+	 * ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½Êï¿½ï¿½Ìæ“¾ï¿½É•Kï¿½vï¿½Èï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç‚¢ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½Êï¿½ï¿½ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
 	 * @param _activity
 	 * @param _viewForMeasureBarHeight
 	 */
@@ -65,10 +65,10 @@ public final class DroidDisplayInfo {
 		this.handler = handler;
 		if( activity != null )
 		{
-			// ƒTƒCƒY‚Ìƒx[ƒX‚Æ‚È‚é‰æ‘œ‚ğæ“¾
-			// Š„‚Æ‹­ˆø‚¾‚ªA‚±‚Ì‰æ‘œ‚ğƒXƒNƒŠ[ƒ“‚Æl‚¦‚½ˆÊ’u‚É‘¼‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ”z’u‚·‚é
-			// ‚±‚Ì‰æ‘œ“à‚Å‚Ì‘¼‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌˆÊ’u‚Í•ª‚©‚é‚ªAƒvƒƒOƒ‰ƒ€“à‚Å‚Ídensity‚ğl—¶‚µ‚È‚¯‚ê‚Î‚È‚ç‚È‚¢
-			// density‚ğl—¶‚µ‚½ê‡‚ÌA•â³’l‚ğŒvZ‚·‚é
+			// ï¿½Tï¿½Cï¿½Yï¿½Ìƒxï¿½[ï¿½Xï¿½Æ‚È‚ï¿½æ‘œï¿½ï¿½ï¿½æ“¾
+			// ï¿½ï¿½ï¿½Æ‹ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½Xï¿½Nï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ælï¿½ï¿½ï¿½ï¿½ï¿½Ê’uï¿½É‘ï¿½ï¿½ÌƒRï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½gï¿½ï¿½zï¿½uï¿½ï¿½ï¿½ï¿½
+			// ï¿½ï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½Å‚Ì‘ï¿½ï¿½ÌƒRï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½gï¿½ÌˆÊ’uï¿½Í•ï¿½ï¿½ï¿½ï¿½é‚ªï¿½Aï¿½vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½Î‚È‚ï¿½È‚ï¿½
+			// densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÌAï¿½â³ï¿½lï¿½ï¿½ï¿½vï¿½Zï¿½ï¿½ï¿½ï¿½
 //	        backgroundImgBase = OkosamaMediaPlayerActivity.getResourceAccessor()
 //	        		.getResourceDrawable(R.drawable.background_3);
 		}
@@ -76,7 +76,7 @@ public final class DroidDisplayInfo {
 	}
 	
 	/**
-	 * Activity‚Ì‰æ–Ê‚ÌMetrics‚ğ“à•”‚ÉŠi”[‚·‚é
+	 * Activityï¿½Ì‰ï¿½Ê‚ï¿½Metricsï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÉŠiï¿½[ï¿½ï¿½ï¿½ï¿½
 	 */
 	public void updateDisplayMetrics(boolean b)
 	{
@@ -88,7 +88,7 @@ public final class DroidDisplayInfo {
 			return;
 		}
 
-	    // ƒfƒBƒXƒvƒŒƒCî•ñ‚Ìæ“¾
+	    // ï¿½fï¿½Bï¿½Xï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Ìæ“¾
 	    activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
 	    if( viewForMeasureBarHeight == null )
@@ -96,34 +96,23 @@ public final class DroidDisplayInfo {
 	    	return;
 	    }
 	    
-	    // ƒXƒe[ƒ^ƒXƒo[‚ÆAƒ^ƒCƒgƒ‹ƒo[‚Ì‚‚³‚ğæ“¾
-	    // View‚ª”ñ•\¦‚Ìó‘Ô‚¾‚ÆAæ‚ê‚È‚¢B
 	    viewForMeasureBarHeight.post(new Runnable() {
 		    @Override
 			public void run() {
-		    	// ‚±‚¤‚·‚é‚±‚Æ‚ÅAView‚ªn‚Ü‚Á‚Ä‚¢‚È‚¢ê‡‚Å‚àAView‚ªŠJn‚µ‚Ä‚©‚çî•ñ‚ğæ“¾‚Å‚«‚éH
 		        Rect rect = new Rect();
-		        // View‚©‚çƒXƒe[ƒ^ƒXƒo[‚Ì‚‚³‚ğæ“¾
 		        viewForMeasureBarHeight.getWindowVisibleDisplayFrame(rect);
 		        statusBarHeightPixels = rect.top;
 		        
-		        // ƒXƒe[ƒ^ƒXƒo[‚Æƒ^ƒCƒgƒ‹ƒo[‚Ì‡ŒvH‚ğWindow‚©‚çæ“¾
-		        // =>ƒXƒe[ƒ^ƒXƒo[‚Æƒ^ƒCƒgƒ‹ƒo[‚Í‰B‚¹‚Ä‚¢‚é‚Í‚¸‚È‚Ì‚Å•s—v
 //				int contentViewTopPx = 
 //					activity.getWindow().findViewById(Window.ID_ANDROID_CONTENT).getTop();
-//				// ƒ^ƒCƒgƒ‹ƒo[‚Ì‚‚³‚ğæ“¾
 //				titleBarHeightPixels = contentViewTopPx - statusBarHeightPixels;
-//			    // ƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚Ì‚‚³‚ğæ“¾
 //			    clientHeightPixels = metrics.heightPixels - titleBarHeightPixels - statusBarHeightPixels;
-		        // ƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚Ì‚‚³‚ğæ“¾
-			    clientHeightPixels = metrics.heightPixels;		        
-		        // ÀÛ‚ÌDisplay‚Ì‚‚³‚Æ‰¡•‚ÆA”wŒi‰æ‘œ‚Ì‚‚³‚Æ‰¡•‚Æ‚Ì”ä—¦‚ğ‹‚ß‚é
-				// ƒx[ƒX‰æ‘œ‚ÌAŒ³iƒvƒƒOƒ‰ƒ€‚É“ü‚Á‚Ä‚­‚é‘Oj‚Ì‚‚³‚Æ•
+//			    clientHeightPixels = metrics.heightPixels;		        
+			    clientHeightPixels = metrics.heightPixels - statusBarHeightPixels;
 				orgHeightOfBk 
 					= ControlDefs.APP_BASE_HEIGHT;//(backgroundImgBase.getIntrinsicHeight()); /// metrics.density;
 				orgWidthOfBk 
 					= ControlDefs.APP_BASE_WIDTH;//(backgroundImgBase.getIntrinsicWidth());// / metrics.density;
-				// ƒvƒƒOƒ‰ƒ€“à‚Å‚ÌƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚ÌƒTƒCƒY‚ÆAŒ³‚Ì‰æ‘œ‚ÌƒTƒCƒY‚Æ‚Ì”ä—¦‚ğ‹‚ß‚é
 				if( isPortrait() )
 				{
 			        heightScaleCorrectDensity
@@ -143,7 +132,7 @@ public final class DroidDisplayInfo {
 			        		/ orgWidthOfBk;
 				}
 			
-				// handler‚É’Ê’m‚·‚é
+				// handlerï¿½É’Ê’mï¿½ï¿½ï¿½ï¿½
 				Message msg = Message.obtain();
 				msg.what = MessageDef.MSG_INIT_END;
 				msg.obj = bForceRecreate;
@@ -154,10 +143,10 @@ public final class DroidDisplayInfo {
 	}
 
 	/**
-	 * density‚ğl—¶‚µ‚È‚©‚Á‚½ê‡‚ÌˆÊ’u‚ğA
-	 * density‚ğl—¶‚µ‚½ê‡‚ÌÀ•W‚É’¼‚µ‚Ä•Ô‹p‚·‚é
-	 * @param orgY densityl—¶‘O‚ÌˆÊ’u
-	 * @return densityl—¶Œã‚ÌˆÊ’u
+	 * densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÌˆÊ’uï¿½ï¿½ï¿½A
+	 * densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ìï¿½ï¿½Wï¿½É’ï¿½ï¿½ï¿½ï¿½Ä•Ô‹pï¿½ï¿½ï¿½ï¿½
+	 * @param orgY densityï¿½lï¿½ï¿½ï¿½Oï¿½ÌˆÊ’u
+	 * @return densityï¿½lï¿½ï¿½ï¿½ï¿½ÌˆÊ’u
 	 * 
 	 */
 	public int getCorrectionXConsiderDensity( int orgX )
@@ -167,10 +156,10 @@ public final class DroidDisplayInfo {
 		return ret;
 	}	
 	/**
-	 * density‚ğl—¶‚µ‚È‚©‚Á‚½ê‡‚ÌˆÊ’u‚ğA
-	 * density‚ğl—¶‚µ‚½ê‡‚ÌÀ•W‚É’¼‚µ‚Ä•Ô‹p‚·‚é
-	 * @param orgY densityl—¶‘O‚ÌˆÊ’u
-	 * @return densityl—¶Œã‚ÌˆÊ’u
+	 * densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÌˆÊ’uï¿½ï¿½ï¿½A
+	 * densityï¿½ï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ìï¿½ï¿½Wï¿½É’ï¿½ï¿½ï¿½ï¿½Ä•Ô‹pï¿½ï¿½ï¿½ï¿½
+	 * @param orgY densityï¿½lï¿½ï¿½ï¿½Oï¿½ÌˆÊ’u
+	 * @return densityï¿½lï¿½ï¿½ï¿½ï¿½ÌˆÊ’u
 	 * 
 	 */
 	public int getCorrectionYConsiderDensity( int orgY )
@@ -181,7 +170,7 @@ public final class DroidDisplayInfo {
 	
 	/**
 	 * 
-	 * @return ƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚ÌƒTƒCƒY
+	 * @return ï¿½Nï¿½ï¿½ï¿½Cï¿½Aï¿½ï¿½ï¿½gï¿½Ìˆï¿½ÌƒTï¿½Cï¿½Y
 	 */
 //	public Rect getClientRect()
 //	{
@@ -205,8 +194,8 @@ public final class DroidDisplayInfo {
 	}
 	
 	/**
-	 * cŒü‚«‚©‚Ç‚¤‚©
-	 * @return true:c false:‰¡
+	 * ï¿½cï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
+	 * @return true:ï¿½c false:ï¿½ï¿½
 	 */
 	public boolean isPortrait()
 	{

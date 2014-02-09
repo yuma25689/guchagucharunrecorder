@@ -14,7 +14,19 @@ import app.guchagucharr.interfaces.IPageViewController;
 
 public class HistoryPagerAdapter extends PagerAdapter {
 	 
-    private static final int TOTAL_PAGE = 1;
+    private int mPageCount = 1;
+    public int getPageCount()
+    {
+    	return mPageCount;
+    }
+    public void setPageCount(int pageCount)
+    {
+    	if( mPageCount != pageCount )
+    	{
+    		// TODO: Adapterの更新を促す
+    		mPageCount = pageCount;
+    	}
+    }
     private LayoutInflater mInflter;
     private IPageViewController mParent;
  
@@ -48,7 +60,7 @@ public class HistoryPagerAdapter extends PagerAdapter {
     }
     @Override
     public int getCount() {
-        return TOTAL_PAGE;
+        return mPageCount;
     }
  
     @Override

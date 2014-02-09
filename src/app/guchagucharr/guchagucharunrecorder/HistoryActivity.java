@@ -33,6 +33,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	private ViewPager mViewPager;	
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
+	private HistoryPagerAdapter adapter = null;
 	
 	RunHistoryLoader loader = new RunHistoryLoader();
 	@Override
@@ -54,7 +55,8 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	{
         init();		
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
-        this.mViewPager.setAdapter(new HistoryPagerAdapter(this, this));
+        adapter = new HistoryPagerAdapter(this, this);
+        this.mViewPager.setAdapter(adapter);
         
         return 0;
 	}
@@ -66,10 +68,22 @@ public class HistoryActivity extends Activity implements IPageViewController {
 //		long time = cursor.getLong( lapTimeIndex );
 //		timeTotal += time;
 	
-	static final int FIRST_PANEL_ID = 1500;
+	static final int MAIN_FIRST_PANEL_ID = 1500;
 	
 	@Override
 	public int initControls( int position, RelativeLayout rl )
+	{
+		if( position == 0 )
+		{
+			updateMainPage( rl );
+		}
+		else if( position == 1 )
+		{
+			
+		}
+		return 0;
+	}
+	public void updateMainPage(RelativeLayout rl)
 	{
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
@@ -134,12 +148,12 @@ public class HistoryActivity extends Activity implements IPageViewController {
 				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
 				lp.addRule(RelativeLayout.ALIGN_LEFT);
 				lp.addRule(RelativeLayout.ALIGN_TOP);
-				dispBlock.setId(FIRST_PANEL_ID);
+				dispBlock.setId(MAIN_FIRST_PANEL_ID);
 				lastOddPanelID = dispBlock.getId();
 			}
 			else
 			{
-				dispBlock.setId(FIRST_PANEL_ID+iPanelCount);
+				dispBlock.setId(MAIN_FIRST_PANEL_ID+iPanelCount);
 				if( iPanelCount % 2 == 0 )
 				{
 					// ここにくるのは、奇数枚
@@ -173,9 +187,9 @@ public class HistoryActivity extends Activity implements IPageViewController {
 			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
 			rl.addView(dispBlock);
 			iPanelCount++;
+			return;
 		}
-		return 0;
-	}	
+	}
 	public void init()
 	{
 		// データをローダにロード
@@ -229,7 +243,23 @@ public class HistoryActivity extends Activity implements IPageViewController {
 					,null);
 	        try {
 	        	// TODO:GPXファイルの削除
-	        	
+	        	String gpxFile = null;
+	        	for( ActivityData data : loader.getHistoryData() )
+	        	{
+	        		if( data.getId() == item.getItemId() )
+	        		{
+	        			gpxFile = data.getGpxFilePath();
+	        			break;
+	        		}
+	        	}
+	        	if( gpxFile != null )
+	        	{
+	        		File file = new File( gpxFile );
+	        		if( file.exists() )
+	        		{
+	        			file.delete();
+	        		}
+	        	}
 	        	
 	        	int iRet = this.getContentResolver().delete(
 						Uri.parse("content://" 
