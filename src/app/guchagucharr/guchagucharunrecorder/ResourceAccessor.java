@@ -40,13 +40,13 @@ public final class ResourceAccessor {
 	
 	public static String SELECTOR_PREFIX ="selector_";
 	
-	public static String IND_M = null;
-	public static String IND_KM = null;
-	public static String IND_MPERS = null;
-	public static String IND_KMPERHOUR = null;
-	public static String IND_SEC = null;
-	public static String IND_MINUTE = null;
-	public static String IND_HOUR = null;
+	public String IND_M = null;
+	public String IND_KM = null;
+	public String IND_MPERS = null;
+	public String IND_KMPERHOUR = null;
+	public String IND_SEC = null;
+	public String IND_MINUTE = null;
+	public String IND_HOUR = null;
 		
 	public static final long TIME_MINUTE = 60;
 	public static final long TIME_HOUR = 60 * 60;

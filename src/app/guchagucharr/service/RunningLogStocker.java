@@ -151,9 +151,16 @@ public class RunningLogStocker {
 		lapData.put(iLap, currentLapData);
 		iLap++;
 		currentLapData.clear();
-		prevLocation = new Location( vLocation.lastElement() );
-		// ���Ԃ�������������
-		prevLocation.setTime(time);
+		currentLapData.setStartTime(time);
+		if( 0 < vLocation.size() )
+		{
+			prevLocation = new Location( vLocation.lastElement() );
+			prevLocation.setTime(time);
+		}
+		else
+		{
+			prevLocation = null;
+		}
 	}
 	public void stop( long time )
 	{		

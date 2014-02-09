@@ -1,6 +1,7 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -8,6 +9,7 @@ import java.util.TimerTask;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -94,6 +96,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	ImageView imgGPS = null;
 	// history button
 	ImageButton btnHistory = null;
+	ImageButton btnLap = null;
 	// init invisible
 	// time label
 	static TextView txtTime = null;
@@ -103,6 +106,8 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	static TextView txtSpeed = null;
 	// speed2
 	static TextView txtSpeed2 = null;
+	// time label
+	static TextView txtLap = null;
 	// cancel
 	ImageButton btnCancel = null;
 	
@@ -110,34 +115,41 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
 	 */
-	private static final boolean AUTO_HIDE = true;
+	//private static final boolean AUTO_HIDE = true;
 
 	/**
 	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
 	 * user interaction before hiding the system UI.
 	 */
-	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+	//private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
 	/**
 	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
 	 * will show the system UI visibility upon interaction.
 	 */
-	private static final boolean TOGGLE_ON_CLICK = true;
+	//private static final boolean TOGGLE_ON_CLICK = true;
 
 	/**
 	 * The flags to pass to {@link SystemUiHider#getInstance}.
 	 */
-	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+	//private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
 
 	/**
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
-	private SystemUiHider mSystemUiHider;
+	// private SystemUiHider mSystemUiHider;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		
+		// test用
+//		Locale locale = new Locale("jp");
+//		Locale.setDefault(locale);
+//		Configuration config = new Configuration();
+//		config.locale = Locale.getDefault();
+//		getResources().updateConfiguration(config, null);
+		
 		setContentView(R.layout.activity_main);
 		
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
@@ -147,66 +159,66 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
-		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
-				HIDER_FLAGS);
-		mSystemUiHider.setup();
-		mSystemUiHider
-				.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-					// Cached values.
-					int mControlsHeight;
-					int mShortAnimTime;
-
-					@Override
-					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-					public void onVisibilityChange(boolean visible) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-							// If the ViewPropertyAnimator API is available
-							// (Honeycomb MR2 and later), use it to animate the
-							// in-layout UI controls at the bottom of the
-							// screen.
-							if (mControlsHeight == 0) {
-								mControlsHeight = controlsView.getHeight();
-							}
-							if (mShortAnimTime == 0) {
-								mShortAnimTime = getResources().getInteger(
-										android.R.integer.config_shortAnimTime);
-							}
-							controlsView
-									.animate()
-									.translationY(visible ? 0 : mControlsHeight)
-									.setDuration(mShortAnimTime);
-						} else {
-							// If the ViewPropertyAnimator APIs aren't
-							// available, simply show or hide the in-layout UI
-							// controls.
-							controlsView.setVisibility(visible ? View.VISIBLE
-									: View.GONE);
-						}
-
-						if (visible && AUTO_HIDE) {
-							// Schedule a hide().
-							delayedHide(AUTO_HIDE_DELAY_MILLIS);
-						}
-					}
-				});
+//		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
+//				HIDER_FLAGS);
+//		mSystemUiHider.setup();
+//		mSystemUiHider
+//				.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+//					// Cached values.
+//					int mControlsHeight;
+//					int mShortAnimTime;
+//
+//					@Override
+//					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+//					public void onVisibilityChange(boolean visible) {
+//						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+//							// If the ViewPropertyAnimator API is available
+//							// (Honeycomb MR2 and later), use it to animate the
+//							// in-layout UI controls at the bottom of the
+//							// screen.
+//							if (mControlsHeight == 0) {
+//								mControlsHeight = controlsView.getHeight();
+//							}
+//							if (mShortAnimTime == 0) {
+//								mShortAnimTime = getResources().getInteger(
+//										android.R.integer.config_shortAnimTime);
+//							}
+//							controlsView
+//									.animate()
+//									.translationY(visible ? 0 : mControlsHeight)
+//									.setDuration(mShortAnimTime);
+//						} else {
+//							// If the ViewPropertyAnimator APIs aren't
+//							// available, simply show or hide the in-layout UI
+//							// controls.
+//							controlsView.setVisibility(visible ? View.VISIBLE
+//									: View.GONE);
+//						}
+//
+//						if (visible && AUTO_HIDE) {
+//							// Schedule a hide().
+//							delayedHide(AUTO_HIDE_DELAY_MILLIS);
+//						}
+//					}
+//				});
 
 		// Set up the user interaction to manually show or hide the system UI.
-		contentView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (TOGGLE_ON_CLICK) {
-					mSystemUiHider.toggle();
-				} else {
-					mSystemUiHider.show();
-				}
-			}
-		});
+//		contentView.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				if (TOGGLE_ON_CLICK) {
+//					mSystemUiHider.toggle();
+//				} else {
+//					mSystemUiHider.show();
+//				}
+//			}
+//		});
 
 		// Upon interacting with UI controls, delay any scheduled hide()
 		// operations to prevent the jarring behavior of controls going away
 		// while interacting with the UI.
-		findViewById(R.id.dummy_button).setOnTouchListener(
-				mDelayHideTouchListener);
+//		findViewById(R.id.dummy_button).setOnTouchListener(
+//				mDelayHideTouchListener);
 		
 		// GPS setting
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -216,7 +228,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
         // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
-		
+
 		// only use GPS or not
 //		Criteria criteria = new Criteria();
 //		    criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -257,55 +269,60 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 //            mLocationManager.removeUpdates(this);
 //        }
         // clearGPS();
+		//android.R.drawable.ic_menu_mylocation
         super.onPause();	
 	}
 	@Override
 	protected void onStop()
 	{
+		// TODO: 残念ながら、ここで、いちいちLocationを保存する仕組みにしないと、
+		// ランニング中にアプリケーションが終了するだけで、ランニングデータが消えてしまう。
+		// GPXファイルを常に書き続けるような作りと、
+		// GPXファイルからLocationデータを復帰させるような仕組みがあればいいのではないかと思われる。
         clearGPS();
         super.onStop();
 	}
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-
-		// Trigger the initial hide() shortly after the activity has been
-		// created, to briefly hint to the user that UI controls
-		// are available.
-		delayedHide(100);
-	}
+//	@Override
+//	protected void onPostCreate(Bundle savedInstanceState) {
+//		super.onPostCreate(savedInstanceState);
+//
+//		// Trigger the initial hide() shortly after the activity has been
+//		// created, to briefly hint to the user that UI controls
+//		// are available.
+//		delayedHide(100);
+//	}
 
 	/**
 	 * Touch listener to use for in-layout UI controls to delay hiding the
 	 * system UI. This is to prevent the jarring behavior of controls going away
 	 * while interacting with activity UI.
 	 */
-	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-		@Override
-		public boolean onTouch(View view, MotionEvent motionEvent) {
-			if (AUTO_HIDE) {
-				delayedHide(AUTO_HIDE_DELAY_MILLIS);
-			}
-			return false;
-		}
-	};
+//	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+//		@Override
+//		public boolean onTouch(View view, MotionEvent motionEvent) {
+//			if (AUTO_HIDE) {
+//				delayedHide(AUTO_HIDE_DELAY_MILLIS);
+//			}
+//			return false;
+//		}
+//	};
 
-	Handler mHideHandler = new Handler();
-	Runnable mHideRunnable = new Runnable() {
-		@Override
-		public void run() {
-			mSystemUiHider.hide();
-		}
-	};
+//	Handler mHideHandler = new Handler();
+//	Runnable mHideRunnable = new Runnable() {
+//		@Override
+//		public void run() {
+//			mSystemUiHider.hide();
+//		}
+//	};
 
 	/**
 	 * Schedules a call to hide() in [delay] milliseconds, canceling any
 	 * previously scheduled calls.
 	 */
-	private void delayedHide(int delayMillis) {
-		mHideHandler.removeCallbacks(mHideRunnable);
-		mHideHandler.postDelayed(mHideRunnable, delayMillis);
-	}
+//	private void delayedHide(int delayMillis) {
+//		mHideHandler.removeCallbacks(mHideRunnable);
+//		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+//	}
 
 	
 	@Override
@@ -380,6 +397,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	static final int GPS_INDICATOR_ID = 1002;
 	static final int DISTANCE_TEXT_ID = 1010;
 	static final int SPEED_TEXT_ID = 1011;
+	static final int LAP_BUTTON_ID = 1012;
 	
 	static final int LEFT_TOP_CTRL_1_LEFT_MARGIN = 20;
 	static final int LEFT_TOP_CTRL_1_TOP_MARGIN = 40;
@@ -403,10 +421,26 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	//static final int SPEED_TEXTVIEW_HEIGHT = 60;
 	static final int SPEED_TEXTVIEW_FONT_SIZE = 25;
 	
+	static final int LAP_TEXTVIEW_FONT_SIZE = 25;
 	
 	@Override
 	public int initControls()
 	{
+        if( mTimer != null) 
+        {
+			txtDistance.setVisibility(View.VISIBLE);
+			txtSpeed.setVisibility(View.VISIBLE);
+			txtSpeed2.setVisibility(View.VISIBLE);
+			txtTime.setVisibility(View.VISIBLE);
+			btnLap.setVisibility(View.VISIBLE);
+			if( 0 < ResourceAccessor.getInstance().getLogStocker().getLapCount() )
+			{
+				txtLap.setVisibility(View.VISIBLE);
+			}
+			
+			mode = eMode.MODE_MEASURING;
+        }
+		
 		componentContainer.removeAllViews();
 		int ret = 0;
 		//ViewGroup contentView = ((ViewGroup)findViewById(android.R.id.content));
@@ -560,6 +594,41 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		componentContainer.addView(txtSpeed2);
 		
+		// next Lap button
+		btnLap = new ImageButton(this);
+		btnLap.setId(LAP_BUTTON_ID);
+		// TODO: next lapみたいな文言
+		btnLap.setBackgroundResource( R.drawable.selector_history_button_image );
+		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+				R.drawable.main_historybutton_normal);
+		RelativeLayout.LayoutParams rlBtnLap
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
+				bmpoptions.outWidth, bmpoptions.outHeight, true );
+		//rlBtnLap.addRule(RelativeLayout.ALIGN_RIGHT );
+		//rlBtnLap.addRule(RelativeLayout.ALIGN_BOTTOM );
+		
+		btnLap.setLayoutParams(rlBtnLap);
+		btnLap.setScaleType(ScaleType.FIT_XY);
+		btnLap.setOnClickListener(this);
+		componentContainer.addView(btnLap);
+		
+		// lap label
+		txtLap = new TextView(this);
+		RelativeLayout.LayoutParams rlTxtLap
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		rlTxtSpeed2.addRule(RelativeLayout.BELOW, LAP_BUTTON_ID);
+		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		txtLap.setLayoutParams(rlTxtSpeed2);
+		txtLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(
+				R.color.theme_color_cantedit));
+		txtLap.setTextSize(LAP_TEXTVIEW_FONT_SIZE);
+		txtLap.setSingleLine();
+		txtLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+		componentContainer.addView(txtLap);
+		
 		// cancel?
 		//btnCancel = new ImageButton(this);
 		
@@ -570,6 +639,8 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			txtDistance.setVisibility(View.GONE);
 			txtSpeed.setVisibility(View.GONE);
 			txtSpeed2.setVisibility(View.GONE);
+			btnLap.setVisibility(View.GONE);
+			txtLap.setVisibility(View.GONE);
 			btnCenter.setEnabled(false);
 		}
 		else if( mode == eMode.MODE_MEASURING )
@@ -577,7 +648,12 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			txtDistance.setVisibility(View.VISIBLE);
 			txtSpeed.setVisibility(View.VISIBLE);
 			txtSpeed2.setVisibility(View.VISIBLE);
-			txtTime.setVisibility(View.VISIBLE);			
+			txtTime.setVisibility(View.VISIBLE);		
+			btnLap.setVisibility(View.VISIBLE);
+			if( 0 < ResourceAccessor.getInstance().getLogStocker().getLapCount() )
+			{
+				txtLap.setVisibility(View.VISIBLE);
+			}
 		}
 		
 		
@@ -650,6 +726,12 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
 	        startActivity(intent);			
 		}
+		else if( v == btnLap )
+		{
+			// 次のラップへ
+			ResourceAccessor.getInstance().getLogStocker().nextLap(new Date().getTime());
+			txtLap.setText(getString(R.string.LAP_COUNT_LABEL) + ResourceAccessor.getInstance().getLogStocker().getLapCount());
+		}
 		else if( v == btnCenter )
 		{
 			// TODO:cliping not button region
@@ -674,6 +756,12 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 				txtSpeed.setVisibility(View.VISIBLE);
 				txtSpeed2.setVisibility(View.VISIBLE);
 				txtTime.setVisibility(View.VISIBLE);
+				btnLap.setVisibility(View.VISIBLE);			
+				if( 0 < ResourceAccessor.getInstance().getLogStocker().getLapCount() )
+				{
+					txtLap.setVisibility(View.VISIBLE);
+				}
+				
 				mode = eMode.MODE_MEASURING;
 			}
 			else if( mode == eMode.MODE_MEASURING )
@@ -693,6 +781,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 //				txtDistance.setVisibility(View.VISIBLE);
 //				txtSpeed.setVisibility(View.VISIBLE);
 //				txtTime.setVisibility(View.VISIBLE);
+				btnLap.setVisibility(View.GONE);						
 				mode = eMode.MODE_NORMAL;
 				clearGPS();
 			}

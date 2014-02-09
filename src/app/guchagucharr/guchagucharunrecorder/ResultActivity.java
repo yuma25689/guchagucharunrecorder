@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -285,6 +286,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		int ret = 0;
 		if( position == RESULT_PAGE_NORMAL )
 		{
+			rl.setBackgroundResource(R.drawable.main_background);
 			//ViewGroup contentView = ((ViewGroup)findViewById(android.R.id.content));
 			BitmapFactory.Options bmpoptions = null;
 			// �����̃{�^��
@@ -498,7 +500,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				
 				inflater.inflate( R.layout.page_hscrollable, rl );
 				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );				
-			}			
+			}
+			rl.setBackgroundColor(Color.WHITE);
 		}
 		return ret;
 	}

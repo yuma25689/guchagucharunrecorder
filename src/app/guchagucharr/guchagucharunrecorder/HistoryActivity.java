@@ -1,5 +1,6 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +74,8 @@ public class HistoryActivity extends Activity implements IPageViewController {
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 				mainData.size());
-		SimpleDateFormat sdfDateTime = new SimpleDateFormat(getString(R.string.datetime_display_format));
+		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+				getString(R.string.datetime_display_format));
 //		SimpleDateFormat sdfDate = new SimpleDateFormat(getString(R.string.date_display_format));
 //		SimpleDateFormat sdfTime = new SimpleDateFormat(getString(R.string.time_display_format));
 		int lastEvenPanelID = 0;
@@ -91,7 +93,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 				timeTotal += lapData.getTime();				
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
-			}			
+			}	
 			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
 			
 			// DisplayBlock追加
@@ -99,11 +101,32 @@ public class HistoryActivity extends Activity implements IPageViewController {
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
+			String gpxExists = null;
+			String lapCount = null;
+			String gpx = data.getGpxFilePath();
+			if( gpx != null )
+			{
+				File file = new File(gpx);
+				if( file.exists() )
+				{
+					gpxExists = getString(R.string.GPX_EXISTS);
+				}
+				else
+				{
+					gpxExists = getString(R.string.GPX_LOSE);
+				}
+			}
+			if( 1 < data.getLapCount() )
+			{
+				lapCount = getString( R.string.LAP_COUNT_LABEL ) + data.getLapCount();
+			}
 			String text[] = {
 					LapData.createDistanceFormatText( distanceTotal ),
 					LapData.createTimeFormatText( timeTotal ),
 					//LapData.createSpeedFormatText( speedTotal ),
-					LapData.createSpeedFormatTextKmPerH( speedTotal )
+					LapData.createSpeedFormatTextKmPerH( speedTotal ),
+					gpxExists,
+					lapCount
 			};
 			DisplayBlock dispBlock = new DisplayBlock(this, data.getId(), dispInfo, title, text, sizeType);
 			if( iPanelCount == 0 )
@@ -170,6 +193,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	}
 	static final int CONTEXT_MENU_DETAIL_ID = 0;
 	static final int CONTEXT_MENU_DELETE_ID = 1;
+	static final int CONTEXT_MENU_SHARE_ID = 2;
 	 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -183,7 +207,9 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	    //menu.setHeaderIcon
 	    //Menu.add(int groupId, int itemId, int order, CharSequence title)
 	    menu.add(CONTEXT_MENU_DETAIL_ID, (int)block.getRecordId(), 0, R.string.menu_detail);
+	    menu.add(CONTEXT_MENU_SHARE_ID, (int)block.getRecordId(), 0, R.string.menu_share);
 	    menu.add(CONTEXT_MENU_DELETE_ID, (int)block.getRecordId(), 0, R.string.menu_delete);
+	    
 	}
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
@@ -191,6 +217,8 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	    case CONTEXT_MENU_DETAIL_ID:
 	        // メニュー押下時の操作
 	        return true;
+	    case CONTEXT_MENU_SHARE_ID:
+	    	return true;
 	    case CONTEXT_MENU_DELETE_ID:
 	        // メニュー押下時の操作
 	    	// トランザクションの考慮

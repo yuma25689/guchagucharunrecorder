@@ -57,11 +57,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int selector_save_button_image=0x7f02001e;
     }
     public static final class id {
-        public static final int dummy_button=0x7f070002;
-        public static final int fullscreen_content_controls=0x7f070001;
+        public static final int dummy_button=0x7f070003;
+        public static final int fullscreen_content_controls=0x7f070002;
         public static final int main_content=0x7f070000;
         public static final int page_content=0x7f070004;
-        public static final int viewpager1=0x7f070003;
+        public static final int viewpager1=0x7f070001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -76,6 +76,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f05000f;
         public static final int GPS_OFF=0x7f050006;
         public static final int GPS_ON=0x7f050005;
+        public static final int GPX_EXISTS=0x7f05001c;
+        public static final int GPX_LOSE=0x7f05001d;
+        public static final int LAP_COUNT_LABEL=0x7f05001e;
+        public static final int LAP_LABEL=0x7f05001f;
         public static final int MSG_EXPORT_PROGRESS=0x7f050010;
         public static final int SaveError=0x7f050011;
         public static final int SaveErrorDatabaseOnly=0x7f050014;
@@ -101,6 +105,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int killoperhour=0x7f05000d;
         public static final int menu_delete=0x7f05001a;
         public static final int menu_detail=0x7f050019;
+        public static final int menu_share=0x7f05001b;
         public static final int meter=0x7f050007;
         public static final int meterpersecond=0x7f05000c;
         public static final int minute=0x7f05000a;
@@ -117,17 +122,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         
-
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-    
- API 11 theme customizations can go here. 
-
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    
- API 14 theme customizations can go here. 
          */
         public static final int AppBaseTheme=0x7f060000;
         /**  Application theme. 
@@ -136,7 +130,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int AppTheme=0x7f060001;
         public static final int ButtonBar=0x7f060003;
         public static final int ButtonBarButton=0x7f060004;
-        public static final int FullscreenActionBarStyle=0x7f060005;
         public static final int FullscreenTheme=0x7f060002;
     }
     public static final class styleable {

@@ -129,11 +129,11 @@ public class LapData {
 		
 		if( distance < DISTANCE_KM )
 		{
-			ret = String.format( "%.0f", distance ) + ResourceAccessor.IND_M;
+			ret = String.format( "%.0f", distance ) + ResourceAccessor.getInstance().IND_M;
 		}
 		else
 		{
-			ret = String.format( "%.3f", distance / DISTANCE_KM ) + ResourceAccessor.IND_KM;
+			ret = String.format( "%.3f", distance / DISTANCE_KM ) + ResourceAccessor.getInstance().IND_KM;
 		}			
 		
 		return ret;
@@ -182,7 +182,7 @@ public class LapData {
 		String ret = null;
 
 		// m/s
-		ret = String.format("%.2f", speed) + ResourceAccessor.IND_MPERS;
+		ret = String.format("%.2f", speed) + ResourceAccessor.getInstance().IND_MPERS;
 		return ret;
 	}
 	public static String createSpeedFormatTextKmPerH(double speed)
@@ -190,7 +190,7 @@ public class LapData {
 		String ret = null;
 		double meterperhour = speed * 60 * 60;
 		
-		ret = String.format("%.2f", meterperhour / 1000 ) + ResourceAccessor.IND_KMPERHOUR;
+		ret = String.format("%.2f", meterperhour / 1000 ) + ResourceAccessor.getInstance().IND_KMPERHOUR;
 		return ret;
 		
 	}

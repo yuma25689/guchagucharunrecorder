@@ -42,8 +42,6 @@
     <!--
          This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows.
-    -->
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -68,5 +66,6 @@
                 android:text="@string/dummy_button" />
         </LinearLayout>
     </FrameLayout>
+    -->
 
 </FrameLayout>
