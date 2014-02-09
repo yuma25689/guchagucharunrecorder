@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
 
     <!--
          The primary full-screen view. This can be replaced with whatever view
@@ -14,7 +14,6 @@
 	<RelativeLayout
 	    android:id="@+id/main_content"
 	    android:background="@drawable/main_background"
-        android:keepScreenOn="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <!-- 

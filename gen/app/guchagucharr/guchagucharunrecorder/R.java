@@ -51,22 +51,26 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int main_stopbutton_press=0x7f020018;
         public static final int selector_gps_button_image=0x7f020019;
         public static final int selector_history_button_image=0x7f02001a;
-        public static final int selector_runstart_button_image=0x7f02001b;
-        public static final int selector_runstop_button_image=0x7f02001c;
-        public static final int selector_save_button_image=0x7f02001d;
+        public static final int selector_mainitem_panel_image=0x7f02001b;
+        public static final int selector_runstart_button_image=0x7f02001c;
+        public static final int selector_runstop_button_image=0x7f02001d;
+        public static final int selector_save_button_image=0x7f02001e;
     }
     public static final class id {
         public static final int dummy_button=0x7f070002;
         public static final int fullscreen_content_controls=0x7f070001;
         public static final int main_content=0x7f070000;
-        public static final int toptext=0x7f070004;
+        public static final int page_content=0x7f070004;
         public static final int viewpager1=0x7f070003;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int activity_viewpager=0x7f030001;
-        public static final int lst_menu_row=0x7f030002;
-        public static final int result_page=0x7f030003;
+        public static final int activity_viewpager_only=0x7f030002;
+        public static final int history_page=0x7f030003;
+        public static final int page_hscrollable=0x7f030004;
+        public static final int page_vscrollable=0x7f030005;
+        public static final int result_page=0x7f030006;
     }
     public static final class string {
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f05000f;
@@ -80,6 +84,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int SaveOK=0x7f050015;
         public static final int app_name=0x7f050000;
         public static final int cant_get=0x7f05000e;
+        public static final int date_display_format=0x7f050017;
+        public static final int datetime_display_format=0x7f050016;
         public static final int dummy_button=0x7f050001;
         public static final int dummy_content=0x7f050002;
         /**  Do not translate. Duration format for duration >= 1 hour 
@@ -93,10 +99,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int hour=0x7f05000b;
         public static final int killometer=0x7f050008;
         public static final int killoperhour=0x7f05000d;
+        public static final int menu_delete=0x7f05001a;
+        public static final int menu_detail=0x7f050019;
         public static final int meter=0x7f050007;
         public static final int meterpersecond=0x7f05000c;
         public static final int minute=0x7f05000a;
         public static final int second=0x7f050009;
+        public static final int time_display_format=0x7f050018;
     }
     public static final class style {
         /** 

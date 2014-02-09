@@ -3,6 +3,7 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +45,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	private ViewPager mViewPager;   // �r���[�y�[�W���[	
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
+	private LayoutInflater inflater = null;
+	
 	//private RunningLogStocker runLogStocker;
 	private final int RESULT_PAGE_NORMAL = 0;
 	private final int RESULT_PAGE_LAP = 1;
@@ -174,8 +178,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
-		
-		
+
+	    inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
 	}
 
 	@Override
@@ -448,14 +452,52 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
+			final int BLOCK_PADDING = 3;
+			// 時間
+			// 距離
+			// 速度
+			// 上記３つOr２つを縦に並べたものを1ブロックにする
+			// とりあえずブロックの大きさは、文字が全て入るコントロールの最小の大きさとする
+			int iContentCount = ResourceAccessor.getInstance().getLogStocker().getLapCount();
+			final int CONTENT_COUNT_ONE = 1;
+			final int CONTENT_COUNT_SOSO = 5;
+			final int CONTENT_COUNT_MANY = 10;
+			int iWidth = 0;
+			int iHeight = 0;
 			if( dispInfo.isPortrait() )
 			{
-
+				iWidth = ControlDefs.APP_BASE_WIDTH;
+				iHeight = ControlDefs.APP_BASE_HEIGHT;
+				inflater.inflate( R.layout.page_vscrollable, rl );
+				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );
+				// 数によって、並べ方を変える
+				if( iContentCount == CONTENT_COUNT_ONE )
+				{
+					// 地図も表示してみる？
+					// それに加えて、キロごとのデータも？
+				}
+				else if( CONTENT_COUNT_MANY <= iContentCount )
+				{
+					int iEvenLineLeftPadding = 0;
+					int iOddLineLeftPadding = 30;
+					// ->ラップではあまりない？
+					// スクロールビューなので、何も考えずに全てのブロックを積む
+					// ひょっとしたらパフォーマンスの問題が出るかもしれない
+					// 不規則な大きさのブロックで組んだようなレイアウトにする
+					int iYearBlockWidth = 50;
+					int iYearBlockHeight = 50;
+					
+				}
+				
+				
 			}
 			else
 			{
+				iWidth = ControlDefs.APP_BASE_HEIGHT;
+				iHeight = ControlDefs.APP_BASE_WIDTH;
 				
-			
+				inflater.inflate( R.layout.page_hscrollable, rl );
+				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );				
 			}			
 		}
 		return ret;
@@ -493,5 +535,10 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 //				finish();
 //			}
 		}
+	}
+
+	@Override
+	public DisplayInfo getDispInfo() {
+		return dispInfo;
 	}
 }

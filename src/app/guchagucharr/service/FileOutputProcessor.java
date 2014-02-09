@@ -1,5 +1,7 @@
 package app.guchagucharr.service;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Handler;
@@ -7,12 +9,18 @@ import android.os.Message;
 import app.guchagucharr.guchagucharunrecorder.R;
 
 public class FileOutputProcessor implements Runnable {
+	public static final int NG_DIR_CREATE = 1;
 	
 	private static ProgressDialog progressDialog = null;
 	FileOutputThread thread = null;
 	Activity mActivity;
 	String dateTime;
 	RunningLogStocker stocker;
+	String gpxFilePath = null;
+	public String getGpxFilePath()
+	{
+		return gpxFilePath;
+	}
 
 	public void outputGPX(Activity activity,
 			// Vector<Location> vData,
@@ -21,6 +29,19 @@ public class FileOutputProcessor implements Runnable {
 			// SparseArray<LapData> lapData,			
 			String dir, String fileName)
 	{
+		File objDir = new File( dir );
+		if( false == objDir.exists() )
+		{
+			if( false == objDir.mkdirs() )
+			{
+				RunningLogStocker.setOutputGPXSaveResult( RunningLogStocker.SAVE_NG, stocker );
+				return;
+			}
+		}
+		// create a file on the SDcard to export the
+		// database contents to
+		gpxFilePath = dir + "/" + fileName;
+				
 		mActivity = activity;
 		dateTime = dateTime_;
 		stocker = runStocker;
@@ -41,8 +62,7 @@ public class FileOutputProcessor implements Runnable {
         	handler,
         	this,
         	FileOutputThread.PROC_TYPE_EXPORT_GPX,
-        	dir,
-        	fileName
+        	gpxFilePath
         );
         thread.start();
 	}
@@ -99,7 +119,7 @@ public class FileOutputProcessor implements Runnable {
 				{
 					RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_OK, stocker);
 					// database�ւ̕ۑ�
-					int iInsCount = stocker.insertRunHistoryLog(mActivity, dateTime, stocker );
+					int iInsCount = stocker.insertRunHistoryLog(mActivity, dateTime, getGpxFilePath(), stocker );
 					if( iInsCount < 0)
 					{
 						RunningLogStocker.setRunHistorySaveResult( RunningLogStocker.SAVE_NG, stocker );

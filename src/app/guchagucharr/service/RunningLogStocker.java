@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
@@ -162,16 +163,17 @@ public class RunningLogStocker {
 	}
 	
 	public ContentValues createContentValues(int tableID, 
-			long insertTime, String strExtra, long lngExtra, int iExtra )
+			long insertTime, String[] strExtra, long lngExtra, int iExtra )
 	{
 		ContentValues ret = null;
 		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
 		{
 			ret = new ContentValues();
 			ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime);
-			ret.put(RunHistoryTableContract.NAME, strExtra);
+			ret.put(RunHistoryTableContract.NAME, strExtra[0]);
 			ret.put(RunHistoryTableContract.LAP_COUNT, getLapCount() );
-			// TODO: �ꏊ�̓o�^�͂܂�������
+            ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
+			// TODO: place id under construction
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
 
 		}
@@ -188,7 +190,6 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
-            ret.put( RunHistoryTableContract.FILE_NAME, strExtra );
 			
 		}
 		
@@ -199,7 +200,8 @@ public class RunningLogStocker {
 
 	public int insertRunHistoryLog(
 			Activity activity,
-			String logname, 
+			String logname,
+			String gpxFilePath,
 			RunningLogStocker log)
 	{
 		int insertCount = -1;
@@ -211,13 +213,14 @@ public class RunningLogStocker {
         //SQLiteDatabase db = databaseHelper.getReadableDatabase();
         //db.beginTransaction();
         try {
-        	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
+        	// SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
         	ContentValues values = null;
         	Date date = new Date();
         	long time = date.getTime();
+        	String saveText[] = { logname, gpxFilePath };
         	values = log.createContentValues(
         			RunHistoryTableContract.HISTORY_TABLE_ID
-        			, time, sdf.format( date ), 0, 0);
+        			, time, saveText, 0, 0);
         	if( values == null )
         	{
         		Toast.makeText(activity, "failed to save the runnning data.", 
@@ -242,7 +245,7 @@ public class RunningLogStocker {
         		{
 	            	values = log.createContentValues(RunHistoryTableContract.HISTORY_LAP_TABLE_ID, 
 	            			time, 
-	            			null,	// TODO: GPX�t�@�C���̃p�X
+	            			null,
 	            			id,	// �e��id
 	            			iLap);	// lap index
 	            	if( values == null )
@@ -253,12 +256,20 @@ public class RunningLogStocker {
 	            	}
 	            	// long lapId = 
 	            	//db.insert(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME, null, values);
-	            	//Uri uriRet = 
+	            	Uri uriRetLap = 
 	            	activity.getContentResolver().insert(
         					Uri.parse("content://" 
         					+ RunHistoryTableContract.AUTHORITY + "/" 
         					+ RunHistoryTableContract.HISTORY_LAP_TABLE_NAME ), values);
 	            	
+	            	if( uriRetLap != null)
+	            	{
+	            		Log.v("insert",uriRetLap.toString());
+	            	}
+	            	else
+	            	{
+	            		Log.v("insert failed?","null");
+	            	}
 	            	insertCount++;
         		}
                 //db.setTransactionSuccessful();
@@ -317,7 +328,7 @@ public class RunningLogStocker {
 			outputGPXSaveResult = SAVE_OK;
 			runHistorySaveResult = SAVING;
 			// database�ւ̕ۑ�
-			int iInsCount = insertRunHistoryLog(activity, strDateTime, this );
+			int iInsCount = insertRunHistoryLog(activity, strDateTime, null, this );
 			if( iInsCount < 0)
 			{
 				setRunHistorySaveResult( SAVE_NG, this );

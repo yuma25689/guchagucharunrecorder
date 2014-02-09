@@ -15,7 +15,8 @@ public class RunHistoryTableContract implements BaseColumns {
 	public static final String HISTORY_COMMIT = "Commit";
 	public static final String HISTORY_ENDTRANSACTION = "EndTransaction";
     public static final String AUTHORITY = "guchagucharr.runhistoryprovider";
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY );
+    public static final String CONTENT_URI_STRING = "content://" + AUTHORITY;
+        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY );
  
 //    private static final String PROVIDER_SPECIFIC_NAME = AUTHORITY;
 //    private static final String PROVIDER_SPECIFIC_TYPE = PATH;
@@ -34,6 +35,6 @@ public class RunHistoryTableContract implements BaseColumns {
     public static final String LAP_FIXED_DISTANCE = "LAP_FIXED_DISTANCE";
     public static final String LAP_FIXED_TIME = "LAP_FIXED_TIME";
     public static final String LAP_FIXED_SPEED = "LAP_FIXED_SPEED";
-    public static final String FILE_NAME = "FILE_NAME";
+    public static final String GPX_FILE_PATH = "GPX_FILE_PATH";
     
 }

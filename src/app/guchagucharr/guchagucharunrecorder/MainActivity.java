@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -483,6 +484,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		
 		btnHistory.setLayoutParams(rlBtnHistory);
 		btnHistory.setScaleType(ScaleType.FIT_XY);
+		btnHistory.setOnClickListener(this);
 		componentContainer.addView(btnHistory);
 		
 		// time label
@@ -641,19 +643,22 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 				initGPS();
 			}
 		}
+		else if( v == btnHistory )
+		{
+			// launch activity for save
+			Intent intent = new Intent( this, HistoryActivity.class );
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
+	        startActivity(intent);			
+		}
 		else if( v == btnCenter )
 		{
 			// TODO:cliping not button region
 			if( mode == eMode.MODE_NORMAL )
 			{
-				// �J�n
-				// �{�^����ύX
 				btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
 				Date now = new Date();
 				long time = now.getTime();
 			    if(mTimer == null){
-			    	 
-			        //�^�C�}�[�̏�����
 			        timerTask = new UpdateTimeDisplayTask();
 			        mTimer = new Timer(true);
 			        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
@@ -669,8 +674,6 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 				txtSpeed.setVisibility(View.VISIBLE);
 				txtSpeed2.setVisibility(View.VISIBLE);
 				txtTime.setVisibility(View.VISIBLE);
-				
-				
 				mode = eMode.MODE_MEASURING;
 			}
 			else if( mode == eMode.MODE_MEASURING )
@@ -681,7 +684,6 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	                mTimer = null;
 	            }		
 				ResourceAccessor.getInstance().getLogStocker().stop(new Date().getTime());
-
 				// launch activity for save
 				Intent intent = new Intent( this, ResultActivity.class );
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 

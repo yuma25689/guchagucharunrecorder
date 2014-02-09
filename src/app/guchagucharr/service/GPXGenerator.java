@@ -77,7 +77,6 @@ public class GPXGenerator {
 	
 	public static final int NG_ERROR_UNKNOWN = -1;
 	public static final int RETURN_OK = 0;
-	public static final int NG_DIR_CREATE = 1;
 	
 	int iCurrentOutputLap = -1;
 	Vector<Location> vData = null;
@@ -112,22 +111,12 @@ public class GPXGenerator {
 	 */
 	public int createGPXFileFromLocations(
 			Activity activity,
-			String dir, String file)
+			String gpxFilePath )
 	{
 		
 		try
 		{
-			File objDir = new File( dir );
-			if( false == objDir.exists() )
-			{
-				if( false == objDir.mkdirs() )
-				{
-					return NG_DIR_CREATE;
-				}
-			}
-			// create a file on the SDcard to export the
-			// database contents to
-			File gpxFile = new File( dir + "/" + file );
+			File gpxFile = new File( gpxFilePath );
             gpxFile.createNewFile();
 
             FileOutputStream fOut =  new FileOutputStream(gpxFile);

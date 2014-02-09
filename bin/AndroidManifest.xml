@@ -32,9 +32,15 @@
         </activity>
     	<activity
             android:name="app.guchagucharr.guchagucharunrecorder.ResultActivity"
+            android:theme="@style/FullscreenTheme"
            >
     	</activity>
-		
+    	<activity
+            android:name="app.guchagucharr.guchagucharunrecorder.HistoryActivity"
+            android:theme="@style/FullscreenTheme"
+           >
+    	</activity>
+    			
     </application>
 
 </manifest>

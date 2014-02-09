@@ -12,8 +12,7 @@ public class FileOutputThread extends Thread {
 	public static final int PROC_TYPE_NONE = 0;
 	public static final int PROC_TYPE_EXPORT_GPX = 1;
 	private int iProcType = PROC_TYPE_NONE;
-	private String strDir;
-	private String strFile;
+	private String strPath;
 	private Boolean bRet = false;
 	RunningLogStocker stocker = null;
 	// SparseArray<LapData> lapData = null;
@@ -26,8 +25,7 @@ public class FileOutputThread extends Thread {
 			Handler _handler,
 			Runnable _listener,
 			int _iProcType,
-			String _strDir,
-			String _strFile
+			String _strPath
 	)
     {
         this.act = _act;
@@ -36,8 +34,7 @@ public class FileOutputThread extends Thread {
 		this.handler = _handler;
         this.listener = _listener;
         this.iProcType = _iProcType;
-        this.strDir = _strDir;
-        this.strFile = _strFile;
+        this.strPath = _strPath;
     }
 
 	public Boolean getResult()
@@ -49,14 +46,14 @@ public class FileOutputThread extends Thread {
     public void run()
     {
     	int iRet = 0;
-        GPXGenerator processor = 
+        GPXGenerator generator = 
         	new GPXGenerator(stocker.getLocationData(),handler);
         switch( iProcType )
         {
         case PROC_TYPE_NONE:
         	break;
         case PROC_TYPE_EXPORT_GPX:
-        	iRet = processor.createGPXFileFromLocations(act, strDir, strFile);
+        	iRet = generator.createGPXFileFromLocations(act, strPath);
         	if( iRet == GPXGenerator.RETURN_OK )
         	{
         		bRet = true;
@@ -67,9 +64,6 @@ public class FileOutputThread extends Thread {
         // 終了を通知
         handler.post(listener);
     }
-    public String getFileNm() {
-		return strFile;
-	}
     public int getProcType() {
 		return iProcType;
 	}

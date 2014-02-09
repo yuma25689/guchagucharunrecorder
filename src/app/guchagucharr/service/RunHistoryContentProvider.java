@@ -37,7 +37,8 @@ public class RunHistoryContentProvider extends ContentProvider {
             		+ RunHistoryTableContract.INSERT_DATETIME + " INTEGER,"
             		+ RunHistoryTableContract.NAME + " TEXT,"
             		+ RunHistoryTableContract.LAP_COUNT + " INTEGER,"
-            		+ RunHistoryTableContract.PLACE_ID + " INTEGER"
+            		+ RunHistoryTableContract.PLACE_ID + " INTEGER,"
+                    + RunHistoryTableContract.GPX_FILE_PATH + " TEXT"
                     + ");");
             db.execSQL("CREATE TABLE " + RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
             		+ " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -49,8 +50,7 @@ public class RunHistoryContentProvider extends ContentProvider {
                     + RunHistoryTableContract.LAP_SPEED + " REAL,"
                     + RunHistoryTableContract.LAP_FIXED_DISTANCE + " REAL,"
                     + RunHistoryTableContract.LAP_FIXED_TIME + " INTEGER,"
-                    + RunHistoryTableContract.LAP_FIXED_SPEED + " REAL,"
-                    + RunHistoryTableContract.FILE_NAME + " TEXT"
+                    + RunHistoryTableContract.LAP_FIXED_SPEED + " REAL"
             		+ ");");
         }
  
@@ -96,7 +96,7 @@ public class RunHistoryContentProvider extends ContentProvider {
 		{
 	        return db.delete(RunHistoryTableContract.HISTORY_TABLE_NAME, selection, null);
 		}
-		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_TABLE_ID )
+		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_LAP_TABLE_ID )
 		{
 			return db.delete(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME, selection, null);
 		}
@@ -160,7 +160,7 @@ public class RunHistoryContentProvider extends ContentProvider {
 		{
 			tbl_name = RunHistoryTableContract.HISTORY_TABLE_NAME;
 		}
-		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_TABLE_ID )
+		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_LAP_TABLE_ID )
 		{
 			tbl_name = RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;
 		}
@@ -169,7 +169,7 @@ public class RunHistoryContentProvider extends ContentProvider {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(tbl_name);
         Cursor c = qb.query(db, projection, selection, selectionArgs, null,
-                            null, null);
+                            null, sortOrder);
         return c;
 	}
 

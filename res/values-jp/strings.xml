@@ -26,5 +26,11 @@
     <string name="SaveErrorGPXOnly">GPXファイルの保存に失敗しましたが、他のデータは保存しました。もう何回かやってみるか、保存をあきらめてください。</string>
     <string name="SaveErrorDatabaseOnly">他のデータは保存しましたが、GPXファイルの保存に失敗しました。もう何回かやってみるか、保存をあきらめてください。</string>   
     <string name="SaveOK">結果が保存されました。</string>
-     
+    <string name="datetime_display_format">M月dd日HH時mm分ss秒</string>
+    <string name="date_display_format">yyyy年MM月dd日</string>
+    <string name="time_display_format">HH時mm分ss秒</string>
+    
+    <string name="menu_detail">詳細</string>
+    <string name="menu_delete">削除</string>
+    
 </resources>
