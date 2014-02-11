@@ -15,26 +15,21 @@ import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
 
-// �����j���O���̃f�[�^�𒙂߂�̃N���X
 public class RunningLogStocker {
 
 	//public static String KEY_LAP_INDEX = "KEY_LAP_INDEX";
 	private final int MAX_LOCATION_LOG_CNT = 72000;	
-	// ��ԑ����Ă�0.1�b���ł������O���擾�ł��Ȃ��͂��Ȃ̂ŁA�ō���2.4���ԕ�
-	// �������A���[�^�[�̕��1m�ȏ�͂Ȃ�Ȃ��ƌv������Ȃ����䂪����̂ŁA
-	// 0.1�b����������蕨�ɏ���Ă��Ȃ����薳�����Ǝv��
 	static long removeMilli( long val )
 	{
 		return val * 1000;
 	}
-	// 1970�N����̎���(ms)
 	long totalStartTime = 0;
 	long totalStopTime = 0;
-	double firstCorrectDistance = 0;	// GPS�Ōv������O�̌덷�ƂȂ鋗��
+	double firstCorrectDistance = 0;
 	public double getTotalDistance()
 	{
 		double ret = 0;
-		for( int i=0; i<getLapCount(); i++ )
+		for( int i=0; i<getStockedLapCount(); i++ )
 		{
 			ret += lapData.get(iLap).getDistance();
 		}
@@ -43,7 +38,7 @@ public class RunningLogStocker {
 	public long getTotalTime()
 	{
 		long ret = 0;
-		for( int i=0; i<getLapCount(); i++ )
+		for( int i=0; i<getStockedLapCount(); i++ )
 		{
 			ret += lapData.get(iLap).getTotalTime();
 		}
@@ -56,20 +51,20 @@ public class RunningLogStocker {
 	public double getTotalSpeed()
 	{
 		double ret = 0;
-		for( int i=0; i<getLapCount(); i++ )
+		for( int i=0; i<getStockedLapCount(); i++ )
 		{
 			ret += lapData.get(iLap).getSpeedAccurateAsPossible();
 		}
-		ret /= getLapCount();
+		ret /= getStockedLapCount();
 		return ret;
 	}
 	public LapData getLapData(int index)
 	{
 		return lapData.get(index);
 	}
-	public int getLapCount()
+	public int getStockedLapCount()
 	{
-		return iLap+1;
+		return lapData.size();//+1;
 	}
 	
 	int iLap = 0;	// lap(from0)
@@ -103,37 +98,15 @@ public class RunningLogStocker {
 	{
 		if( vLocation.isEmpty() )
 		{
-			// ��̎�=����A����lap1(lap2�ȍ~)
-			// ���̎���Speed�ƁA���Ԃŋ������v�Z���AGPS�ł܂��v������Ă��Ȃ��͈͂̋����Ƃ���
-			// TODO: ���Ԃ�A���܂萳�m�ł͂Ȃ��̂ŁA�`�����X����������ʂ̂�����l��
-			// ->�Ƃ肠�����A�������Ȃ�
-			//long diffTime = location.getTime() - currentLapData.getStartTime();
-			//firstCorrectDistance = location.getSpeed() * diffTime * removeMilli(diffTime);
-			//currentLapData.increaseTime(diffTime);
-			//currentLapData.increaseDistance(firstCorrectDistance);
 		}
 		else
 		{
-			// �����ŁA���̃��b�v�̊e�l�ɂ��Čv�Z���邪�A�p�t�H�[�}���X���l�����āA
-			// �Ȃ�ׂ��ߋ��̒l�͌��Ȃ��Ă������悤�ɂ���
-			//float[] result = new float[1];
-			//float result = prevLocation.distanceTo(location);
-//			Location.distanceBetween(
-//					prevLocation.getLatitude(),//vLocation.lastElement().getLatitude(),
-//					prevLocation.getLongitude(),//vLocation.lastElement().getLongitude(),
-//					location.getLatitude(),
-//					location.getLongitude(), result);
-			//distance = result[0];
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
-			// long time = location.getTime() - vLocation.lastElement().getTime();
-			// currentLapData.increaseTime(location.getTime() - prevLocation.getTime());//vLocation.lastElement().getTime());
 			currentLapData.addSpeedData(location.getSpeed());
 		}
-        // Log.v("Speed", String.valueOf(location.getSpeed()));
 		if( MAX_LOCATION_LOG_CNT < vLocation.size() )
 		{
 			// TODO: 精度の低いものを消す？
-			// �}�b�N�X�l�𒴂�����A�^�񒆂�ւ񂩂甲���Ă���
 			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
 		}
 		// NOTICE:
@@ -143,12 +116,17 @@ public class RunningLogStocker {
 //		b.putInt(KEY_LAP_INDEX, iLap);
 //		location.setExtras(b);
 		location.setBearing(iLap);
+		
+		// TODO:再起動時のリカバリを考えて、メモリに貯めないでファイルに直接行くべき
 		vLocation.add(location);
 		prevLocation = new Location(location);
 	}
 	public void nextLap(Long time)
 	{
-		lapData.put(iLap, currentLapData);
+		// TODO: コピーすべき？
+		currentLapData.setStopTime(time);
+		LapData saveLapData = new LapData(currentLapData);
+		lapData.put(iLap, saveLapData);
 		iLap++;
 		currentLapData.clear();
 		currentLapData.setStartTime(time);
@@ -176,9 +154,10 @@ public class RunningLogStocker {
 		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
 		{
 			ret = new ContentValues();
+			ret.put(RunHistoryTableContract.START_DATETIME, totalStartTime);
 			ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime);
 			ret.put(RunHistoryTableContract.NAME, strExtra[0]);
-			ret.put(RunHistoryTableContract.LAP_COUNT, getLapCount() );
+			ret.put(RunHistoryTableContract.LAP_COUNT, getStockedLapCount() );
             ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
 			// TODO: place id under construction
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
@@ -187,6 +166,7 @@ public class RunningLogStocker {
 		else
 		{
 			ret = new ContentValues();
+			ret.put(RunHistoryTableContract.START_DATETIME, lapData.get(iExtra).getStartTime());
     		ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime );
     		ret.put( RunHistoryTableContract.PARENT_ID, lngExtra );
     		ret.put( RunHistoryTableContract.LAP_INDEX, iExtra );
@@ -248,7 +228,7 @@ public class RunningLogStocker {
         	else
         	{
         		insertCount = 1;
-        		for( int iLap=0; iLap < log.getLapCount(); iLap++ )
+        		for( int iLap=0; iLap < log.getStockedLapCount(); iLap++ )
         		{
 	            	values = log.createContentValues(RunHistoryTableContract.HISTORY_LAP_TABLE_ID, 
 	            			time, 
@@ -330,11 +310,10 @@ public class RunningLogStocker {
 		else if( runHistorySaveResult == SAVE_NOT_TRY 
 		||  runHistorySaveResult != SAVE_OK )
 		{
-			
 			// GPXを保存する場合、スレッド終了後に行うのでここではやらない
 			outputGPXSaveResult = SAVE_OK;
 			runHistorySaveResult = SAVING;
-			// database�ւ̕ۑ�
+			// database
 			int iInsCount = insertRunHistoryLog(activity, strDateTime, null, this );
 			if( iInsCount < 0)
 			{
@@ -390,7 +369,6 @@ public class RunningLogStocker {
 				Toast.makeText(mActivityWhenSave, R.string.SaveError, Toast.LENGTH_LONG).show();				
 			}
 			Toast.makeText(mActivityWhenSave, R.string.SaveOK, Toast.LENGTH_LONG).show();
-			
 			stocker.clear();
 			mActivityWhenSave.finish();
 		}

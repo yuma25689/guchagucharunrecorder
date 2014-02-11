@@ -138,7 +138,6 @@ public final class ResourceAccessor {
 	}
 	public void initSound()
 	{
-		// �����o�͐ݒ�̏�����s��
 		soundPool = new SoundPool(SOUND_MAX_COUNT,AudioManager.STREAM_MUSIC,100);
 		soundPool.setOnLoadCompleteListener(
 				new OnLoadCompleteListener()
@@ -163,7 +162,6 @@ public final class ResourceAccessor {
 		|| idIndex < 0 
 		|| SOUND_RES_IDS.length <= idIndex)
 		{
-			// ������̏ꍇ�A�������́Aindex������̏ꍇ�A�Đ����Ȃ�
 			return;
 		}
 		// id, leftVol, rightVol, priority, loop, speedrate
@@ -189,8 +187,6 @@ public final class ResourceAccessor {
 		
 		Bitmap ret = null;
 		
-		// selector�̏ꍇ�A���[�h�ł��Ȃ�
-		// �l�[�~���O�K��ɂ���ē��̃v���t�B�b�N�X�͌Œ�Ƃ���
 		String idString = activity.getResources().getResourceEntryName(id);
 		if(idString.startsWith(SELECTOR_PREFIX))
 		{
@@ -206,9 +202,6 @@ public final class ResourceAccessor {
 			boolean bMemErr = false;
 			try {
 				ret = BitmapFactory.decodeResource(activity.getResources(), id, options);
-//				Log.i("test", activity.getResources().getResourcePackageName(id));
-//				Log.i("test", activity.getResources().getResourceName(id));
-//				Log.i("test", activity.getResources().getResourceEntryName(id));
 			} catch( OutOfMemoryError ex ) {
 				System.gc();
 				Log.e("Out of memory occur","bitmap create");
@@ -217,7 +210,6 @@ public final class ResourceAccessor {
 			}
 			if( ret == null )
 			{
-				
 				String log = String.format("%X", id);
 				Log.e("decodeError",log);
 				if( bMemErr == true )
@@ -233,10 +225,8 @@ public final class ResourceAccessor {
 	public Drawable getResourceDrawable( int id )
 	{
 		Bitmap bitmap = createBitmapFromDrawableId(id);
-		// �X�P�[���̐ݒ�
 		//Matrix matrix = new Matrix();
-		//matrix.postScale(1f, 1f); // 2�{�Ɋg��
-		// �w��̃X�P�[����bitmap�č쐬
+		//matrix.postScale(1f, 1f);
 		//Bitmap bitmapScale = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);		
 		BitmapDrawable bitmapDrawable = new BitmapDrawable(activity.getResources(),bitmap);
 		return bitmapDrawable;
@@ -260,9 +250,6 @@ public final class ResourceAccessor {
     private static Formatter sFormatter = new Formatter(sFormatBuilder, Locale.getDefault());
 	
 	/**
-	 * �w�肳�ꂽ�b���̎��Ԃ��A�`���ԂƂ����\���ɕς���
-	 * TODO:���̃A�v���P�[�V�����ł́A������ł̎��ԕ\���͍s��Ȃ��A���Ȃ킿�A�b��łł���A�����s�v�ɂȂ�̂ŁA�폜����
-	 * ���������A���̃N���X�ɂ����̂͂�������
 	 * @param context
 	 * @param secs
 	 * @return
@@ -272,19 +259,18 @@ public final class ResourceAccessor {
 	public static String makeTimeString(Context context, long secs) {
 		String durationformat = context.getString(
 	                secs < 3600 ? R.string.durationformatshort : R.string.durationformatlong);
-	        
 		/* Provide multiple arguments so the format can be changed easily
 		 * by modifying the xml.
 		 */
 	    sFormatBuilder.setLength(0);
-	
+
 	    final Object[] timeArgs = sTimeArgs;
 	    timeArgs[0] = secs / 3600;
 	    timeArgs[1] = secs / 60;
 	    timeArgs[2] = (secs / 60) % 60;
 	    timeArgs[3] = secs;
 	    timeArgs[4] = secs % 60;
-	
+
 	    return sFormatter.format(durationformat, timeArgs).toString();
 	}
 	public String getString( int id )
@@ -312,7 +298,6 @@ public final class ResourceAccessor {
 	}
 	
 	public boolean isSdCanRead() {
-	  //SD�J�[�h�����邩�`�F�b�N
 	  String status = Environment.getExternalStorageState();
 	  if (!status.equals(Environment.MEDIA_MOUNTED)) {
 	    return false;

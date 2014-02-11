@@ -29,19 +29,20 @@ public class RunHistoryContentProvider extends ContentProvider {
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
-    	private static int DB_VERSION = 2;
+    	private static int DB_VERSION = 3;
     	
         DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
         }
  
-        public String createTableCreateSQL( String tblName )
+        public String createTableCreateSQL( int tblId, String tblName )
         {
-        	if( RunHistoryTableContract.HISTORY_TABLE_NAME.equals(tblName))
+        	if( RunHistoryTableContract.HISTORY_TABLE_ID == tblId)
         	{
         		return
-        		"CREATE TABLE IF NOT EXISTS " + RunHistoryTableContract.HISTORY_TABLE_NAME 
+        		"CREATE TABLE IF NOT EXISTS " + tblName//RunHistoryTableContract.HISTORY_TABLE_NAME 
         		+ " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," 
+        		+ RunHistoryTableContract.START_DATETIME + " INTEGER,"        		
         		+ RunHistoryTableContract.INSERT_DATETIME + " INTEGER,"
         		+ RunHistoryTableContract.NAME + " TEXT,"
         		+ RunHistoryTableContract.LAP_COUNT + " INTEGER,"
@@ -50,11 +51,12 @@ public class RunHistoryContentProvider extends ContentProvider {
                 + ");"
                 ;
         	}
-        	else if( RunHistoryTableContract.HISTORY_LAP_TABLE_NAME.equals(tblName))
+        	else if( RunHistoryTableContract.HISTORY_LAP_TABLE_ID == tblId)
         	{
                 return
-                		"CREATE TABLE IF NOT EXISTS " + RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
+                		"CREATE TABLE IF NOT EXISTS " + tblName//RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
                 		+ " (" + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                		+ RunHistoryTableContract.START_DATETIME + " INTEGER,"                		
                 		+ RunHistoryTableContract.INSERT_DATETIME + " INTEGER,"
                 		+ RunHistoryTableContract.PARENT_ID + " INTEGER,"
                 		+ RunHistoryTableContract.NAME + " TEXT,"
@@ -74,8 +76,10 @@ public class RunHistoryContentProvider extends ContentProvider {
         
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL( createTableCreateSQL(RunHistoryTableContract.HISTORY_TABLE_NAME) );
-            db.execSQL( createTableCreateSQL(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME ) );
+            db.execSQL( createTableCreateSQL(RunHistoryTableContract.HISTORY_TABLE_ID,
+            		RunHistoryTableContract.HISTORY_TABLE_NAME) );
+            db.execSQL( createTableCreateSQL(RunHistoryTableContract.HISTORY_LAP_TABLE_ID,
+            		RunHistoryTableContract.HISTORY_LAP_TABLE_NAME));
         }
  
 //        @Override
@@ -104,6 +108,10 @@ public class RunHistoryContentProvider extends ContentProvider {
     		
     		db.beginTransaction();
     		try {
+    			int tblId[] = {
+    					RunHistoryTableContract.HISTORY_TABLE_ID,
+    					RunHistoryTableContract.HISTORY_LAP_TABLE_ID 
+    			};
     			String tblInf[] = {
     					RunHistoryTableContract.HISTORY_TABLE_NAME,
     					RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
@@ -133,7 +141,7 @@ public class RunHistoryContentProvider extends ContentProvider {
     				}
     								
     				// 新しいテーブルを作成
-    				createTable( db, createTableCreateSQL( NEW_PREFIX + tblInf[i] ) );
+    				createTable( db, createTableCreateSQL( tblId[i], NEW_PREFIX + tblInf[i] ) );
 
     				// 新しいテーブルのカラムを取得
     				List<String> lstNewColumnList = getColumns(db, NEW_PREFIX + tblInf[i]);

@@ -41,5 +41,8 @@
     <string name="GPX_LOSE">GPX file lost</string>
     <string name="LAP_COUNT_LABEL">Lap Count:</string>
     <string name="LAP_LABEL">Lap:</string>
+
+    <string name="Deleted">deleted.</string>
+    <string name="Delete_failed">delete failed.</string>
     
 </resources>

@@ -62,13 +62,15 @@ public class RunHistoryLoader {
 				do {
 					ActivityData data = new ActivityData();
 					int idIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID);
-					int datetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME );
+					int startDatetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME );
+					int insertDatetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME );
 					int lapCountIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.LAP_COUNT);
 					int placeIdIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.PLACE_ID );				
 					int nameIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.NAME);
 					int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					data.setId( cursor.getInt( idIndex ) );
-					data.setDateTime( cursor.getLong( datetimeIndex ) );
+					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
+					data.setInsertDateTime( cursor.getLong( insertDatetimeIndex ) );
 					data.setLapCount( cursor.getLong( lapCountIndex ) );
 					data.setPlaceId( cursor.getLong( placeIdIndex ) );
 					data.setName( cursor.getString( nameIndex ) );
@@ -159,7 +161,8 @@ public class RunHistoryLoader {
 	
 	public class ActivityData {
 		int id; 
-		long dateTime;
+		long startDateTime;
+		long insertDateTime;
 		String name;
 		long lapCount;
 		long placeId;
@@ -179,14 +182,26 @@ public class RunHistoryLoader {
 		/**
 		 * @return the dateTime
 		 */
-		public long getDateTime() {
-			return dateTime;
+		public long getStartDateTime() {
+			return startDateTime;
 		}
 		/**
 		 * @param dateTime the dateTime to set
 		 */
-		public void setDateTime(long dateTime) {
-			this.dateTime = dateTime;
+		public void setStartDateTime(long dateTime) {
+			this.startDateTime = dateTime;
+		}
+		/**
+		 * @return the dateTime
+		 */
+		public long getInsertDateTime() {
+			return insertDateTime;
+		}
+		/**
+		 * @param dateTime the dateTime to set
+		 */
+		public void setInsertDateTime(long dateTime) {
+			this.insertDateTime = dateTime;
 		}
 		/**
 		 * @return the name
@@ -239,7 +254,8 @@ public class RunHistoryLoader {
 	};
 	public class ActivityLapData {
 		long id; 
-		long dateTime;
+		long startDateTime;
+		long insertDateTime;
 		int parentId; 
 		long lapIndex; 
 		double distance; 
@@ -263,14 +279,26 @@ public class RunHistoryLoader {
 		/**
 		 * @return the dateTime
 		 */
-		public long getDateTime() {
-			return dateTime;
+		public long getStartDateTime() {
+			return startDateTime;
 		}
 		/**
 		 * @param dateTime the dateTime to set
 		 */
-		public void setDateTime(long dateTime) {
-			this.dateTime = dateTime;
+		public void setStartDateTime(long dateTime) {
+			this.startDateTime = dateTime;
+		}
+		/**
+		 * @return the dateTime
+		 */
+		public long getInsertDateTime() {
+			return insertDateTime;
+		}
+		/**
+		 * @param dateTime the dateTime to set
+		 */
+		public void setInsertDateTime(long dateTime) {
+			this.insertDateTime = dateTime;
 		}
 		/**
 		 * @return the parentId

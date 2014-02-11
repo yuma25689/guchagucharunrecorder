@@ -26,7 +26,6 @@ public class DisplayHandler extends Handler {
 		{
         	case MessageDef.MSG_INIT_END:
         	{
-        		// �f�B�X�v���C�̍쐬
         		mViewController.initPager();
 	    		break;
         	}

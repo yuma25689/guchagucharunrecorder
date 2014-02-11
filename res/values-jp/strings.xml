@@ -42,4 +42,7 @@
     <string name="LAP_COUNT_LABEL">ラップ数:</string>
     <string name="LAP_LABEL">ラップ</string>
     
+    <string name="Deleted">あっさり削除しちゃいました！</string>
+    <string name="Delete_failed">データの削除に失敗しました。(理由は分かりません。)</string>
+    
 </resources>

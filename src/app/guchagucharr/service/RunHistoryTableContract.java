@@ -23,6 +23,7 @@ public class RunHistoryTableContract implements BaseColumns {
 //    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + "vnd." + PROVIDER_SPECIFIC_NAME + "." + PROVIDER_SPECIFIC_TYPE;
 //    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + "vnd." + PROVIDER_SPECIFIC_NAME + "." + PROVIDER_SPECIFIC_TYPE;
  
+    public static final String START_DATETIME = "START_DATETIME";
     public static final String INSERT_DATETIME = "INSERT_DATETIME";
     public static final String NAME = "NAME";
     public static final String LAP_COUNT = "LAP_COUNT";

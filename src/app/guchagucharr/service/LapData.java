@@ -5,6 +5,20 @@ import java.util.Vector;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 
 public class LapData {
+	
+	public LapData() 
+	{
+		clear();
+	}
+	@SuppressWarnings("unchecked")
+	public LapData(LapData data_) {
+		startTime = data_.getStartTime();
+		stopTime = data_.getStopTime();
+		totalTime = data_.getTotalTime();
+		distance = data_.getDistance();
+		speed = data_.getSpeed();
+		vSpeedQueue = (Vector<Double>) data_.getSpeedQueue().clone();	
+	}
 	public void clear()
 	{
 		startTime = 0;
@@ -12,6 +26,7 @@ public class LapData {
 		totalTime = 0;
 		distance = 0;
 		speed = 0;
+		vSpeedQueue.clear();
 	}
 	long startTime = 0;
 	long stopTime = 0;
@@ -20,6 +35,10 @@ public class LapData {
 	double speed = 0;
 	final int SPEED_QUEUE_MAX = 100;
 	Vector<Double> vSpeedQueue = new Vector<Double>();
+	Vector<Double> getSpeedQueue()
+	{
+		return vSpeedQueue;
+	}
 	/**
 	 * @return the startTime
 	 */
@@ -105,7 +124,6 @@ public class LapData {
 		vSpeedQueue.add( speed_ );
 		if( SPEED_QUEUE_MAX < vSpeedQueue.size() )
 		{
-			// �T���v����������������A�܂񒆂��炢�̃T���v���𔲂��H
 			vSpeedQueue.remove(SPEED_QUEUE_MAX/2);
 		}
 		for( Double val : vSpeedQueue )
@@ -126,15 +144,16 @@ public class LapData {
 		String ret = null;
 		final double DISTANCE_KM = 1000;
 		// TODO: �ݒ�ɂ���āAm/s��km/hour��؂�ւ�
-		
 		if( distance < DISTANCE_KM )
 		{
-			ret = String.format( "%.0f", distance ) + ResourceAccessor.getInstance().IND_M;
+			ret = String.format( "%.3f", distance ) 
+					+ ResourceAccessor.getInstance().IND_M;
 		}
 		else
 		{
-			ret = String.format( "%.3f", distance / DISTANCE_KM ) + ResourceAccessor.getInstance().IND_KM;
-		}			
+			ret = String.format( "%.6f", distance / DISTANCE_KM ) 
+					+ ResourceAccessor.getInstance().IND_KM;
+		}
 		
 		return ret;
 	}

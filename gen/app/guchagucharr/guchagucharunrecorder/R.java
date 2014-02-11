@@ -74,6 +74,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class string {
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f05000f;
+        public static final int Delete_failed=0x7f050021;
+        public static final int Deleted=0x7f050020;
         public static final int GPS_OFF=0x7f050006;
         public static final int GPS_ON=0x7f050005;
         public static final int GPX_EXISTS=0x7f05001c;

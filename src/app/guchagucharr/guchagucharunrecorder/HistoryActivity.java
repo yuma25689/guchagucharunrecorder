@@ -16,10 +16,13 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
+import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
@@ -28,12 +31,15 @@ import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunHistoryLoader.ActivityData;
 import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
-public class HistoryActivity extends Activity implements IPageViewController {
+public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
+	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	private ViewPager mViewPager;	
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
 	private HistoryPagerAdapter adapter = null;
+	//private RelativeLayout lastMainLayout = null;
+	private RelativeLayout lastSubLayout = null;
 	
 	RunHistoryLoader loader = new RunHistoryLoader();
 	@Override
@@ -48,6 +54,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	@Override
     protected void onResume() {
         dispInfo.init(this, componentContainer, handler, false);
+        adapter = new HistoryPagerAdapter(this, this);
         super.onResume();
     }
 	@Override
@@ -55,7 +62,6 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	{
         init();		
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
-        adapter = new HistoryPagerAdapter(this, this);
         this.mViewPager.setAdapter(adapter);
         
         return 0;
@@ -69,6 +75,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 //		timeTotal += time;
 	
 	static final int MAIN_FIRST_PANEL_ID = 1500;
+	static final int SUB_FIRST_PANEL_ID = 100000;
 	
 	@Override
 	public int initControls( int position, RelativeLayout rl )
@@ -79,12 +86,15 @@ public class HistoryActivity extends Activity implements IPageViewController {
 		}
 		else if( position == 1 )
 		{
-			
+			updateSubPage( rl );
 		}
 		return 0;
 	}
 	public void updateMainPage(RelativeLayout rl)
 	{
+		//lastMainLayout = rl;
+		// 勝手にこんなことしていいんでしょうか・・・。
+		//lastMainLayout.removeAllViews();		
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 				mainData.size());
@@ -111,7 +121,7 @@ public class HistoryActivity extends Activity implements IPageViewController {
 			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
 			
 			// DisplayBlock追加
-			String titleDateTime = sdfDateTime.format(new Date(data.getDateTime()));
+			String titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()));
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
@@ -142,7 +152,9 @@ public class HistoryActivity extends Activity implements IPageViewController {
 					gpxExists,
 					lapCount
 			};
-			DisplayBlock dispBlock = new DisplayBlock(this, data.getId(), dispInfo, title, text, sizeType);
+			DisplayBlock dispBlock = new DisplayBlock(
+					this, data.getId(), dispInfo, title, text, sizeType, eShapeType.SHAPE_BLOCK);
+			dispBlock.setData(data);
 			if( iPanelCount == 0 )
 			{
 				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
@@ -180,15 +192,78 @@ public class HistoryActivity extends Activity implements IPageViewController {
 				}
 			}
 			// 下に行くほど薄くする
-			final double COLOR_RANGE = 100;
+			final double COLOR_RANGE = 80;
 			double rate = COLOR_RANGE / mainData.size();
 			int iMinus = (int) (iPanelCount * rate);
-			dispBlock.setBackgroundColorAsStateList(0xFF, 0, 20 + iMinus, 155 + iMinus);
+			dispBlock.setBackgroundColorAsStateList(0xFF, 0, 20 + iMinus, 70 + iMinus);
 			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
+			dispBlock.setOnClickListener(this);
 			rl.addView(dispBlock);
 			iPanelCount++;
+		}
+		return;
+	}
+	public void updateSubPage(RelativeLayout rl)
+	{
+		lastSubLayout = rl;
+		lastSubLayout.removeAllViews();
+		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
+		if( lapData == null )
+		{
 			return;
 		}
+		// NOTICE: 最高で６個しか置けない
+		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
+				lapData.size());
+//		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+//				getString(R.string.datetime_display_format));
+		int lastOddPanelID = 0;
+		int iPanelCount = 0;
+		for( ActivityLapData data : lapData )
+		{
+			double distance = 0;
+			double speed = 0;
+			long time = 0;
+			distance = data.getDistance();
+			time = data.getTime();				
+			speed = distance / ( time / 1000 ); 
+			
+			// DisplayBlock追加
+			String title = getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+			String text[] = {
+					LapData.createDistanceFormatText( distance ),
+					LapData.createTimeFormatText( time ),
+					LapData.createSpeedFormatTextKmPerH( speed ),
+			};
+			DisplayBlock dispBlock = new DisplayBlock(
+					this, data.getId(), dispInfo, title, text, sizeType, eShapeType.SHAPE_HORIZONTAL);
+			if( iPanelCount == 0 )
+			{
+				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+				lp.addRule(RelativeLayout.ALIGN_LEFT);
+				lp.addRule(RelativeLayout.ALIGN_TOP);
+				dispBlock.setId(SUB_FIRST_PANEL_ID);
+				lastOddPanelID = dispBlock.getId();
+			}
+			else
+			{
+				dispBlock.setId(SUB_FIRST_PANEL_ID+iPanelCount);
+				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+				if( lastOddPanelID != 0 )
+				{
+					lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+				}
+				lastOddPanelID = dispBlock.getId();
+			}
+			// 下に行くほど薄くする
+			final double COLOR_RANGE = 80;
+			double rate = COLOR_RANGE / lapData.size();
+			int iMinus = (int) (iPanelCount * rate);
+			dispBlock.setBackgroundColorAsStateList(0xFF, 20 + iMinus, 70 + iMinus, 0 );
+			rl.addView(dispBlock);
+			iPanelCount++;
+		}
+		return;
 	}
 	public void init()
 	{
@@ -283,10 +358,13 @@ public class HistoryActivity extends Activity implements IPageViewController {
         				Uri.parse("content://" 
         				+ RunHistoryTableContract.AUTHORITY + "/" 
         				+ RunHistoryTableContract.HISTORY_COMMIT )
-        				,null);	        	
+        				,null);
+	        } catch(Exception e){
+	        	e.printStackTrace();
+	        	Log.e("delete failed!",e.getMessage());
+		        Toast.makeText(this, R.string.Delete_failed, Toast.LENGTH_LONG).show();
+	        	return false;
 	        } finally {
-	        	// TODO: 削除失敗のメッセージ出力
-	        	Log.e("delete failed!","???");
 	        	//db.endTransaction();
 	    		getContentResolver().insert(
 	    				Uri.parse("content://" 
@@ -295,11 +373,66 @@ public class HistoryActivity extends Activity implements IPageViewController {
 	    				,null);
 	        	
 	        }
+	        // 削除しました。メッセージ
+	        Toast.makeText(this, R.string.Deleted, Toast.LENGTH_LONG).show();
+	        // データをリロードする
+	        loader.load(this);
+	        // ページ更新
+	        // やばいかも。
+	        //updateMainPage(lastMainLayout);
+			adapter.notifyDataSetChanged();
 	    	
 	        return true;
 	    default:
 	        return super.onContextItemSelected(item);
 	    }
+	}
+	@Override
+	public void onClick(View v) {
+		// DispBlockからしか呼ばれないことにしている
+		DisplayBlock dispBlock = (DisplayBlock)v;
+		
+		if(dispBlock.getData() == null )
+		{
+		}
+		else
+		{
+			// dataの種別で処理を分ける
+			if( dispBlock.getData() instanceof ActivityData )
+			{
+				// ラップじゃない方のデータが表示されたら、ラップの表示が必要になる
+				selectedActivityData = (ActivityData) dispBlock.getData();
+				// TODO:ページが1ページしかない場合、ページの拡張を行う
+				if( adapter.getCount() == 1 )
+				{
+					adapter.setCount(2);
+				}
+				else if( adapter.getCount() == 2 )
+				{
+					if( null != lastSubLayout )
+					{
+						updateSubPage(lastSubLayout);
+					}
+				}
+				// adapter.notifyDataSetChanged();
+				// NOTICE: とりあえず、自動ページ移動はする？
+				mViewPager.arrowScroll(View.FOCUS_RIGHT);
+				// mViewPager.setCurrentItem(0);
+				return;
+			}
+			else if( dispBlock.getData() instanceof ActivityLapData )
+			{
+				
+				
+				return;
+			}
+		}
+		
+		// NOTICE:ここまで来た場合、ページを削除する?
+//		Log.v("page-delete", "page-delele");
+//		selectedActivityData = null;
+//		adapter.setCount(1);
+//		adapter.notifyDataSetChanged();
 	}
 	
 }

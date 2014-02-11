@@ -15,16 +15,13 @@ import app.guchagucharr.interfaces.IPageViewController;
 public class HistoryPagerAdapter extends PagerAdapter {
 	 
     private int mPageCount = 1;
-    public int getPageCount()
-    {
-    	return mPageCount;
-    }
-    public void setPageCount(int pageCount)
+    public void setCount(int pageCount)
     {
     	if( mPageCount != pageCount )
     	{
-    		// TODO: Adapterの更新を促す
     		mPageCount = pageCount;
+			// TODO: これで更新は行われるのか・・・要確認
+			notifyDataSetChanged();    		
     	}
     }
     private LayoutInflater mInflter;
@@ -67,5 +64,9 @@ public class HistoryPagerAdapter extends PagerAdapter {
     public boolean isViewFromObject(View view, Object object) {
         return view.equals(object);
     }
-     
+    @Override
+    public int getItemPosition(Object object) {
+    	// 強制更新用
+    	return POSITION_NONE;
+    }     
 }
