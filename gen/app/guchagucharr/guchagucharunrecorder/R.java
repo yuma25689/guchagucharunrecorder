@@ -92,10 +92,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int SaveErrorGPX=0x7f050012;
         public static final int SaveErrorGPXOnly=0x7f050013;
         public static final int SaveOK=0x7f050015;
+        public static final int Share=0x7f050022;
         public static final int app_name=0x7f050000;
         public static final int cant_get=0x7f05000e;
         public static final int date_display_format=0x7f050017;
         public static final int datetime_display_format=0x7f050016;
+        public static final int default_activity_name=0x7f050023;
+        public static final int distance_label=0x7f050024;
         public static final int dummy_button=0x7f050001;
         public static final int dummy_content=0x7f050002;
         /**  Do not translate. Duration format for duration >= 1 hour 
@@ -114,7 +117,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int meterpersecond=0x7f05000c;
         public static final int minute=0x7f05000a;
         public static final int second=0x7f050009;
+        public static final int speed_label=0x7f050027;
         public static final int time_display_format=0x7f050018;
+        public static final int time_label=0x7f050025;
+        public static final int to=0x7f050026;
     }
     public static final class style {
         /** 

@@ -7,8 +7,10 @@ import java.util.Date;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -122,7 +124,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
 			
 			// DisplayBlock追加
-			String titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()));
+			String titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
+					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
@@ -325,6 +328,48 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        // メニュー押下時の操作
 	        return true;
 	    case CONTEXT_MENU_SHARE_ID:
+	    	// TODO: GPXかテキストかを選択すること！
+	        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+	        intent.setType("text/plain");
+
+			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+					getString(R.string.datetime_display_format));	        
+	        String text = new String();
+	        double distanceTotal = 0;
+	        long timeTotal = 0;
+			Vector<ActivityLapData> lapDatas = loader.getHistoryLapData(item.getItemId());
+			for( ActivityLapData lapData: lapDatas )
+			{
+				distanceTotal += lapData.getDistance();
+				timeTotal += lapData.getTime();				
+				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
+				//speedTotal += //lapData.getSpeed();
+			}	
+			double speedTotal = distanceTotal / ( timeTotal / 1000 );
+			// TODO: いちいち検索はナンセンスなので直すこと
+			String name = null;
+			String titleDateTime = null;
+        	for( ActivityData data : loader.getHistoryData() )
+        	{
+        		if( data.getId() == item.getItemId() )
+        		{
+        			name = data.getName();
+        			titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
+        					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
+        			break;
+        		}
+        	}
+	        text = name + System.getProperty("line.separator")
+	        + titleDateTime + System.getProperty("line.separator")
+	        + getString(R.string.distance_label) + LapData.createDistanceFormatText( distanceTotal ) + System.getProperty("line.separator")
+	        + getString(R.string.time_label) + LapData.createTimeFormatText( timeTotal ) + System.getProperty("line.separator")
+	        + getString(R.string.speed_label) + LapData.createSpeedFormatTextKmPerH( speedTotal ) + System.getProperty("line.separator")
+	        ;
+	        	        
+	        intent.putExtra(Intent.EXTRA_TEXT, text);
+	        startActivity(Intent.createChooser(
+	                intent, getString(R.string.Share)));
+	    	
 	    	return true;
 	    case CONTEXT_MENU_DELETE_ID:
 	        // メニュー押下時の操作
@@ -367,7 +412,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 						Uri.parse("content://" 
 						+ RunHistoryTableContract.AUTHORITY + "/"
 						+ RunHistoryTableContract.HISTORY_TABLE_NAME ), 
-						RunHistoryTableContract._ID + "=" + item.getItemId(),null);
+						BaseColumns._ID + "=" + item.getItemId(),null);
 	        	if( iRet <= 0 )
 	        	{
 	        		return false;

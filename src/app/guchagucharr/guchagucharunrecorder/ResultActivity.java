@@ -1,14 +1,14 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 
-import java.util.Vector;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 //import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -31,7 +32,6 @@ import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
 
@@ -49,6 +49,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	ImageButton btnCenter = null;
 	ImageButton btnGPS = null;
 	ImageView imgGPS = null;
+	EditText editName = null;
 	TextView txtTime = null;
 	TextView txtDistance = null;
 	TextView txtSpeed = null;
@@ -134,8 +135,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
-		int width = componentContainer.getWidth();
-		int height = componentContainer.getHeight();
+//		int width = componentContainer.getWidth();
+//		int height = componentContainer.getHeight();
 		
 		int ret = 0;
 		if( position == RESULT_PAGE_NORMAL )
@@ -187,6 +188,23 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			imgGPS.setScaleType(ScaleType.FIT_XY);
 			rl.addView(imgGPS);
 	
+			editName = new EditText(this);
+			RelativeLayout.LayoutParams rlEditName
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+			rlEditName.addRule(RelativeLayout.ALIGN_TOP);
+			rlEditName.topMargin = CENTER_ABOVE_CTRL_MARGIN;
+			rlEditName.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			editName.setLayoutParams(rlEditName);
+//			editName.setBackgroundColor(
+//					ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+//			editName.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));
+			editName.setSingleLine();
+			//txtTime.setText("99:99:99.999");
+			//txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
+			rl.addView(editName);		
+			
+			
 			txtTime = new TextView(this);
 			txtTime.setId(TIME_TXT_ID);
 			RelativeLayout.LayoutParams rlTxtTime
@@ -278,6 +296,10 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			//btnCancel = new ImageButton(this);
 			
 			// TODO: ���Ԃ̕\��
+			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+					getString(R.string.datetime_display_format));			
+			editName.setText( getString( R.string.default_activity_name ) + sdfDateTime.format(
+					new Date().getTime()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					ResourceAccessor.getInstance().getLogStocker().getTotalDistance() ) );
 			txtTime.setText( LapData.createTimeFormatText(
@@ -435,7 +457,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// TODO:cliping
 			
 			// TODO: arg2 -> GPX save setting create 
-			ResourceAccessor.getInstance().getLogStocker().save(this,true);
+			ResourceAccessor.getInstance().getLogStocker().save(this,editName.getText().toString(),true);
 			
 		}
 	}

@@ -286,7 +286,7 @@ public class RunningLogStocker {
 	 * �擾���ꂽ���O�f�[�^�̕ۑ�
 	 * @return
 	 */
-	public void save(Activity activity, boolean bSaveGPX )
+	public void save(Activity activity, String name, boolean bSaveGPX )
 	{
 		mActivityWhenSave = activity;
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
@@ -304,7 +304,7 @@ public class RunningLogStocker {
 	    	// TODO: SDカードにつなげない時の処理
 	    	String dir = Environment.getExternalStorageDirectory() + "/" + activity.getPackageName();   
 	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
-			outFileProc.outputGPX(activity, this, strDateTime, dir, 
+			outFileProc.outputGPX(activity, this, name, dir, //strDateTime, dir, 
 					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
 		}
 		else if( runHistorySaveResult == SAVE_NOT_TRY 
@@ -314,7 +314,7 @@ public class RunningLogStocker {
 			outputGPXSaveResult = SAVE_OK;
 			runHistorySaveResult = SAVING;
 			// database
-			int iInsCount = insertRunHistoryLog(activity, strDateTime, null, this );
+			int iInsCount = insertRunHistoryLog(activity, name, null, this );//strDateTime, null, this );
 			if( iInsCount < 0)
 			{
 				setRunHistorySaveResult( SAVE_NG, this );

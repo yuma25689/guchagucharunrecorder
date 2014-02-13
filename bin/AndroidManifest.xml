@@ -19,7 +19,8 @@
 		<provider android:name="app.guchagucharr.service.RunHistoryContentProvider"
 		    android:authorities="guchagucharr.runhistoryprovider"
 		    android:exported="false">
-        </provider>		    
+        </provider>
+        <service android:name="app.guchagucharr.service.RunLoggerService"></service>
 		<activity
             android:name="app.guchagucharr.guchagucharunrecorder.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

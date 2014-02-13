@@ -1,14 +1,11 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.StateSet;
-import android.view.Gravity;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 // import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -152,10 +149,10 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			
 			int height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
-					* ((double)magnify / (double)12 ) - BLOCK_MARGIN_HORZ * 2 );
+					* (magnify / 12 ) - BLOCK_MARGIN_HORZ * 2 );
 			
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
-					(int)( parentWidth - BLOCK_MARGIN * 2 ),
+					parentWidth - BLOCK_MARGIN * 2,
 					height,
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN_HORZ, BLOCK_MARGIN, BLOCK_MARGIN_HORZ);			
@@ -185,7 +182,7 @@ public class DisplayBlock extends RelativeLayout {
 			int width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
 					- BLOCK_MARGIN * 2 );
 			int height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
-					* ((double)magnify / 3 ) - BLOCK_MARGIN * 2);
+					* (magnify / 3 ) - BLOCK_MARGIN * 2);
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
 					width, 
 					height, 

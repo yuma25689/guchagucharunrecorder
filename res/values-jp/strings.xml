@@ -41,4 +41,12 @@
     <string name="Deleted">あっさり削除しちゃいました！</string>
     <string name="Delete_failed">データの削除に失敗しました。(理由は分かりません。)</string>
     
+    <string name="Share">他のアプリにテキストを送信</string>
+    
+	<string name="default_activity_name">ランニング </string>		
+    <string name="distance_label">[距離]</string>		
+	<string name="time_label">[時間]</string>		
+	<string name="to">〜</string>		
+	<string name="speed_label">[速度]</string>
+    
 </resources>

@@ -44,5 +44,13 @@
 
     <string name="Deleted">deleted.</string>
     <string name="Delete_failed">delete failed.</string>
+
+    <string name="Share">Send text to other application</string>
+    
+	<string name="default_activity_name">Running </string>		
+    <string name="distance_label">[distance]</string>		
+	<string name="time_label">[time]</string>		
+	<string name="to"> - </string>		
+	<string name="speed_label">[speed]</string>
     
 </resources>

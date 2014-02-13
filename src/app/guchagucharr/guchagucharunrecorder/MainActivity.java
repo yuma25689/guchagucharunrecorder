@@ -1,19 +1,16 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -21,12 +18,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -37,19 +32,23 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
-import app.guchagucharr.guchagucharunrecorder.util.SystemUiHider;
 import app.guchagucharr.interfaces.IMainViewController;
 //import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
+import app.guchagucharr.service.RunLogger;
 
 /**
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
  * @author 25689
  *
  */
-public class MainActivity extends Activity implements LocationListener,IMainViewController, OnClickListener {
+public class MainActivity extends Activity 
+implements LocationListener,IMainViewController, OnClickListener, ServiceConnection {
 
+	// サービスのトークン
+    private static RunLogger.ServiceToken mToken = null;
+	
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
 	private LocationManager mLocationManager;
@@ -130,7 +129,15 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 
 		// GPS setting
 		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		initGPS();		
+		initGPS();
+
+        // サービスへの接続を開始
+        if( 0 == RunLogger.getServiceConnectionCount() 
+        || RunLogger.sService == null )
+        {
+        	// 絶対に１つしか接続されないようにする
+        	mToken = RunLogger.bindToService(this, this);
+        }
 
 		// create handler
         handler = new MainHandler( this, this );
@@ -192,6 +199,18 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		// GPXファイルからLocationデータを復帰させるような仕組みがあればいいのではないかと思われる。
         clearGPS();
         super.onStop();
+	}
+	@Override
+	protected void onDestroy()
+	{
+		// TODO: こんなので大丈夫か確認必要
+		if(mToken != null)
+		{
+			// サービスの登録解除
+		    RunLogger.unbindFromService(mToken);
+		    mToken = null;
+		}
+		super.onDestroy();		
 	}
 	
 	@Override
@@ -659,6 +678,20 @@ public class MainActivity extends Activity implements LocationListener,IMainView
         if (mLocationManager != null) {
             mLocationManager.removeUpdates(this);
         }
+	}
+
+	
+	///////////// Service Connection
+	@Override
+	public void onServiceConnected(ComponentName name, IBinder service) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onServiceDisconnected(ComponentName name) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
