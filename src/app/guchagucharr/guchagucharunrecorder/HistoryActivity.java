@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Vector;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -18,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -60,7 +58,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@Override
 	public int initPager()
 	{
-        init();		
+        init();
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(adapter);
         
@@ -80,6 +78,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
+//		int width = componentContainer.getWidth();
+//		int height = componentContainer.getHeight();
 		if( position == 0 )
 		{
 			updateMainPage( rl );
@@ -88,6 +88,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		{
 			updateSubPage( rl );
 		}
+		
 		return 0;
 	}
 	public void updateMainPage(RelativeLayout rl)
@@ -153,7 +154,11 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					lapCount
 			};
 			DisplayBlock dispBlock = new DisplayBlock(
-					this, data.getId(), dispInfo, title, text, sizeType, eShapeType.SHAPE_BLOCK);
+					this, 
+					dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
+					dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
+					data.getId(),
+					dispInfo, title, text, sizeType, eShapeType.SHAPE_BLOCK);
 			dispBlock.setData(data);
 			if( iPanelCount == 0 )
 			{
@@ -236,7 +241,15 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					LapData.createSpeedFormatTextKmPerH( speed ),
 			};
 			DisplayBlock dispBlock = new DisplayBlock(
-					this, data.getId(), dispInfo, title, text, sizeType, eShapeType.SHAPE_HORIZONTAL);
+					this, 
+					dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
+					dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),					
+					data.getId(),
+					dispInfo,
+					title,
+					text,
+					sizeType, 
+					eShapeType.SHAPE_HORIZONTAL);
 			if( iPanelCount == 0 )
 			{
 				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
@@ -274,7 +287,12 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			// TODO: エラー発生を通知
 			finish();
 		}
-		
+		getWindow().setLayout( 
+		dispInfo.getCorrectionXConsiderDensity(
+			ControlDefs.APP_DIALOG_WIDTH)
+		, dispInfo.getCorrectionYConsiderDensity(
+			ControlDefs.APP_DIALOG_HEIGHT)
+		);
 	}
 	@Override
 	public DisplayInfo getDispInfo() {

@@ -1,6 +1,8 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 
+import java.util.Vector;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -26,8 +28,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
+import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
 
@@ -36,6 +40,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
 	private LayoutInflater inflater = null;
+	static final int SUB_FIRST_PANEL_ID = 100000;
 	
 	//private RunningLogStocker runLogStocker;
 	private final int RESULT_PAGE_NORMAL = 0;
@@ -80,8 +85,6 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 
 	}
 
-
-
 	static final int CENTER_BUTTON_ID = 1000;
 	static final int GPS_BUTTON_ID = 1001;
 	static final int GPS_INDICATOR_ID = 1002;
@@ -115,15 +118,25 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	
 	@Override
 	public int initPager()
-	{
+	{		
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(new ResultPagerAdapter(this, this));
+
+		getWindow().setLayout( 
+		dispInfo.getCorrectionXConsiderDensity(
+			ControlDefs.APP_DIALOG_WIDTH)
+		, dispInfo.getCorrectionYConsiderDensity(
+			ControlDefs.APP_DIALOG_HEIGHT)
+		);
         
         return 0;
 	}
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
+		int width = componentContainer.getWidth();
+		int height = componentContainer.getHeight();
+		
 		int ret = 0;
 		if( position == RESULT_PAGE_NORMAL )
 		{
@@ -262,7 +275,6 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 			rl.addView(txtLap);
 			
-			// �L�����Z���H
 			//btnCancel = new ImageButton(this);
 			
 			// TODO: ���Ԃ̕\��
@@ -291,54 +303,113 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
-			final int BLOCK_PADDING = 3;
-			// 時間
-			// 距離
-			// 速度
-			// 上記３つOr２つを縦に並べたものを1ブロックにする
-			// とりあえずブロックの大きさは、文字が全て入るコントロールの最小の大きさとする
-			int iContentCount = ResourceAccessor.getInstance().getLogStocker().getStockedLapCount();
-			final int CONTENT_COUNT_ONE = 1;
-			final int CONTENT_COUNT_SOSO = 5;
-			final int CONTENT_COUNT_MANY = 10;
-			int iWidth = 0;
-			int iHeight = 0;
-			if( dispInfo.isPortrait() )
+			// NOTICE: 最高で６個しか置けない
+			DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
+					ResourceAccessor.getInstance().getLogStocker().getStockedLapCount());
+			int lastOddPanelID = 0;
+			int iPanelCount = 0;
+			for( int i=0; i < ResourceAccessor.getInstance().getLogStocker().getStockedLapCount(); i++ )
 			{
-				iWidth = ControlDefs.APP_BASE_WIDTH;
-				iHeight = ControlDefs.APP_BASE_HEIGHT;
-				inflater.inflate( R.layout.page_vscrollable, rl );
-				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );
-				// 数によって、並べ方を変える
-				if( iContentCount == CONTENT_COUNT_ONE )
+				LapData lapData = ResourceAccessor.getInstance().getLogStocker().getLapData(i);
+				if( lapData == null )
 				{
-					// 地図も表示してみる？
-					// それに加えて、キロごとのデータも？
+					break;
 				}
-				else if( CONTENT_COUNT_MANY <= iContentCount )
+				double distance = 0;
+				double speed = 0;
+				long time = 0;
+				distance = lapData.getDistance();
+				time = lapData.getTotalTime();				
+				speed = distance / ( time / 1000 ); 
+				
+				// DisplayBlock追加
+				String title = getString(R.string.LAP_LABEL) + ( i + 1 );
+				String text[] = {
+						LapData.createDistanceFormatText( distance ),
+						LapData.createTimeFormatText( time ),
+						LapData.createSpeedFormatTextKmPerH( speed ),
+				};
+				DisplayBlock dispBlock = new DisplayBlock(
+						this,
+						dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
+						dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
+						-1,
+						dispInfo, title, text, sizeType, eShapeType.SHAPE_HORIZONTAL);
+				if( iPanelCount == 0 )
 				{
-					int iEvenLineLeftPadding = 0;
-					int iOddLineLeftPadding = 30;
-					// ->ラップではあまりない？
-					// スクロールビューなので、何も考えずに全てのブロックを積む
-					// ひょっとしたらパフォーマンスの問題が出るかもしれない
-					// 不規則な大きさのブロックで組んだようなレイアウトにする
-					int iYearBlockWidth = 50;
-					int iYearBlockHeight = 50;
-					
+					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) dispBlock.getLayoutParams();
+					lp.addRule(RelativeLayout.ALIGN_LEFT);
+					lp.addRule(RelativeLayout.ALIGN_TOP);
+					dispBlock.setId(SUB_FIRST_PANEL_ID);
+					lastOddPanelID = dispBlock.getId();
 				}
-				
-				
+				else
+				{
+					dispBlock.setId(SUB_FIRST_PANEL_ID+iPanelCount);
+					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) dispBlock.getLayoutParams();
+					if( lastOddPanelID != 0 )
+					{
+						lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+					}
+					lastOddPanelID = dispBlock.getId();
+				}
+				// 下に行くほど薄くする
+				final double COLOR_RANGE = 80;
+				double rate = COLOR_RANGE / ResourceAccessor.getInstance().getLogStocker().getStockedLapCount();
+				int iMinus = (int) (iPanelCount * rate);
+				dispBlock.setBackgroundColorAsStateList(0xFF, 20 + iMinus, 70 + iMinus, 0 );
+				rl.addView(dispBlock);
+				iPanelCount++;
 			}
-			else
-			{
-				iWidth = ControlDefs.APP_BASE_HEIGHT;
-				iHeight = ControlDefs.APP_BASE_WIDTH;
-				
-				inflater.inflate( R.layout.page_hscrollable, rl );
-				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );				
-			}
-			rl.setBackgroundColor(Color.WHITE);
+			
+//			final int BLOCK_PADDING = 3;
+//			// 時間
+//			// 距離
+//			// 速度
+//			// 上記３つOr２つを縦に並べたものを1ブロックにする
+//			// とりあえずブロックの大きさは、文字が全て入るコントロールの最小の大きさとする
+//			int iContentCount = ResourceAccessor.getInstance().getLogStocker().getStockedLapCount();
+//			final int CONTENT_COUNT_ONE = 1;
+//			final int CONTENT_COUNT_SOSO = 5;
+//			final int CONTENT_COUNT_MANY = 10;
+//			int iWidth = 0;
+//			int iHeight = 0;
+//			if( dispInfo.isPortrait() )
+//			{
+//				iWidth = ControlDefs.APP_BASE_WIDTH;
+//				iHeight = ControlDefs.APP_BASE_HEIGHT;
+//				inflater.inflate( R.layout.page_vscrollable, rl );
+//				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );
+//				// 数によって、並べ方を変える
+//				if( iContentCount == CONTENT_COUNT_ONE )
+//				{
+//					// 地図も表示してみる？
+//					// それに加えて、キロごとのデータも？
+//				}
+//				else if( CONTENT_COUNT_MANY <= iContentCount )
+//				{
+//					int iEvenLineLeftPadding = 0;
+//					int iOddLineLeftPadding = 30;
+//					// ->ラップではあまりない？
+//					// スクロールビューなので、何も考えずに全てのブロックを積む
+//					// ひょっとしたらパフォーマンスの問題が出るかもしれない
+//					// 不規則な大きさのブロックで組んだようなレイアウトにする
+//					int iYearBlockWidth = 50;
+//					int iYearBlockHeight = 50;
+//					
+//				}
+//				
+//				
+//			}
+//			else
+//			{
+//				iWidth = ControlDefs.APP_BASE_HEIGHT;
+//				iHeight = ControlDefs.APP_BASE_WIDTH;
+//				
+//				inflater.inflate( R.layout.page_hscrollable, rl );
+//				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );				
+//			}
+//			rl.setBackgroundColor(Color.WHITE);
 		}
 		return ret;
 	}

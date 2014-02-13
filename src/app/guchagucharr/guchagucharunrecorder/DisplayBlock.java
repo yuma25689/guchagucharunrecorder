@@ -49,18 +49,20 @@ public class DisplayBlock extends RelativeLayout {
 		//SHAPE_HORIZONTAL
 		// MODE_SAVE_OR_CLEAR
 	};
-	static final float MIN_TITLE_FONT_SIZE = 32f; 
+	static final float MIN_TITLE_FONT_SIZE = 28f; 
 	static final float MIN_TITLE_FONT_SIZE_HORZ = 24f;
 	static final float MIN_ITEM_FONT_SIZE = 20f;
 	static final float MIN_ITEM_FONT_SIZE_HORZ = 12f;
 	
 	DisplayInfo dispInfo = null;
 	static final int ITEM_LEFT_MARGIN = 7;
-	static final int BLOCK_MARGIN = 20;
+	static final int BLOCK_MARGIN = 10;
+	static final int CORRECT_VALUE = 0;	// 調整用の値 あまりよくないのだが・・・
 	static final int BLOCK_MARGIN_HORZ = 10;
 	int width = 0;
 	int height = 0;
 	double magnify = 1;
+	double fontMagnify = 1;
 	int magnifyWidth = 1;
 	
 //	Long time = null;
@@ -74,6 +76,8 @@ public class DisplayBlock extends RelativeLayout {
 	String text[] = null;
 	eSizeType sizeType = eSizeType.MODE_ONE_SIXTH;
 	eShapeType shapeType = eShapeType.SHAPE_BLOCK;
+	int parentWidth = 0;
+	int parentHeight = 0;	
 	Activity mActivity = null;
 	long recordId = -1;
 	public long getRecordId()
@@ -82,6 +86,8 @@ public class DisplayBlock extends RelativeLayout {
 	}
 	
 	public DisplayBlock(Activity activity,
+			int _parentWidth,
+			int _parentHeight,
 			long recordId_,
 			DisplayInfo dispInfo_, 
 			String title_, String[] text_, 
@@ -90,6 +96,8 @@ public class DisplayBlock extends RelativeLayout {
 		super(activity);
 		recordId = recordId_;
 		mActivity = activity;
+		parentWidth = _parentWidth;
+		parentHeight = _parentHeight;
 		dispInfo = dispInfo_;
 		title = title_;
 		text = text_;
@@ -119,17 +127,13 @@ public class DisplayBlock extends RelativeLayout {
 		txtTitle.setSingleLine(false);
 		this.addView( txtTitle );
 	}
-	
-	
 	private void init()
 	{
 		// このビューは、RelativeLayoutに置くものとする
 		RelativeLayout.LayoutParams lpThis = null; 
-		
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 		{	
 			addTitle(MIN_TITLE_FONT_SIZE_HORZ);
-			
 			// 倍率の調整
 			if( sizeType == eSizeType.MODE_ONE_SIXTH )
 			{
@@ -138,15 +142,21 @@ public class DisplayBlock extends RelativeLayout {
 			else if( sizeType == eSizeType.MODE_QUARTER )
 			{
 				magnify = 1.5;
+				fontMagnify = 1.5;
 			}
 			else if( sizeType == eSizeType.MODE_ONE )
 			{
 				magnify = 3;
+				fontMagnify = 2.2;
 				magnifyWidth = 2;
 			}
+			
+			int height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
+					* ((double)magnify / (double)12 ) - BLOCK_MARGIN_HORZ * 2 );
+			
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
-					(int)( ControlDefs.APP_BASE_WIDTH ) - BLOCK_MARGIN * 2, 
-					(int)( ControlDefs.APP_BASE_HEIGHT * ((double)magnify) / 12 ) - BLOCK_MARGIN_HORZ * 2, 
+					(int)( parentWidth - BLOCK_MARGIN * 2 ),
+					height,
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN_HORZ, BLOCK_MARGIN, BLOCK_MARGIN_HORZ);			
 		}
@@ -162,17 +172,23 @@ public class DisplayBlock extends RelativeLayout {
 			else if( sizeType == eSizeType.MODE_QUARTER )
 			{
 				magnify = 2;
+				fontMagnify = 1.5;				
 			}
 			else if( sizeType == eSizeType.MODE_ONE )
 			{
 				magnify = 3;
+				fontMagnify = 2.2;				
 				magnifyWidth = 2;
 			}
 			// SHAPE_BLOCKとみなす
 			// タイル状にレイアウトするイメージ
+			int width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
+					- BLOCK_MARGIN * 2 );
+			int height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
+					* ((double)magnify / 3 ) - BLOCK_MARGIN * 2);
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
-					(int)( ControlDefs.APP_BASE_WIDTH * ((double)magnifyWidth / 2) ) - BLOCK_MARGIN * 2, 
-					(int)( ControlDefs.APP_BASE_HEIGHT * ((double)magnify) / 3 ) - BLOCK_MARGIN * 2, 
+					width, 
+					height, 
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN);
 		}
@@ -180,7 +196,6 @@ public class DisplayBlock extends RelativeLayout {
 		// setOrientation(LinearLayout.VERTICAL);
 		setClickable(true);
 		mActivity.registerForContextMenu(this);
-		
 		
 		int iChildrenCount = 0;
 		if( text == null )
@@ -206,7 +221,7 @@ public class DisplayBlock extends RelativeLayout {
 				lpTmp = new RelativeLayout.LayoutParams( 
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * magnify ));
+				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
 				txt.setSingleLine(false);
 				lpTmp.leftMargin = BLOCK_MARGIN;
 				if( i == 0 )
@@ -231,7 +246,7 @@ public class DisplayBlock extends RelativeLayout {
 				lpTmp = new RelativeLayout.LayoutParams( 
 						android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * magnify));
+				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
 				if( i== 0)
 				{
 					lpTmp.addRule(ALIGN_LEFT);

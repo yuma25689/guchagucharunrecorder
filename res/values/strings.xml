@@ -37,9 +37,9 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_share">Share</string>
     
-    <string name="GPX_EXISTS">GPX file exists</string>
-    <string name="GPX_LOSE">GPX file lost</string>
-    <string name="LAP_COUNT_LABEL">Lap Count:</string>
+    <string name="GPX_EXISTS">GPX exist</string>
+    <string name="GPX_LOSE">GPX lost</string>
+    <string name="LAP_COUNT_LABEL">Lap:</string>
     <string name="LAP_LABEL">Lap:</string>
 
     <string name="Deleted">deleted.</string>

@@ -15,7 +15,7 @@ public class PagerHandler extends Handler {
 		mViewController = vCtrl;
 	}
 	
-    //ƒƒbƒZ[ƒWóM
+    //ï¿½ï¿½ï¿½bï¿½Zï¿½[ï¿½Wï¿½ï¿½M
     @Override
 	public void handleMessage(Message message) {
     	if( mActivity == null )
@@ -26,7 +26,6 @@ public class PagerHandler extends Handler {
 		{
         	case MessageDef.MSG_INIT_END:
         	{
-        		// ƒfƒBƒXƒvƒŒƒC‚Ìì¬
         		mViewController.initPager();
 	    		break;
         	}

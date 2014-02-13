@@ -26,35 +26,39 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class drawable {
         public static final int gps_bad=0x7f020000;
         public static final int gps_good=0x7f020001;
-        public static final int gps_soso=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int main_background=0x7f020004;
-        public static final int main_gpsbutton_disable=0x7f020005;
-        public static final int main_gpsbutton_focus=0x7f020006;
-        public static final int main_gpsbutton_normal=0x7f020007;
-        public static final int main_gpsbutton_press=0x7f020008;
-        public static final int main_historybutton_disable=0x7f020009;
-        public static final int main_historybutton_focus=0x7f02000a;
-        public static final int main_historybutton_normal=0x7f02000b;
-        public static final int main_historybutton_press=0x7f02000c;
-        public static final int main_runstartbutton_disable=0x7f02000d;
-        public static final int main_runstartbutton_focus=0x7f02000e;
-        public static final int main_runstartbutton_normal=0x7f02000f;
-        public static final int main_runstartbutton_press=0x7f020010;
-        public static final int main_savebutton_disable=0x7f020011;
-        public static final int main_savebutton_focus=0x7f020012;
-        public static final int main_savebutton_normal=0x7f020013;
-        public static final int main_savebutton_press=0x7f020014;
-        public static final int main_stopbutton_disable=0x7f020015;
-        public static final int main_stopbutton_focus=0x7f020016;
-        public static final int main_stopbutton_normal=0x7f020017;
-        public static final int main_stopbutton_press=0x7f020018;
-        public static final int selector_gps_button_image=0x7f020019;
-        public static final int selector_history_button_image=0x7f02001a;
-        public static final int selector_mainitem_panel_image=0x7f02001b;
-        public static final int selector_runstart_button_image=0x7f02001c;
-        public static final int selector_runstop_button_image=0x7f02001d;
-        public static final int selector_save_button_image=0x7f02001e;
+        public static final int gps_not_arrow=0x7f020002;
+        public static final int gps_soso=0x7f020003;
+        public static final int ic_launcher=0x7f020004;
+        public static final int icon_distance=0x7f020005;
+        public static final int icon_speed2=0x7f020006;
+        public static final int icon_time=0x7f020007;
+        public static final int main_background=0x7f020008;
+        public static final int main_gpsbutton_disable=0x7f020009;
+        public static final int main_gpsbutton_focus=0x7f02000a;
+        public static final int main_gpsbutton_normal=0x7f02000b;
+        public static final int main_gpsbutton_press=0x7f02000c;
+        public static final int main_historybutton_disable=0x7f02000d;
+        public static final int main_historybutton_focus=0x7f02000e;
+        public static final int main_historybutton_normal=0x7f02000f;
+        public static final int main_historybutton_press=0x7f020010;
+        public static final int main_runstartbutton_disable=0x7f020011;
+        public static final int main_runstartbutton_focus=0x7f020012;
+        public static final int main_runstartbutton_normal=0x7f020013;
+        public static final int main_runstartbutton_press=0x7f020014;
+        public static final int main_savebutton_disable=0x7f020015;
+        public static final int main_savebutton_focus=0x7f020016;
+        public static final int main_savebutton_normal=0x7f020017;
+        public static final int main_savebutton_press=0x7f020018;
+        public static final int main_stopbutton_disable=0x7f020019;
+        public static final int main_stopbutton_focus=0x7f02001a;
+        public static final int main_stopbutton_normal=0x7f02001b;
+        public static final int main_stopbutton_press=0x7f02001c;
+        public static final int selector_gps_button_image=0x7f02001d;
+        public static final int selector_history_button_image=0x7f02001e;
+        public static final int selector_mainitem_panel_image=0x7f02001f;
+        public static final int selector_runstart_button_image=0x7f020020;
+        public static final int selector_runstop_button_image=0x7f020021;
+        public static final int selector_save_button_image=0x7f020022;
     }
     public static final class id {
         public static final int dummy_button=0x7f070003;
@@ -95,11 +99,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int dummy_button=0x7f050001;
         public static final int dummy_content=0x7f050002;
         /**  Do not translate. Duration format for duration >= 1 hour 
- Do not translate. Duration format for duration >= 1 hour 
          */
         public static final int durationformatlong=0x7f050004;
         /**  Do not translate. Duration format for duration < 1 hour 
- Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f050003;
         public static final int hour=0x7f05000b;
@@ -130,8 +132,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f060001;
-        public static final int ButtonBar=0x7f060003;
-        public static final int ButtonBarButton=0x7f060004;
+        public static final int ButtonBar=0x7f060004;
+        public static final int ButtonBarButton=0x7f060005;
+        public static final int DialogLike=0x7f060003;
         public static final int FullscreenTheme=0x7f060002;
     }
     public static final class styleable {

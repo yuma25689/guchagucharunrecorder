@@ -119,7 +119,6 @@ public class LapData {
 	}
 	public void addSpeedData( double speed_ )
 	{
-		// TODO: �����B�덷�������Ԃ���Ǝv���邵�A�ő匏���̎w������
 		double sumVal = 0;
 		vSpeedQueue.add( speed_ );
 		if( SPEED_QUEUE_MAX < vSpeedQueue.size() )
@@ -151,7 +150,8 @@ public class LapData {
 		}
 		else
 		{
-			ret = String.format( "%.6f", distance / DISTANCE_KM ) 
+			// NOTICE:微妙な繰り上げ方
+			ret = String.format( "%.3f", distance / DISTANCE_KM ) 
 					+ ResourceAccessor.getInstance().IND_KM;
 		}
 		

@@ -26,6 +26,10 @@ public final class DroidDisplayInfo {
 	
 	int titleBarHeightPixels;
 	int statusBarHeightPixels;
+	public int getStatusBarHeight()
+	{
+		return statusBarHeightPixels;
+	}
 	int clientHeightPixels;
 	
 	Activity activity;
@@ -155,6 +159,12 @@ public final class DroidDisplayInfo {
 		ret = (int)( widthScaleCorrectDensity * orgX );
 		return ret;
 	}	
+	public int getXNotConsiderDensity( int orgX )
+	{		
+		int ret = 0;
+		ret = (int)( orgX / widthScaleCorrectDensity );
+		return ret;
+	}	
 	/**
 	 * density���l�����Ȃ������ꍇ�̈ʒu���A
 	 * density���l�������ꍇ�̍��W�ɒ����ĕԋp����
@@ -165,6 +175,11 @@ public final class DroidDisplayInfo {
 	public int getCorrectionYConsiderDensity( int orgY )
 	{
 		int ret = (int)( heightScaleCorrectDensity * orgY );
+		return ret;
+	}
+	public int getYNotConsiderDensity( int orgY )
+	{
+		int ret = (int)( orgY / heightScaleCorrectDensity );
 		return ret;
 	}
 	

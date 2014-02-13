@@ -39,6 +39,10 @@ public final class DisplayInfo {
 	{
 		_impl.init(activity,viewForMeasureBarHeight,handler,bTabForceReset);
 	}
+	public int getStatusBarHeight()
+	{
+		return _impl.getStatusBarHeight();
+	}
 	
 	/**
 	 * �T�C�Y�̕␳�l���擾
@@ -231,6 +235,14 @@ public final class DisplayInfo {
 		//lp.addRule(verb);//RelativeLayout.ALIGN_PARENT_TOP);
 		
 		return lp;
+	}
+	public int getXNotConsiderDensity( int orgX )
+	{
+		return _impl.getXNotConsiderDensity(orgX);
+	}
+	public int getYNotConsiderDensity( int orgY )
+	{
+		return _impl.getYNotConsiderDensity(orgY);
 	}
 
 }

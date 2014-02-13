@@ -44,10 +44,9 @@ import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- * 
- * @see SystemUiHider
+ * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
+ * @author 25689
+ *
  */
 public class MainActivity extends Activity implements LocationListener,IMainViewController, OnClickListener {
 
@@ -154,7 +153,16 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 	{
 		final long MIN_TIME = 100;
 		final long MIN_METER = 1;
-        if (mLocationManager != null) {
+		String providers = Settings.Secure.getString(
+				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if( providers.indexOf("gps", 0) < 0 )
+		{
+			// GPSが許可されていないと思われる
+			Log.v("initGPS", "GPS not arrowed.");
+			return;
+		}
+		
+        if (mLocationManager != null ) {
         	//clearGPS();
             mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -231,6 +239,13 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 		Log.v("gps","onProviderDisabled");
 		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
 		//btnCenter.setEnabled(false);
+		// TODO: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
+		String providers = Settings.Secure.getString(
+				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if(providers.indexOf("gps", 0) < 0) 
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+		}		
 	}
 
 	@Override
@@ -344,7 +359,19 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			imgGPS = new ImageView(this);
 		}
 		imgGPS.setId(GPS_INDICATOR_ID);
-		imgGPS.setBackgroundResource( R.drawable.gps_bad );
+		String providers = Settings.Secure.getString(
+				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if(providers.indexOf("gps", 0) < 0) 
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+		}
+		else
+		{
+			// TODO: 未受信の画像作成？
+			imgGPS.setBackgroundDrawable(null);
+			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+		}
+		//imgGPS.setBackgroundResource( R.drawable.gps_bad );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.gps_bad);
 		RelativeLayout.LayoutParams rlIndGps 
 		= dispInfo.createLayoutParamForNoPosOnBk( 
@@ -570,7 +597,7 @@ public class MainActivity extends Activity implements LocationListener,IMainView
 			ResourceAccessor.getInstance().getLogStocker().nextLap(new Date().getTime());
 			txtLap.setVisibility(View.VISIBLE);
 			txtLap.setText(getString(R.string.LAP_LABEL) 
-					+ ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() + 1);
+					+ ( ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() + 1));
 		}
 		else if( v == btnCenter )
 		{
