@@ -11,6 +11,10 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -22,8 +26,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 //import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -44,7 +50,7 @@ import app.guchagucharr.service.RunLogger;
  *
  */
 public class MainActivity extends Activity 
-implements LocationListener,IMainViewController, OnClickListener, ServiceConnection {
+implements LocationListener,IMainViewController, OnClickListener, OnTouchListener, ServiceConnection {
 
 	// サービスのトークン
     private static RunLogger.ServiceToken mToken = null;
@@ -89,6 +95,7 @@ implements LocationListener,IMainViewController, OnClickListener, ServiceConnect
 	// contorls
 	// center button
 	ImageButton btnCenter = null;
+	Region regionCenterBtn = null;
 	// GPS button
 	ImageButton btnGPS = null;
 	// GPS indicator
@@ -151,6 +158,7 @@ implements LocationListener,IMainViewController, OnClickListener, ServiceConnect
     	// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
+		regionCenterBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
         super.onResume();
     }
@@ -188,6 +196,8 @@ implements LocationListener,IMainViewController, OnClickListener, ServiceConnect
 //        }
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
+		regionCenterBtn = null;
+
         super.onPause();	
 	}
 	@Override
@@ -347,7 +357,34 @@ implements LocationListener,IMainViewController, OnClickListener, ServiceConnect
 		btnCenter.setLayoutParams(rlBtnCenter);
 		btnCenter.setScaleType(ScaleType.FIT_XY);
 		btnCenter.setOnClickListener(this);
+		btnCenter.setOnTouchListener(this);
 		addViewToCompContainer(btnCenter);
+//		// ボタンのリージョンを設定する		
+//        Path path = new Path();
+//        int x_cbtn = btnCenter.getLeft();
+//        int y_cbtn =  btnCenter.getTop();
+//        int width_cbtn = btnCenter.getWidth();
+//        int height_cbtn = btnCenter.getHeight();
+//        // 頂点
+//        path.moveTo(x_cbtn + width_cbtn / 2
+//        		, y_cbtn);
+//        // 左の先へ
+//        path.lineTo( x_cbtn, y_cbtn + height_cbtn / 2);
+//        // 下の先へ
+//        path.lineTo( x_cbtn + width_cbtn / 2
+//        		, y_cbtn + height_cbtn );
+//        // 右の先へ
+//        path.lineTo( x_cbtn + width_cbtn
+//        		, y_cbtn + height_cbtn / 2 );
+//        // 頂点へ戻る？
+////        path.moveTo(x_cbtn + width_cbtn / 2
+////        		, y_cbtn );
+//        path.close();
+//        RectF rectF = new RectF();
+//        path.computeBounds(rectF, true);	        
+//        regionCenterBtn = new Region();
+//        regionCenterBtn.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
+		
 		
 		// GPSbutton
 		if( btnGPS == null )		
@@ -692,6 +729,52 @@ implements LocationListener,IMainViewController, OnClickListener, ServiceConnect
 	public void onServiceDisconnected(ComponentName name) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		if( v == btnCenter )
+		{
+	        // タッチされた座標の取得
+	        int x1 = (int)event.getX();
+	        int y1 = (int)event.getY();
+			if( regionCenterBtn == null )
+			{
+				// ボタンのリージョンを設定する
+		        // ->おそらく、座標は不要
+		        Path path = new Path();
+		        int x_cbtn = 0;//btnCenter.getLeft();
+		        int y_cbtn = 0;//btnCenter.getTop();
+		        int width_cbtn = btnCenter.getWidth();
+		        int height_cbtn = btnCenter.getHeight();
+		        // 頂点
+		        path.moveTo(x_cbtn + width_cbtn / 2
+		        		, y_cbtn);
+		        // 左の先へ
+		        path.lineTo( x_cbtn, y_cbtn + height_cbtn / 2);
+		        // 下の先へ
+		        path.lineTo( x_cbtn + width_cbtn / 2
+		        		, y_cbtn + height_cbtn );
+		        // 右の先へ
+		        path.lineTo( x_cbtn + width_cbtn
+		        		, y_cbtn + height_cbtn / 2 );
+		        // 頂点へ戻る？
+	//	        path.moveTo(x_cbtn + width_cbtn / 2
+	//	        		, y_cbtn );
+		        path.close();
+		        RectF rectF = new RectF();
+		        path.computeBounds(rectF, true);	        
+		        regionCenterBtn = new Region();
+		        regionCenterBtn.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
+			}
+	        if( false == regionCenterBtn.contains( x1, y1 ))
+	        {
+	        	// ボタンの領域でない部分がタッチされていたら
+		        // OnTouchをキャンセルする
+		        return true;
+	        }
+		}
+		return false;
 	}
 
 }
