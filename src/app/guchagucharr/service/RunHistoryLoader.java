@@ -22,6 +22,19 @@ public class RunHistoryLoader {
 		return historyData;
 	}
 	/**
+	 * @return the historyData
+	 */
+	public ActivityData getHistoryData(int id) {
+		for( ActivityData data : historyData )
+		{
+			if( data.getId() == id )
+			{
+				return data;
+			}
+		}
+		return null;
+	}
+	/**
 	 * @return the historyLapData
 	 */
 	public SparseArray<Vector<ActivityLapData>> getHistoryLapDatas() {

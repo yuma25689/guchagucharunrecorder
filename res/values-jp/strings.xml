@@ -49,4 +49,5 @@
 	<string name="to">〜</string>		
 	<string name="speed_label">[速度]</string>
     
+	<string name="gpx_share">GPXファイルを共有</string>
 </resources>

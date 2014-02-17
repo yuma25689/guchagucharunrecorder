@@ -39,6 +39,10 @@ public class HistoryPagerAdapter extends PagerAdapter {
         {
         	iLayoutId = R.layout.page_vscrollable;
         }
+        if( position == 1 )
+        {
+        	iLayoutId = R.layout.page_history_sub_vscrollable;
+        }
         ViewGroup layout = (ViewGroup) this.mInflter.inflate(
         		iLayoutId, null);
         RelativeLayout rl = (RelativeLayout)layout.findViewById( R.id.page_content );

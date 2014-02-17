@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -40,6 +41,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private HistoryPagerAdapter adapter = null;
 	//private RelativeLayout lastMainLayout = null;
 	private RelativeLayout lastSubLayout = null;
+	private Button gpxShareButton = null;
+	private String gpxFilePath = null;
 	
 	RunHistoryLoader loader = new RunHistoryLoader();
 	@Override
@@ -211,10 +214,36 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		}
 		return;
 	}
-	public void updateSubPage(RelativeLayout rl)
+	public void updateSubPage(RelativeLayout rlBase)
 	{
-		lastSubLayout = rl;
-		lastSubLayout.removeAllViews();
+		lastSubLayout = rlBase;
+		RelativeLayout rl = (RelativeLayout) rlBase.findViewById(R.id.page_content1);
+		rl.removeAllViews();
+		boolean bGPXExists = false;
+		RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
+		if( null != loader.getHistoryData(selectedActivityData.getId() ) )
+		{
+			if( null == loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath() )
+			{
+				rl2.setVisibility(View.GONE);
+			}
+			else
+			{
+				File file = new File(loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath());
+				if( file != null && file.exists() )
+				{
+					rl2.setVisibility(View.VISIBLE);
+					gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
+					gpxShareButton.setOnClickListener(this);
+					gpxFilePath = loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath();
+					bGPXExists = true;
+				}
+				else
+				{
+					rl2.setVisibility(View.GONE);
+				}
+			}
+		}
 		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
 		if( lapData == null )
 		{
@@ -346,18 +375,14 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				//speedTotal += //lapData.getSpeed();
 			}	
 			double speedTotal = distanceTotal / ( timeTotal / 1000 );
-			// TODO: いちいち検索はナンセンスなので直すこと
 			String name = null;
 			String titleDateTime = null;
-        	for( ActivityData data : loader.getHistoryData() )
+        	if( null != loader.getHistoryData(item.getItemId()) )
         	{
-        		if( data.getId() == item.getItemId() )
-        		{
-        			name = data.getName();
-        			titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
-        					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
-        			break;
-        		}
+        		ActivityData data = loader.getHistoryData(item.getItemId());
+    			name = data.getName();
+    			titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
+    					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
         	}
 	        text = name + System.getProperty("line.separator")
 	        + titleDateTime + System.getProperty("line.separator")
@@ -380,7 +405,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					+ RunHistoryTableContract.HISTORY_TRANSACTION )
 					,null);
 	        try {
-	        	// TODO:GPXファイルの削除
 	        	String gpxFile = null;
 	        	for( ActivityData data : loader.getHistoryData() )
 	        	{
@@ -452,42 +476,60 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	}
 	@Override
 	public void onClick(View v) {
-		// DispBlockからしか呼ばれないことにしている
-		DisplayBlock dispBlock = (DisplayBlock)v;
-		
-		if(dispBlock.getData() == null )
+
+		if( v instanceof DisplayBlock )
 		{
+			DisplayBlock dispBlock = (DisplayBlock)v;
+			
+			if(dispBlock.getData() == null )
+			{
+			}
+			else
+			{
+				// dataの種別で処理を分ける
+				if( dispBlock.getData() instanceof ActivityData )
+				{
+					// ラップじゃない方のデータが表示されたら、ラップの表示が必要になる
+					selectedActivityData = (ActivityData) dispBlock.getData();
+					// TODO:ページが1ページしかない場合、ページの拡張を行う
+					if( adapter.getCount() == 1 )
+					{
+						adapter.setCount(2);
+					}
+					else if( adapter.getCount() == 2 )
+					{
+						if( null != lastSubLayout )
+						{
+							updateSubPage(lastSubLayout);
+						}
+					}
+					// adapter.notifyDataSetChanged();
+					// NOTICE: とりあえず、自動ページ移動はする？
+					mViewPager.arrowScroll(View.FOCUS_RIGHT);
+					// mViewPager.setCurrentItem(0);
+					return;
+				}
+				else if( dispBlock.getData() instanceof ActivityLapData )
+				{
+					
+					
+					return;
+				}
+			}
 		}
 		else
 		{
-			// dataの種別で処理を分ける
-			if( dispBlock.getData() instanceof ActivityData )
+			if( v == gpxShareButton )
 			{
-				// ラップじゃない方のデータが表示されたら、ラップの表示が必要になる
-				selectedActivityData = (ActivityData) dispBlock.getData();
-				// TODO:ページが1ページしかない場合、ページの拡張を行う
-				if( adapter.getCount() == 1 )
-				{
-					adapter.setCount(2);
-				}
-				else if( adapter.getCount() == 2 )
-				{
-					if( null != lastSubLayout )
-					{
-						updateSubPage(lastSubLayout);
-					}
-				}
-				// adapter.notifyDataSetChanged();
-				// NOTICE: とりあえず、自動ページ移動はする？
-				mViewPager.arrowScroll(View.FOCUS_RIGHT);
-				// mViewPager.setCurrentItem(0);
-				return;
-			}
-			else if( dispBlock.getData() instanceof ActivityLapData )
-			{
+				// GPXの共有を行う
+		        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);//ACTION_SEND);
+		        intent.addCategory(Intent.CATEGORY_DEFAULT);
+		        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+		        intent.setDataAndType(Uri.fromFile(new File(gpxFilePath)), "application/gpx+xml");
+		        // intent.putExtra(Intent.EXTRA_TEXT, gpxFilePath);
+		        startActivity(Intent.createChooser(
+		                intent, getString(R.string.gpx_share)));
 				
-				
-				return;
 			}
 		}
 		

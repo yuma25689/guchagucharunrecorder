@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.Message;
 
 /**
- * location�ｽf�ｽ[�ｽ^�ｽ�ｽ�ｽ�ｽAGPX�ｽt�ｽ@�ｽC�ｽ�ｽ�ｽ�生撰ｿｽ�ｽ�ｽ�ｽ�ｽ
  * @author 25689
  *
  */
@@ -49,15 +48,21 @@ public class GPXGenerator {
 </trkseg></trk></gpx> 
 	 */
 	
-	public static final String XML_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	public static final String LINE_SEP = System.getProperty("line.separator");
+	public static final String XML_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + LINE_SEP;
 	public static final String GPX_START_TAG 
-	= "<gpx version=\"1.1\" creator=\"GuchaGuchaRunRecorder\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/0\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">";
+	= "<gpx version=\"1.1\"" + LINE_SEP
+	+ "creator=\"GuchaGuchaRunRecorder\"" + LINE_SEP
+	+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + LINE_SEP
+	+ "xmlns=\"http://www.topografix.com/GPX/1/0\"" + LINE_SEP
+	+ "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">"
+	+ LINE_SEP;
 	public static final String GPX_END_TAG 
-	= "</gpx>";
+	= "</gpx>" + LINE_SEP;
 	
 	public static final String TAG_LEFT_BLANCKET = "<";
 	public static final String TAG_LEFT_BLANCKET_OF_CLOSE = "</";
-	public static final String TAG_RIGHT_BLANCKET_OF_CLOSE = "/>";
+	public static final String TAG_RIGHT_BLANCKET_OF_CLOSE = "/>" + LINE_SEP;
 	public static final String TAG_RIGHT_BLANCKET = ">";
 	
 	public static final String TAG_NAME_TRACK = "trk";
@@ -72,7 +77,7 @@ public class GPXGenerator {
 	public static final String ATTR_NAME_LATITUDE = "lat=";
 	public static final String ATTR_NAME_LONGITUDE = "lon=";
 
-	public static final String ATTR_LAT_AND_LONGITUDE = " lat=\"%15f\" lon=\"%15f\" ";
+	public static final String ATTR_LAT_AND_LONGITUDE = " lat=\"%.15f\" lon=\"%.15f\"";
 	
 	
 	public static final int NG_ERROR_UNKNOWN = -1;
@@ -178,14 +183,22 @@ public class GPXGenerator {
 		}
 
 		public void startExport() throws IOException
-		{
-			// ...
+		{			
 			String stg = XML_FORMAT + GPX_START_TAG; 
 			_bos.write( stg.getBytes() );
 		}
 
 		public void endExport() throws IOException
 		{
+			// </trkseg></trk>
+			String out = TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+					+ LINE_SEP					
+					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+					+ LINE_SEP
+					;					
+			
+			_bos.write( out.getBytes() );
+			
 			// </gpx>
 			String stg = GPX_END_TAG;
 			
@@ -235,13 +248,18 @@ public class GPXGenerator {
 			*/			
 			String stg = 
 					TAG_LEFT_BLANCKET + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+					+ LINE_SEP
 					+ TAG_LEFT_BLANCKET + TAG_NAME_NAME + TAG_RIGHT_BLANCKET 
 					+ LAP_TEXT + String.valueOf( iLap + 1 )
 					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NAME + TAG_RIGHT_BLANCKET
+					+ LINE_SEP					
 					+ TAG_LEFT_BLANCKET + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET 
 					+ String.valueOf( iLap + 1 )
 					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET
-					+ TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET;
+					+ LINE_SEP					
+					+ TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+					+ LINE_SEP
+					;
 					
 			_bos.write( stg.getBytes() );
 		}
@@ -249,8 +267,11 @@ public class GPXGenerator {
 		public void endLap() throws IOException
 		{
 			// </trkseg></trk>
-			String out = TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
-					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET;					
+			String out = TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+					+ LINE_SEP					
+					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+					+ LINE_SEP
+					;					
 			
 			_bos.write( out.getBytes() );
 		}
@@ -264,7 +285,8 @@ public class GPXGenerator {
 			builder.append( TAG_NAME_TRK_POINT );
 			builder.append( String.format( ATTR_LAT_AND_LONGITUDE,
 					loc.getLatitude(), loc.getLongitude() ) );
-			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( TAG_RIGHT_BLANCKET );			
+			builder.append( LINE_SEP );
 			
 			// elevation
 			builder.append( TAG_LEFT_BLANCKET );
@@ -274,6 +296,7 @@ public class GPXGenerator {
 			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
 			builder.append( TAG_NAME_ELEVATION );
 			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( LINE_SEP );			
 
 			// speed
 			// is not standard?
@@ -284,27 +307,30 @@ public class GPXGenerator {
 			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
 			builder.append( TAG_NAME_SPEED );
 			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( LINE_SEP );
 			
 			builder.append( TAG_LEFT_BLANCKET );
 			builder.append( TAG_NAME_TIME );
-			builder.append( TAG_LEFT_BLANCKET );
+			builder.append( TAG_RIGHT_BLANCKET );
 			Date date = new Date(loc.getTime());
-			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 			String strTmp = dateFormatGmt.format(date);
 			builder.append( strTmp );
 			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
 			builder.append( TAG_NAME_TIME );
 			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( LINE_SEP );
 			builder.append( TAG_LEFT_BLANCKET_OF_CLOSE );
 			builder.append( TAG_NAME_TRK_POINT );
 			builder.append( TAG_RIGHT_BLANCKET );
+			builder.append( LINE_SEP );
 			
 			_bos.write( builder.toString().getBytes() );
 		}
 
 		public void endLoc() throws IOException
-		{
+		{			
 			//_bos.write( END_ROW.getBytes() );
 		}
 	}

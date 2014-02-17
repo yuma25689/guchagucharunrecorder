@@ -53,4 +53,5 @@
 	<string name="to"> - </string>		
 	<string name="speed_label">[speed]</string>
     
+	<string name="gpx_share">share GPX file</string>	
 </resources>

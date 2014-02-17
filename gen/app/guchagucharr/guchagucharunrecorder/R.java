@@ -61,20 +61,27 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int selector_save_button_image=0x7f020022;
     }
     public static final class id {
+        public static final int center_view=0x7f070004;
         public static final int dummy_button=0x7f070003;
         public static final int fullscreen_content_controls=0x7f070002;
+        public static final int gpx_share_button=0x7f07000a;
+        public static final int layout_bottom=0x7f070006;
+        public static final int layout_top=0x7f070005;
         public static final int main_content=0x7f070000;
-        public static final int page_content=0x7f070004;
+        public static final int page_content=0x7f070007;
+        public static final int page_content1=0x7f070008;
+        public static final int page_content2=0x7f070009;
         public static final int viewpager1=0x7f070001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int activity_viewpager=0x7f030001;
         public static final int activity_viewpager_only=0x7f030002;
-        public static final int history_page=0x7f030003;
-        public static final int page_hscrollable=0x7f030004;
-        public static final int page_vscrollable=0x7f030005;
-        public static final int result_page=0x7f030006;
+        public static final int history_sub_page=0x7f030003;
+        public static final int page_history_sub_vscrollable=0x7f030004;
+        public static final int page_hscrollable=0x7f030005;
+        public static final int page_vscrollable=0x7f030006;
+        public static final int result_page=0x7f030007;
     }
     public static final class string {
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f05000f;
@@ -107,6 +114,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         /**  Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f050003;
+        public static final int gpx_share=0x7f050028;
         public static final int hour=0x7f05000b;
         public static final int killometer=0x7f050008;
         public static final int killoperhour=0x7f05000d;
