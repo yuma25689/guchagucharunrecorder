@@ -42,12 +42,64 @@ case INTERFACE_TRANSACTION:
 reply.writeString(DESCRIPTOR);
 return true;
 }
-case TRANSACTION_initGPS:
+case TRANSACTION_requestGPS:
 {
 data.enforceInterface(DESCRIPTOR);
-int _result = this.initGPS();
+int _result = this.requestGPS();
 reply.writeNoException();
 reply.writeInt(_result);
+return true;
+}
+case TRANSACTION_getMode:
+{
+data.enforceInterface(DESCRIPTOR);
+int _result = this.getMode();
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
+case TRANSACTION_setMode:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+this.setMode(_arg0);
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_clearGPS:
+{
+data.enforceInterface(DESCRIPTOR);
+this.clearGPS();
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_createLocationManager:
+{
+data.enforceInterface(DESCRIPTOR);
+this.createLocationManager();
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_clearLocationManager:
+{
+data.enforceInterface(DESCRIPTOR);
+this.clearLocationManager();
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_startLog:
+{
+data.enforceInterface(DESCRIPTOR);
+this.startLog();
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_stopLog:
+{
+data.enforceInterface(DESCRIPTOR);
+this.stopLog();
+reply.writeNoException();
 return true;
 }
 }
@@ -68,14 +120,14 @@ public java.lang.String getInterfaceDescriptor()
 {
 return DESCRIPTOR;
 }
-@Override public int initGPS() throws android.os.RemoteException
+@Override public int requestGPS() throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
 android.os.Parcel _reply = android.os.Parcel.obtain();
 int _result;
 try {
 _data.writeInterfaceToken(DESCRIPTOR);
-mRemote.transact(Stub.TRANSACTION_initGPS, _data, _reply, 0);
+mRemote.transact(Stub.TRANSACTION_requestGPS, _data, _reply, 0);
 _reply.readException();
 _result = _reply.readInt();
 }
@@ -85,8 +137,124 @@ _data.recycle();
 }
 return _result;
 }
+@Override public int getMode() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getMode, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
 }
-static final int TRANSACTION_initGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+finally {
+_reply.recycle();
+_data.recycle();
 }
-public int initGPS() throws android.os.RemoteException;
+return _result;
+}
+@Override public void setMode(int mode) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(mode);
+mRemote.transact(Stub.TRANSACTION_setMode, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void clearGPS() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_clearGPS, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void createLocationManager() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_createLocationManager, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void clearLocationManager() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_clearLocationManager, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void startLog() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_startLog, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+@Override public void stopLog() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_stopLog, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+}
+static final int TRANSACTION_requestGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+static final int TRANSACTION_getMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_setMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
+static final int TRANSACTION_clearGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_createLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_clearLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_startLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
+static final int TRANSACTION_stopLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+}
+public int requestGPS() throws android.os.RemoteException;
+public int getMode() throws android.os.RemoteException;
+public void setMode(int mode) throws android.os.RemoteException;
+public void clearGPS() throws android.os.RemoteException;
+public void createLocationManager() throws android.os.RemoteException;
+public void clearLocationManager() throws android.os.RemoteException;
+public void startLog() throws android.os.RemoteException;
+public void stopLog() throws android.os.RemoteException;
 }

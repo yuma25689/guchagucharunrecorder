@@ -20,7 +20,6 @@ public class MainHandler extends Handler {
 		mViewController = vCtrl;
 	}
 	
-    //メッセージ受信
     @Override
 	public void handleMessage(Message message) {
     	if( mActivity == null )
@@ -33,10 +32,9 @@ public class MainHandler extends Handler {
         	{
                 //OkosamaMediaPlayerActivity.getResourceAccessor().initMotionSenser(mActivity);
                 //OkosamaMediaPlayerActivity.getResourceAccessor().initSound();
-        		
-        		// ディスプレイの作成
-        		mViewController.initControls();
-        		mViewController.initGPS();
+           		mViewController.initControls();
+           		// 蛻晄悄蛹悶′邨ゅｏ縺｣縺溘ｉ縲√→繧翫≠縺医★繝ｪ繧ｯ繧ｨ繧ｹ繝医ｒ騾√ｋ
+        		mViewController.requestGPS();
 	    		break;
         	}
 		}

@@ -134,19 +134,20 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
 			String gpxExists = null;
 			String lapCount = null;
-			String gpx = data.getGpxFilePath();
-			if( gpx != null )
-			{
-				File file = new File(gpx);
-				if( file.exists() )
-				{
-					gpxExists = getString(R.string.GPX_EXISTS);
-				}
-				else
-				{
-					gpxExists = getString(R.string.GPX_LOSE);
-				}
-			}
+			// TODO: 後でラップのデータを見てちゃんと表示する
+//			String gpx = data.getGpxFilePath();
+//			if( gpx != null )
+//			{
+//				File file = new File(gpx);
+//				if( file.exists() )
+//				{
+//					gpxExists = getString(R.string.GPX_EXISTS);
+//				}
+//				else
+//				{
+//					gpxExists = getString(R.string.GPX_LOSE);
+//				}
+//			}
 			if( 1 < data.getLapCount() )
 			{
 				lapCount = getString( R.string.LAP_COUNT_LABEL ) + data.getLapCount();
@@ -221,33 +222,32 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		rl.removeAllViews();
 		boolean bGPXExists = false;
 		RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
-		if( null != loader.getHistoryData(selectedActivityData.getId() ) )
+		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
+		if( lapData == null || lapData.size() == 0 )
 		{
-			if( null == loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath() )
+			return;
+		}
+		
+		// TODO: 暫定版なので後で直すこと
+		if( null == lapData.get(0).getGpxFilePath() )
+		{
+			rl2.setVisibility(View.GONE);
+		}
+		else
+		{
+			File file = new File(lapData.get(0).getGpxFilePath());
+			if( file != null && file.exists() )
 			{
-				rl2.setVisibility(View.GONE);
+				rl2.setVisibility(View.VISIBLE);
+				gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
+				gpxShareButton.setOnClickListener(this);
+				gpxFilePath = lapData.get(0).getGpxFilePath();
+				bGPXExists = true;
 			}
 			else
 			{
-				File file = new File(loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath());
-				if( file != null && file.exists() )
-				{
-					rl2.setVisibility(View.VISIBLE);
-					gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
-					gpxShareButton.setOnClickListener(this);
-					gpxFilePath = loader.getHistoryData(selectedActivityData.getId() ).getGpxFilePath();
-					bGPXExists = true;
-				}
-				else
-				{
-					rl2.setVisibility(View.GONE);
-				}
+				rl2.setVisibility(View.GONE);
 			}
-		}
-		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
-		if( lapData == null )
-		{
-			return;
 		}
 		// NOTICE: 最高で６個しか置けない
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
@@ -405,22 +405,19 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					+ RunHistoryTableContract.HISTORY_TRANSACTION )
 					,null);
 	        try {
+	        	// 全てのGPXファイルを削除？
 	        	String gpxFile = null;
-	        	for( ActivityData data : loader.getHistoryData() )
+	        	for( ActivityLapData data : loader.getHistoryLapData(item.getItemId()) )
 	        	{
-	        		if( data.getId() == item.getItemId() )
-	        		{
-	        			gpxFile = data.getGpxFilePath();
-	        			break;
-	        		}
-	        	}
-	        	if( gpxFile != null )
-	        	{
-	        		File file = new File( gpxFile );
-	        		if( file.exists() )
-	        		{
-	        			file.delete();
-	        		}
+        			gpxFile = data.getGpxFilePath();
+    	        	if( gpxFile != null )
+    	        	{
+    	        		File file = new File( gpxFile );
+    	        		if( file.exists() )
+    	        		{
+    	        			file.delete();
+    	        		}
+    	        	}
 	        	}
 	        	
 	        	int iRet = this.getContentResolver().delete(

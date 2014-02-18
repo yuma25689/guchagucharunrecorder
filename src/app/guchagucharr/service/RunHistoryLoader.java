@@ -80,14 +80,14 @@ public class RunHistoryLoader {
 					int lapCountIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.LAP_COUNT);
 					int placeIdIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.PLACE_ID );				
 					int nameIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.NAME);
-					int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
+					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					data.setId( cursor.getInt( idIndex ) );
 					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
 					data.setInsertDateTime( cursor.getLong( insertDatetimeIndex ) );
 					data.setLapCount( cursor.getLong( lapCountIndex ) );
 					data.setPlaceId( cursor.getLong( placeIdIndex ) );
 					data.setName( cursor.getString( nameIndex ) );
-					data.setGpxFilePath( cursor.getString( gpxIndex ) );
+					//data.setGpxFilePath( cursor.getString( gpxIndex ) );
 								
 					historyData.add( data );			
 				} while( cursor.moveToNext() );
@@ -179,7 +179,7 @@ public class RunHistoryLoader {
 		String name;
 		long lapCount;
 		long placeId;
-        String gpxFilePath;
+        //String gpxFilePath;
 		/**
 		 * @return the id
 		 */
@@ -255,15 +255,15 @@ public class RunHistoryLoader {
 		/**
 		 * @return the gpxFilePath
 		 */
-		public String getGpxFilePath() {
-			return gpxFilePath;
-		}
+//		public String getGpxFilePath() {
+//			return gpxFilePath;
+//		}
 		/**
 		 * @param gpxFilePath the gpxFilePath to set
 		 */
-		public void setGpxFilePath(String gpxFilePath) {
-			this.gpxFilePath = gpxFilePath;
-		}
+//		public void setGpxFilePath(String gpxFilePath) {
+//			this.gpxFilePath = gpxFilePath;
+//		}
 	};
 	public class ActivityLapData {
 		long id; 
@@ -277,6 +277,7 @@ public class RunHistoryLoader {
 		double fixedDistance; 
 		long fixedTime; 
 		double fixedSpeed;
+		String gpxFilePath;
 		/**
 		 * @return the id
 		 */
@@ -408,7 +409,20 @@ public class RunHistoryLoader {
 		 */
 		public void setFixedSpeed(double fixedSpeed) {
 			this.fixedSpeed = fixedSpeed;
-		} 
+		}
+		/**
+		 * @return the gpxFilePath
+		 */
+		public String getGpxFilePath() {
+			return gpxFilePath;
+		}
+		/**
+		 * @param gpxFilePath the gpxFilePath to set
+		 */
+		public void setGpxFilePath(String gpxFilePath) {
+			this.gpxFilePath = gpxFilePath;
+		}
+		
 	};
 
 }

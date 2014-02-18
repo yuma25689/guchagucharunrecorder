@@ -1,29 +1,25 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-//import android.graphics.drawable.BitmapDrawable;
-//import android.content.IntentFilter;
-//import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -31,7 +27,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-//import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -39,58 +34,68 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import app.guchagucharr.interfaces.IMainViewController;
-//import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLogger;
+import app.guchagucharr.service.RunLoggerService;
+import app.guchagucharr.service.RunningLogStocker;
+import app.guchagucharr.service.RunLoggerService.eMode;
 
 /**
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
  * @author 25689
- *
  */
 public class MainActivity extends Activity 
-implements LocationListener,IMainViewController, OnClickListener, OnTouchListener, ServiceConnection {
-
+implements 
+	// LocationListener,
+	IMainViewController,
+	OnClickListener,
+	OnTouchListener,
+	ServiceConnection 
+{
+	public static String TIMER_NOTIFY = "TimeNotif";
+	public static String CURRENT_DURATION = "CurDur";
+	public static String LOCATION_DATA = "LocData";
+	public static String LOCATION_CHANGE_NOTIFY = "LocChgNotif";
+	
 	// サービスのトークン
     private static RunLogger.ServiceToken mToken = null;
-	
+
+    
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
-	private LocationManager mLocationManager;
 	private MainHandler handler;
-	//private boolean bGPSCanUse = false;
-	private static Timer mTimer = null;
-	private static UpdateTimeDisplayTask timerTask = null;
-	class UpdateTimeDisplayTask extends TimerTask{
-		 
-	     @Override
-	     public void run() {
-	         // mHandler through UI Thread to queueing
-	    	 handler.post( new Runnable() {
-	             @Override
-				public void run() {	 
-	                 // update now Time
-	         		if( ResourceAccessor.getInstance().getLogStocker() != null 
-	         				&& mode == eMode.MODE_MEASURING )
-	        		{
-	         			long lapTime = new Date().getTime() 
-	         					- ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getStartTime();
-	        			txtTime.setText( LapData.createTimeFormatText( lapTime ) );
-	        			initGPS();
-	        		}	            	 
-	             }
-	         });
-	     }
-	 }	
-	// private ResourceAccessor res;
-	private enum eMode {
-		MODE_NORMAL,
-		MODE_MEASURING//,
-		// MODE_SAVE_OR_CLEAR
-	};
-	//static eMode mode2; 
-	private static eMode mode = eMode.MODE_NORMAL;
+	
+	// NOTICE:タイマー処理の一部はサービスに移す案もある
+//	private static UpdateTimeDisplayTask timerTask = null;
+//	class UpdateTimeDisplayTask extends TimerTask
+//	{
+//	     @Override
+//	     public void run() {
+//	         // mHandler through UI Thread to queueing
+//	    	 handler.post( new Runnable() {
+//	             @Override
+//				public void run() {	 
+//	                 // update now Time
+//	         		try {
+//						if( RunLoggerService.getLogStocker() != null 
+//								&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+//						{
+//							long lapTime = new Date().getTime() 
+//									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
+//							txtTime.setText( LapData.createTimeFormatText( lapTime ) );
+//							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする
+//							// requestGPS();
+//							//RunLogger.sService.requestGPS();
+//						}
+//					} catch (RemoteException e) {
+//						e.printStackTrace();
+//						Log.e("UpdateTimeDisplayTask",e.getMessage());						
+//					}	            	 
+//	             }
+//	         });
+//	     }
+//	 }	
 	
 	// contorls
 	// center button
@@ -117,7 +122,6 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 	// cancel
 	ImageButton btnCancel = null;
 	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,17 +138,8 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
         // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
 
-		// GPS setting
-		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		initGPS();
-
-        // サービスへの接続を開始
-        if( 0 == RunLogger.getServiceConnectionCount() 
-        || RunLogger.sService == null )
-        {
-        	// 絶対に１つしか接続されないようにする
-        	mToken = RunLogger.bindToService(this, this);
-        }
+        // -> サービスへ移動のため、ここでは行わない
+		//requestGPS();
 
 		// create handler
         handler = new MainHandler( this, this );
@@ -155,45 +150,73 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 
 	@Override
     protected void onResume() {
+		
+        // サービスからの通知を受けるレシーバの作成、登録
+        receiver = new ServiceNotifyReceiver();
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(LOCATION_CHANGE_NOTIFY);
+        intentFilter.addAction(TIMER_NOTIFY);
+        registerReceiver(receiver,intentFilter);
+		
+        // サービスへの接続を開始
+        if( 0 == RunLogger.getServiceConnectionCount() 
+        || RunLogger.sService == null )
+        {
+        	// 絶対に１つしか接続されないようにする
+        	mToken = RunLogger.bindToService(this, this);
+        }
+		
     	// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
 		regionCenterBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
+         
         super.onResume();
     }
 	
-	@Override
-	public void initGPS()
+	//@Override
+	public void requestGPS()
 	{
-		final long MIN_TIME = 100;
-		final long MIN_METER = 1;
-		String providers = Settings.Secure.getString(
-				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if( providers.indexOf("gps", 0) < 0 )
-		{
-			// GPSが許可されていないと思われる
-			Log.v("initGPS", "GPS not arrowed.");
-			return;
+		// 2014/02/17 move to service
+		try {
+			RunLogger.sService.requestGPS();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			Log.e("requestGPS",e.getMessage());
 		}
-		
-        if (mLocationManager != null ) {
-        	//clearGPS();
-            mLocationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-//                LocationManager.NETWORK_PROVIDER,
-                MIN_TIME,
-                MIN_METER,
-                this);
-        }
 	}
 	
 	@Override
 	protected void onPause()
 	{
+		// TODO: こんなので大丈夫か確認必要
+		if(mToken != null)
+		{
+			try {
+				if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+				{
+					RunLogger.sService.clearGPS();
+					RunLogger.sService.clearLocationManager();					
+					// サービスの登録解除
+				    RunLogger.unbindFromService(mToken);
+				    mToken = null;
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				Log.e("onPause","RemoteException");
+			}
+		}
+		
 //        if (mLocationManager != null) {
 //            mLocationManager.removeUpdates(this);
 //        }
+        if( null != receiver )
+        {
+        	this.unregisterReceiver(receiver);
+        	receiver = null;
+        }
+		
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
 		regionCenterBtn = null;
@@ -207,38 +230,42 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		// ランニング中にアプリケーションが終了するだけで、ランニングデータが消えてしまう。
 		// GPXファイルを常に書き続けるような作りと、
 		// GPXファイルからLocationデータを復帰させるような仕組みがあればいいのではないかと思われる。
-        clearGPS();
+        // clearGPS();
         super.onStop();
 	}
 	@Override
 	protected void onDestroy()
 	{
-		// TODO: こんなので大丈夫か確認必要
-		if(mToken != null)
-		{
-			// サービスの登録解除
-		    RunLogger.unbindFromService(mToken);
-		    mToken = null;
-		}
+		// NOTICE: 本当に不要？
+//		if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+//		{
+//			RunLogger.sService.clearGPS();
+//			// サービスの登録解除
+//		    RunLogger.unbindFromService(mToken);
+//		    mToken = null;
+//		}
 		super.onDestroy();		
 	}
 	
-	@Override
+	//@Override
 	public void onLocationChanged(Location location) {
-		clearGPS();
 		//bGPSCanUse = true;
-		Log.v("onLocationChanged","come");
+		Log.v("onLocationChanged - MainActivity","come");
 		btnCenter.setEnabled(true);
-		if( false == ResourceAccessor.getInstance().isEmptyLogStocker() 
-				&& mode == eMode.MODE_MEASURING )
-		{
-			Log.v("add","location info");
-			// NOTICE: この関数でほとんど全てのログを取っているようなもの
-			ResourceAccessor.getInstance().putLocationLog(location);
-			txtDistance.setText( LapData.createDistanceFormatText( 
-					ResourceAccessor.getInstance().getLogStocker().getCurrentLapData().getDistance() ) );
-			txtSpeed.setText( LapData.createSpeedFormatText( location.getSpeed() ) );//runLogStocker.getCurrentLapData().getSpeed() ) );
-			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( location.getSpeed() ) );//runLogStocker.getCurrentLapData().getSpeed() ) );
+		try {
+			if( false == RunLoggerService.isEmptyLogStocker() 
+					&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+			{
+				txtDistance.setText( LapData.createDistanceFormatText( 
+						RunLoggerService.getLogStocker().getCurrentLapData().getDistance() ) );
+				txtSpeed.setText( LapData.createSpeedFormatText( location.getSpeed() ) );
+				//runLogStocker.getCurrentLapData().getSpeed() ) );
+				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( location.getSpeed() ) );
+				//runLogStocker.getCurrentLapData().getSpeed() ) );
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			Log.e("onLocationChanged - MainActivity", e.getMessage());
 		}
 		Log.v("----------", "----------");
         Log.v("Latitude", String.valueOf(location.getLatitude()));
@@ -248,42 +275,45 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
         Log.v("Time", String.valueOf(location.getTime()));
         Log.v("Speed", String.valueOf(location.getSpeed()));
         Log.v("Bearing", String.valueOf(location.getBearing()));
-		if( location.getAccuracy() < 2 )
+		
+		// TODO: 精度の表示
+		if( location.getAccuracy() < 5 )
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_bad);
 		}
-		else if( 6 < location.getAccuracy() )
+		else if( 10 <= location.getAccuracy() )
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_good);
 		}
-		else if( 2 < location.getAccuracy() )
+		else if( 5 <= location.getAccuracy() )
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_soso);
 		}
 	}
 
-	@Override
-	public void onProviderDisabled(String provider) {
-		//bGPSCanUse = false;
-		Log.v("gps","onProviderDisabled");
-		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
-		//btnCenter.setEnabled(false);
-		// TODO: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
-		String providers = Settings.Secure.getString(
-				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if(providers.indexOf("gps", 0) < 0) 
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
-		}		
-	}
+	// TODO: サービス側から呼ぶ必要があるかどうか確認
+	//@Override
+//	public void onProviderDisabled(String provider) {
+//		//bGPSCanUse = false;
+//		Log.v("gps","onProviderDisabled");
+//		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
+//		//btnCenter.setEnabled(false);
+//		// TODO: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
+//		String providers = Settings.Secure.getString(
+//				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//		if(providers.indexOf("gps", 0) < 0) 
+//		{
+//			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+//		}		
+//	}
 
-	@Override
-	public void onProviderEnabled(String provider) {
-		//bGPSCanUse = true;
-		Log.v("gps","onProviderEnabled");
-		//imgGPS.setBackgroundResource(R.drawable.gps_good);
-		//btnCenter.setEnabled(true);
-	}
+//	@Override
+//	public void onProviderEnabled(String provider) {
+//		//bGPSCanUse = true;
+//		Log.v("gps","onProviderEnabled");
+//		//imgGPS.setBackgroundResource(R.drawable.gps_good);
+//		//btnCenter.setEnabled(true);
+//	}
 
 	// init controls
 	static final int CENTER_BUTTON_ID = 1000;
@@ -329,10 +359,12 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 	@Override
 	public int initControls()
 	{
-        if( mTimer != null) 
-        {
-			mode = eMode.MODE_MEASURING;
-        }
+		// TODO:サービスにつながれていないときに、ここに来てはいけない
+		// モードは、サービス上に常に保持
+//        if( mTimer != null) 
+//        {
+//			mode = eMode.MODE_MEASURING;
+//        }
 		
 		componentContainer.removeAllViews();
 		int ret = 0;
@@ -340,9 +372,14 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		BitmapFactory.Options bmpoptions = null;
 		// center button 
 		int iCenterButtonImageID = R.drawable.selector_runstop_button_image;
-		if( mode == eMode.MODE_NORMAL )
-		{
-			iCenterButtonImageID = R.drawable.selector_runstart_button_image;
+		try {
+			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
+			{
+				iCenterButtonImageID = R.drawable.selector_runstart_button_image;
+			}
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 		if( btnCenter == null )
 			btnCenter = new ImageButton(this);
@@ -423,6 +460,12 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		}
 		else
 		{
+//			try {
+//				RunLogger.sService.createLocationManager();
+//			} catch (RemoteException e) {
+//				e.printStackTrace();
+//				Log.e("createLocationManager",e.getMessage());
+//			}			
 			// TODO: 未受信の画像作成？
 			imgGPS.setBackgroundDrawable(null);
 			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
@@ -575,28 +618,32 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		// cancel?
 		//btnCancel = new ImageButton(this);
 		
-		if( mode == eMode.MODE_NORMAL )
-		{
-			// TODO: �����Ɛ��䂷��
-			txtTime.setVisibility(View.GONE);
-			txtDistance.setVisibility(View.GONE);
-			txtSpeed.setVisibility(View.GONE);
-			txtSpeed2.setVisibility(View.GONE);
-			btnLap.setVisibility(View.GONE);
-			txtLap.setVisibility(View.GONE);
-			btnCenter.setEnabled(false);
-		}
-		else if( mode == eMode.MODE_MEASURING )
-		{
-			txtDistance.setVisibility(View.VISIBLE);
-			txtSpeed.setVisibility(View.VISIBLE);
-			txtSpeed2.setVisibility(View.VISIBLE);
-			txtTime.setVisibility(View.VISIBLE);		
-			btnLap.setVisibility(View.VISIBLE);
-			if( 0 < ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() )
+		try {
+			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 			{
-				txtLap.setVisibility(View.VISIBLE);
+				txtTime.setVisibility(View.GONE);
+				txtDistance.setVisibility(View.GONE);
+				txtSpeed.setVisibility(View.GONE);
+				txtSpeed2.setVisibility(View.GONE);
+				btnLap.setVisibility(View.GONE);
+				txtLap.setVisibility(View.GONE);
+				btnCenter.setEnabled(false);
 			}
+			else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+			{
+				txtDistance.setVisibility(View.VISIBLE);
+				txtSpeed.setVisibility(View.VISIBLE);
+				txtSpeed2.setVisibility(View.VISIBLE);
+				txtTime.setVisibility(View.VISIBLE);		
+				btnLap.setVisibility(View.VISIBLE);
+				if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				{
+					txtLap.setVisibility(View.VISIBLE);
+				}
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			Log.e("initControls",e.getMessage());
 		}
 		
 		
@@ -619,10 +666,10 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		return ret;
 	}
 	
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// どうやら、宛てにならないようなので、廃止する
-	}
+//	@Override
+//	public void onStatusChanged(String provider, int status, Bundle extras) {
+//		// どうやら、宛てにならないようなので、廃止する
+//	}
 	
 
 	@Override
@@ -636,8 +683,10 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 				startActivity(intent);
 			} else {
-				// Toast.makeText(getApplicationContext(), R.string.GPS_ON, Toast.LENGTH_LONG).show();
-				initGPS();
+				// Toast.makeText(getApplicationContext(), 
+				// R.string.GPS_ON, Toast.LENGTH_LONG).show();
+				requestGPS();
+				//RunLogger.sService.requestGPS();
 			}
 		}
 		else if( v == btnHistory )
@@ -650,85 +699,90 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 		else if( v == btnLap )
 		{
 			// 次のラップへ
-			ResourceAccessor.getInstance().getLogStocker().nextLap(new Date().getTime());
+			RunLoggerService.getLogStocker().nextLap(new Date().getTime());
 			txtLap.setVisibility(View.VISIBLE);
 			txtLap.setText(getString(R.string.LAP_LABEL) 
-					+ ( ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() + 1));
+					+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
 		}
 		else if( v == btnCenter )
 		{
-			// TODO:cliping not button region
-			if( mode == eMode.MODE_NORMAL )
-			{
-				btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
-				Date now = new Date();
-				long time = now.getTime();
-			    if(mTimer == null){
-			        timerTask = new UpdateTimeDisplayTask();
-			        mTimer = new Timer(true);
-			        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
-			    }				
-				ResourceAccessor.getInstance().createLogStocker(time);
-				
-				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
-				txtTime.setText( LapData.createTimeFormatText( 0 ) );
-				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
-				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
-				
-				txtDistance.setVisibility(View.VISIBLE);
-				txtSpeed.setVisibility(View.VISIBLE);
-				txtSpeed2.setVisibility(View.VISIBLE);
-				txtTime.setVisibility(View.VISIBLE);
-				btnLap.setVisibility(View.VISIBLE);			
-				if( 0 < ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() )
+			try {
+				if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 				{
-					txtLap.setVisibility(View.VISIBLE);
+					btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
+					Date now = new Date();
+					long time = now.getTime();
+					// logging start
+					RunLogger.sService.startLog();					
+//				    if(mTimer == null){
+//				        timerTask = new UpdateTimeDisplayTask();
+//				        mTimer = new Timer(true);
+//				        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
+//				    }				
+				    RunLoggerService.createLogStocker(time);
+					
+					txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+					txtTime.setText( LapData.createTimeFormatText( 0 ) );
+					txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
+					txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+					
+					txtDistance.setVisibility(View.VISIBLE);
+					txtSpeed.setVisibility(View.VISIBLE);
+					txtSpeed2.setVisibility(View.VISIBLE);
+					txtTime.setVisibility(View.VISIBLE);
+					btnLap.setVisibility(View.VISIBLE);			
+					if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+					{
+						txtLap.setVisibility(View.VISIBLE);
+					}
+					RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
 				}
-				mode = eMode.MODE_MEASURING;
-			}
-			else if( mode == eMode.MODE_MEASURING )
-			{
-				// �I��
-	            if(mTimer != null){
-	                mTimer.cancel();
-	                mTimer = null;
-	            }		
-				ResourceAccessor.getInstance().getLogStocker().stop(new Date().getTime());
-				// launch activity for save
-				Intent intent = new Intent( this, ResultActivity.class );
-				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
-		        startActivity(intent);				
-				
-				btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
-//				txtDistance.setVisibility(View.VISIBLE);
-//				txtSpeed.setVisibility(View.VISIBLE);
-//				txtTime.setVisibility(View.VISIBLE);
-				btnLap.setVisibility(View.GONE);						
-				mode = eMode.MODE_NORMAL;
-				clearGPS();
+				else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+				{
+					// logging end
+					RunLogger.sService.stopLog();
+					clearGPS();		            
+		            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+		            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());		            
+					RunLoggerService.getLogStocker().stop(new Date().getTime());
+					// launch activity for save
+					Intent intent = new Intent( this, ResultActivity.class );
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
+			        startActivity(intent);				
+					
+					btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+	//				txtDistance.setVisibility(View.VISIBLE);
+	//				txtSpeed.setVisibility(View.VISIBLE);
+	//				txtTime.setVisibility(View.VISIBLE);
+					btnLap.setVisibility(View.GONE);						
+					RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				Log.e("btnCenter","clicked error");
 			}
 		}
 	}
 
 	@Override
 	public void clearGPS() {
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-        }
+		// サービスのクリアGPS
+		try {
+			RunLogger.sService.clearGPS();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			Log.e("clearGPS",e.getMessage());
+		}
 	}
 
 	
 	///////////// Service Connection
 	@Override
-	public void onServiceConnected(ComponentName name, IBinder service) {
-		// TODO Auto-generated method stub
-		
+	public void onServiceConnected(ComponentName name, IBinder service) {		
 	}
 
 	@Override
-	public void onServiceDisconnected(ComponentName name) {
-		// TODO Auto-generated method stub
-		
+	public void onServiceDisconnected(ComponentName name) {		
 	}
 
 	@Override
@@ -775,6 +829,32 @@ implements LocationListener,IMainViewController, OnClickListener, OnTouchListene
 	        }
 		}
 		return false;
+	}
+	IntentFilter intentFilter;
+	BroadcastReceiver receiver;
+	
+	/**
+	 * サービスからのintentのレシーバ
+	 * @author 25689
+	 *
+	 */
+	class ServiceNotifyReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) 
+		{
+			// サービスからintentを受け取ったら
+			if( MainActivity.LOCATION_CHANGE_NOTIFY.equals( intent.getAction() ) )
+			{
+				// LocationChangeの場合
+				onLocationChanged((Location) intent.getParcelableExtra(LOCATION_DATA));
+			}
+			else if( MainActivity.TIMER_NOTIFY.equals( intent.getAction() ) )
+			{
+				// NOTICE: BroadcastReceiverでUI処理ができるのかは未確認
+				txtTime.setText( intent.getStringExtra(CURRENT_DURATION) );
+			}
+		}
 	}
 
 }

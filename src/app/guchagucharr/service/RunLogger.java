@@ -11,7 +11,8 @@ import android.content.ServiceConnection;
 import android.util.Log;
 
 
-public class RunLogger {
+public class RunLogger 
+{
 
     public static IRunLoggerService sService = null;
     public static class ServiceToken {

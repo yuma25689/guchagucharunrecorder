@@ -32,11 +32,13 @@ import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
+import app.guchagucharr.service.RunLoggerService;
+import app.guchagucharr.service.RunningLogStocker;
 
 public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
 
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
-	private ViewPager mViewPager;   // �r���[�y�[�W���[	
+	private ViewPager mViewPager;	
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
 	private LayoutInflater inflater = null;
@@ -301,21 +303,21 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			editName.setText( getString( R.string.default_activity_name ) + sdfDateTime.format(
 					new Date().getTime()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
-					ResourceAccessor.getInstance().getLogStocker().getTotalDistance() ) );
+					RunLoggerService.getLogStocker().getTotalDistance() ) );
 			txtTime.setText( LapData.createTimeFormatText(
-					ResourceAccessor.getInstance().getLogStocker().getTotalTime() ) );
+					RunLoggerService.getLogStocker().getTotalTime() ) );
 			txtSpeed.setText( LapData.createSpeedFormatText( 
-					ResourceAccessor.getInstance().getLogStocker().getTotalDistance() 
-					/ ResourceAccessor.getInstance().getLogStocker().getTotalTime() ) );
-					// ResourceAccessor.getInstance().getLogStocker().getTotalSpeed() ) );
+					RunLoggerService.getLogStocker().getTotalDistance() 
+					/ RunLoggerService.getLogStocker().getTotalTime() ) );
+					// RunLoggerService.getLogStocker().getTotalSpeed() ) );
 			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 
-					ResourceAccessor.getInstance().getLogStocker().getTotalDistance() 
-					/ ResourceAccessor.getInstance().getLogStocker().getTotalTime() ) );
-					//ResourceAccessor.getInstance().getLogStocker().getTotalSpeed() ) );
-			if( 1 < ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() )
+					RunLoggerService.getLogStocker().getTotalDistance() 
+					/ RunLoggerService.getLogStocker().getTotalTime() ) );
+					//RunLoggerService.getLogStocker().getTotalSpeed() ) );
+			if( 1 < RunLoggerService.getLogStocker().getStockedLapCount() )
 			{
 				txtLap.setText(getString(R.string.LAP_COUNT_LABEL) 
-					+ ResourceAccessor.getInstance().getLogStocker().getStockedLapCount() );
+					+ RunLoggerService.getLogStocker().getStockedLapCount() );
 			}
 			else
 			{
@@ -327,12 +329,12 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		{
 			// NOTICE: 最高で６個しか置けない
 			DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
-					ResourceAccessor.getInstance().getLogStocker().getStockedLapCount());
+					RunLoggerService.getLogStocker().getStockedLapCount());
 			int lastOddPanelID = 0;
 			int iPanelCount = 0;
-			for( int i=0; i < ResourceAccessor.getInstance().getLogStocker().getStockedLapCount(); i++ )
+			for( int i=0; i < RunLoggerService.getLogStocker().getStockedLapCount(); i++ )
 			{
-				LapData lapData = ResourceAccessor.getInstance().getLogStocker().getLapData(i);
+				LapData lapData = RunLoggerService.getLogStocker().getLapData(i);
 				if( lapData == null )
 				{
 					break;
@@ -377,7 +379,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				}
 				// 下に行くほど薄くする
 				final double COLOR_RANGE = 80;
-				double rate = COLOR_RANGE / ResourceAccessor.getInstance().getLogStocker().getStockedLapCount();
+				double rate = COLOR_RANGE / RunLoggerService.getLogStocker().getStockedLapCount();
 				int iMinus = (int) (iPanelCount * rate);
 				dispBlock.setBackgroundColorAsStateList(0xFF, 20 + iMinus, 70 + iMinus, 0 );
 				rl.addView(dispBlock);
@@ -390,7 +392,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 //			// 速度
 //			// 上記３つOr２つを縦に並べたものを1ブロックにする
 //			// とりあえずブロックの大きさは、文字が全て入るコントロールの最小の大きさとする
-//			int iContentCount = ResourceAccessor.getInstance().getLogStocker().getStockedLapCount();
+//			int iContentCount = RunLoggerService.getLogStocker().getStockedLapCount();
 //			final int CONTENT_COUNT_ONE = 1;
 //			final int CONTENT_COUNT_SOSO = 5;
 //			final int CONTENT_COUNT_MANY = 10;
@@ -457,7 +459,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// TODO:cliping
 			
 			// TODO: arg2 -> GPX save setting create 
-			ResourceAccessor.getInstance().getLogStocker().save(this,editName.getText().toString(),true);
+			RunLoggerService.getLogStocker().save(this,editName.getText().toString(),true);
 			
 		}
 	}

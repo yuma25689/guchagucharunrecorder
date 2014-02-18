@@ -19,23 +19,10 @@ import android.graphics.BitmapFactory;
 //import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
-import app.guchagucharr.service.RunningLogStocker;
 
-/**
- * ���\�[�X�ɃA�N�Z�X���邽�߂̃N���X
- * dalvik�̐���(�����炭�A24MB�`48MB���炢�̃������m�ۂŗ�����)
- * ��������邽�߂ɁA�Ȃ�ׂ�Drawable��20MB�ȏ�ɂȂ�Ȃ��悤�ɂ���
- * (1��ʂŎg��Drawable�̃T�C�Y������𒴂��Ă��܂��A�Ȃǂ̂ǂ����悤���Ȃ��ꍇ�͏���)
- * @author 25689
- *
- */
 public final class ResourceAccessor {
 	
 	public static String SELECTOR_PREFIX ="selector_";
@@ -51,54 +38,9 @@ public final class ResourceAccessor {
 	public static final long TIME_MINUTE = 60;
 	public static final long TIME_HOUR = 60 * 60;
 	public static final String DISPINFO_KEY = "DISP_INFO";
-	
-	public static final int SOUND_MAX_COUNT = 9;
-	public static final int SOUND_RES_IDS[] =
-		{
-//			R.raw.sound1,
-//			R.raw.sound2,
-//			R.raw.sound3,
-//			R.raw.sound4,
-//			R.raw.sound5,
-//			R.raw.sound6,
-//			R.raw.sound7,
-//			R.raw.sound8,
-//			R.raw.sound9
-		};
-	private int soundIds[];
-	private int iSoundLoadCnt = 0;
-	private SoundPool soundPool;
-	
-	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();
-	private RunningLogStocker runLogStocker = null;
-	
-	public void createLogStocker(long time)
-	{
-		runLogStocker = new RunningLogStocker(time);
-	}
-	public RunningLogStocker getLogStocker()
-	{
-		return runLogStocker;
-	}
-	public void putLocationLog( Location data )
-	{
-		runLogStocker.putLocationLog(data);
-	}
-	public boolean isEmptyLogStocker()
-	{
-		if( runLogStocker == null )
-			return true;
 		
-		return false;
-	}
-	public void clearRunLogStocker()
-	{
-		runLogStocker = null;
-	}
+	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();
 	
-	// ���\�[�X���擾���邽�߂̃A�N�e�B�r�e�B��ݒ�
-	// TODO: �������A�����ɕێ����Ă����ƁA
-	// �ċN����ȂǂɃA�N�e�B�r�e�B���L��ǂ������ׂȂ��Ă����̂��낤���H
 	Activity activity;
 	
 	public void setActivity(Activity activity) {
@@ -135,46 +77,6 @@ public final class ResourceAccessor {
 	public static ResourceAccessor getInstance()
 	{
 		return instance;
-	}
-	public void initSound()
-	{
-		soundPool = new SoundPool(SOUND_MAX_COUNT,AudioManager.STREAM_MUSIC,100);
-		soundPool.setOnLoadCompleteListener(
-				new OnLoadCompleteListener()
-				{
-					@Override
-					public void onLoadComplete(SoundPool s,int Id, int sts)
-					{
-						if( sts == 0 ) iSoundLoadCnt++;
-					}
-				}
-		);
-		soundIds = new int[SOUND_RES_IDS.length];
-		int j=0;
-		for( int i : SOUND_RES_IDS ) {
-			soundIds[j] = soundPool.load(this.activity, i, 1);
-			j++;
-		}
-	}
-	public void playSound( int idIndex )
-	{
-		if( iSoundLoadCnt != SOUND_RES_IDS.length 
-		|| idIndex < 0 
-		|| SOUND_RES_IDS.length <= idIndex)
-		{
-			return;
-		}
-		// id, leftVol, rightVol, priority, loop, speedrate
-		soundPool.play(soundIds[idIndex], 2.0f, 2.0f, 1, 0, 1.0f);
-		//soundPool.stop(soundIds[idIndex]);
-	}
-	public void releaseSound()
-	{
-		iSoundLoadCnt = 0;
-		if( soundPool != null )
-		{
-			soundPool.release();
-		}
 	}
 	public void clearAllBitmap()
 	{
