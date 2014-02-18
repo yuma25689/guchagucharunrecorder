@@ -49,6 +49,7 @@ implements LocationListener
 	{
 	     @Override
 	     public void run() {
+	    	 Log.v("UpdateTimeDisplayTask","come");
 	         // mHandler through UI Thread to queueing
 	    	 handler.post( new Runnable() {
 	             @Override
@@ -56,7 +57,8 @@ implements LocationListener
 	    	 
 	            	 // update now Time
 	            	 try {
-						if( RunLoggerService.getLogStocker() != null 
+						if( RunLoggerService.getLogStocker() != null
+								&& RunLogger.sService != null
 								&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 						{
 							long lapTime = new Date().getTime() 
@@ -87,7 +89,7 @@ implements LocationListener
 	private LocationManager mLocationManager;	
 	//private RunningLogStocker runLogStocker = null;	
     //private WakeLock mWakeLock;
-    private int mServiceStartId = -1;
+    //private int mServiceStartId = -1;
     //private boolean mServiceInUse = false;
 	// private ResourceAccessor res;
 	public enum eMode {
@@ -172,14 +174,14 @@ implements LocationListener
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mServiceStartId = startId;
+        //mServiceStartId = startId;
         return START_STICKY;
     }
     
     @Override
     public boolean onUnbind(Intent intent) {
         //mServiceInUse = false;
-        stopSelf(mServiceStartId);
+        // stopSelf(mServiceStartId);
         return true;
     }
     /**
@@ -296,7 +298,6 @@ implements LocationListener
 		}
 		@Override
 		public void setMode(int mode) throws RemoteException {
-			// TODO Auto-generated method stub
 			mService.get().setMode(eMode.values()[mode]);
 		}
 		@Override
@@ -317,12 +318,14 @@ implements LocationListener
 
 		@Override
 		public void startLog() throws RemoteException {
-			mService.get().startLog();			
+			mService.get().startLog();
+			Log.v("startLog","come");
 		}
 
 		@Override
 		public void stopLog() throws RemoteException {
 			mService.get().stopLog();
+			Log.v("stopLog","come");
 		}
 		
     }
@@ -356,6 +359,7 @@ implements LocationListener
 	    if(mTimer != null){
 	        mTimer.cancel();
 	        mTimer = null;
+	        timerTask = null;
 	    }
 	}
 	@Override

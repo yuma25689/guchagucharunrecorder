@@ -59,7 +59,7 @@ implements
 	public static String LOCATION_CHANGE_NOTIFY = "LocChgNotif";
 	
 	// サービスのトークン
-    private static RunLogger.ServiceToken mToken = null;
+    private RunLogger.ServiceToken mToken = null;
 
     
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
@@ -149,6 +149,16 @@ implements
 	}
 
 	@Override
+	protected void onStart() {
+	    super.onStart();
+        //mToken = RunLogger.bindToService(this, this);
+	    
+//        if( 0 == RunLogger.getServiceConnectionCount() 
+//        || RunLogger.sService == null )
+//        {
+//        }
+	}	
+	@Override
     protected void onResume() {
 		
         // サービスからの通知を受けるレシーバの作成、登録
@@ -157,15 +167,11 @@ implements
         intentFilter.addAction(LOCATION_CHANGE_NOTIFY);
         intentFilter.addAction(TIMER_NOTIFY);
         registerReceiver(receiver,intentFilter);
-		
-        // サービスへの接続を開始
-        if( 0 == RunLogger.getServiceConnectionCount() 
-        || RunLogger.sService == null )
-        {
-        	// 絶対に１つしか接続されないようにする
-        	mToken = RunLogger.bindToService(this, this);
-        }
-		
+
+        // 呼ばれる回数が多すぎるかもしれない
+	    // Bind( Or Create and Bind) to Service
+        mToken = RunLogger.bindToService(this, this);
+
     	// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
@@ -189,28 +195,37 @@ implements
 	
 	@Override
 	protected void onPause()
-	{
-		// TODO: こんなので大丈夫か確認必要
+	{		
+//        if (mLocationManager != null) {
+//            mLocationManager.removeUpdates(this);
+//        }
 		if(mToken != null)
 		{
 			try {
 				if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 				{
+					RunLogger.sService.stopLog();
+					// ログ取得中でない場合は、完全に停止させる
 					RunLogger.sService.clearGPS();
 					RunLogger.sService.clearLocationManager();					
 					// サービスの登録解除
 				    RunLogger.unbindFromService(mToken);
-				    mToken = null;
+				    // サービスの停止
+				    RunLogger.stopService(this);
+				}
+				else
+				{
+					// ログ取得中
+					// サービスとActivityの切り離しのみ
+				    RunLogger.unbindFromService(mToken);					
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
 				Log.e("onPause","RemoteException");
 			}
+		    mToken = null;
 		}
 		
-//        if (mLocationManager != null) {
-//            mLocationManager.removeUpdates(this);
-//        }
         if( null != receiver )
         {
         	this.unregisterReceiver(receiver);
@@ -230,6 +245,34 @@ implements
 		// ランニング中にアプリケーションが終了するだけで、ランニングデータが消えてしまう。
 		// GPXファイルを常に書き続けるような作りと、
 		// GPXファイルからLocationデータを復帰させるような仕組みがあればいいのではないかと思われる。
+		// サービスとの接続を切断
+		if(mToken != null)
+		{
+			try {
+				if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+				{
+					RunLogger.sService.stopLog();
+					// ログ取得中でない場合は、完全に停止させる
+					RunLogger.sService.clearGPS();
+					RunLogger.sService.clearLocationManager();					
+					// サービスの登録解除
+				    RunLogger.unbindFromService(mToken);
+				    // サービスの停止
+				    RunLogger.stopService(this);
+				}
+				else
+				{
+					// ログ取得中
+					// サービスとActivityの切り離しのみ
+				    RunLogger.unbindFromService(mToken);					
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				Log.e("onPause","RemoteException");
+			}
+		    mToken = null;
+		}
+				
         // clearGPS();
         super.onStop();
 	}
@@ -743,7 +786,7 @@ implements
 					RunLogger.sService.stopLog();
 					clearGPS();		            
 		            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-		            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());		            
+		            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 					RunLoggerService.getLogStocker().stop(new Date().getTime());
 					// launch activity for save
 					Intent intent = new Intent( this, ResultActivity.class );
