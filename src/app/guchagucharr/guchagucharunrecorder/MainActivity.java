@@ -1,6 +1,5 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -101,6 +100,7 @@ implements
 	// center button
 	ImageButton btnCenter = null;
 	Region regionCenterBtn = null;
+	Region regionLapBtn = null;
 	// GPS button
 	ImageButton btnGPS = null;
 	// GPS indicator
@@ -117,8 +117,10 @@ implements
 	static TextView txtSpeed = null;
 	// speed2
 	static TextView txtSpeed2 = null;
-	// time label
+	// lap label
 	static TextView txtLap = null;
+	// location count label
+	static TextView txtLocationCount = null;
 	// cancel
 	ImageButton btnCancel = null;
 	
@@ -176,6 +178,7 @@ implements
 		// when end update, send message to handler
 		// now, initialize there.
 		regionCenterBtn = null;
+		regionLapBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
          
         super.onResume();
@@ -235,6 +238,8 @@ implements
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
 		regionCenterBtn = null;
+		regionLapBtn = null;
+
 
         super.onPause();	
 	}
@@ -290,26 +295,31 @@ implements
 		super.onDestroy();		
 	}
 	
-	//@Override
-	public void onLocationChanged(Location location) {
-		//bGPSCanUse = true;
-		Log.v("onLocationChanged - MainActivity","come");
-		btnCenter.setEnabled(true);
+	public void updateLogDisplay(double speed)
+	{
 		try {
 			if( false == RunLoggerService.isEmptyLogStocker() 
 					&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 			{
 				txtDistance.setText( LapData.createDistanceFormatText( 
 						RunLoggerService.getLogStocker().getCurrentLapData().getDistance() ) );
-				txtSpeed.setText( LapData.createSpeedFormatText( location.getSpeed() ) );
+				txtSpeed.setText( LapData.createSpeedFormatText( speed ) );//location.getSpeed() ) );
 				//runLogStocker.getCurrentLapData().getSpeed() ) );
-				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( location.getSpeed() ) );
-				//runLogStocker.getCurrentLapData().getSpeed() ) );
+				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( speed ) );//location.getSpeed() ) );
+				//runLogStocker.getCu rrentLapData().getSpeed() ) );
+				txtLocationCount.setText( String.valueOf(RunLoggerService.getLogStocker().getLocationData().size() ) );
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			Log.e("onLocationChanged - MainActivity", e.getMessage());
-		}
+		}		
+	}
+	//@Override
+	public void onLocationChanged(Location location) {
+		//bGPSCanUse = true;
+		Log.v("onLocationChanged - MainActivity","come");
+		btnCenter.setEnabled(true);
+		updateLogDisplay( location.getSpeed() );
 		Log.v("----------", "----------");
         Log.v("Latitude", String.valueOf(location.getLatitude()));
         Log.v("Longitude", String.valueOf(location.getLongitude()));
@@ -464,8 +474,7 @@ implements
 //        path.computeBounds(rectF, true);	        
 //        regionCenterBtn = new Region();
 //        regionCenterBtn.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
-		
-		
+
 		// GPSbutton
 		if( btnGPS == null )		
 			btnGPS = new ImageButton(this);
@@ -510,7 +519,7 @@ implements
 //				Log.e("createLocationManager",e.getMessage());
 //			}			
 			// TODO: 未受信の画像作成？
-			imgGPS.setBackgroundDrawable(null);
+			imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
 			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
 		}
 		//imgGPS.setBackgroundResource( R.drawable.gps_bad );
@@ -526,6 +535,24 @@ implements
 		imgGPS.setLayoutParams(rlIndGps);
 		imgGPS.setScaleType(ScaleType.FIT_XY);
 		addViewToCompContainer(imgGPS);
+		// location count label
+		if( txtLocationCount == null )
+			txtLocationCount = new TextView(this);
+		RelativeLayout.LayoutParams rlLocationCount
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		rlLocationCount.addRule(RelativeLayout.BELOW, GPS_INDICATOR_ID);
+		rlLocationCount.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
+		rlLocationCount.leftMargin = RIGHT_CENTER_CTRL_MARGIN;		
+		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+		//rlLocationCount.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		txtLocationCount.setLayoutParams(rlLocationCount);
+		txtLocationCount.setBackgroundColor(ResourceAccessor.getInstance().getColor(
+				R.color.theme_color_cantedit));
+		txtLocationCount.setTextSize(LAP_TEXTVIEW_FONT_SIZE);
+		txtLocationCount.setSingleLine();
+		txtLocationCount.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+		addViewToCompContainer(txtLocationCount);
 
 		// history button
 		if( btnHistory == null )
@@ -559,9 +586,9 @@ implements
 		txtTime.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));
 		txtTime.setSingleLine();
 		//txtTime.setText("99:99:99.999");
-		txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
+		txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);
 		addViewToCompContainer(txtTime);
-		
+
 		// distance
 		if( txtDistance == null )
 			txtDistance = new TextView(this);
@@ -626,7 +653,7 @@ implements
 			btnLap = new ImageButton(this);
 		btnLap.setId(LAP_BUTTON_ID);
 		// TODO: next lapみたいな文言
-		btnLap.setBackgroundResource( R.drawable.selector_history_button_image );
+		btnLap.setBackgroundResource( R.drawable.selector_next_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
 				R.drawable.main_historybutton_normal);
 		RelativeLayout.LayoutParams rlBtnLap
@@ -671,6 +698,7 @@ implements
 				btnLap.setVisibility(View.GONE);
 				txtLap.setVisibility(View.GONE);
 				btnCenter.setEnabled(false);
+				txtLocationCount.setVisibility(View.GONE);
 			}
 			else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 			{
@@ -683,13 +711,17 @@ implements
 				{
 					txtLap.setVisibility(View.VISIBLE);
 				}
+				if( false == RunLoggerService.isEmptyLogStocker() 
+				&& RunLoggerService.getLogStocker().getLocationData().isEmpty() == false )
+				{
+					updateLogDisplay(RunLoggerService.getLogStocker().getLocationData().lastElement().getSpeed());//0);
+				}
+				txtLocationCount.setVisibility(View.VISIBLE);
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			Log.e("initControls",e.getMessage());
 		}
-		
-		
 		// TODO: limit
 		Cursor c = getContentResolver().query(
 				Uri.parse("content://" 
@@ -742,7 +774,13 @@ implements
 		else if( v == btnLap )
 		{
 			// 次のラップへ
-			RunLoggerService.getLogStocker().nextLap(new Date().getTime());
+			try {
+				RunLoggerService.getLogStocker().nextLap(RunLogger.sService.getTimeInMillis());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			//new Date().getTime());
 			txtLap.setVisibility(View.VISIBLE);
 			txtLap.setText(getString(R.string.LAP_LABEL) 
 					+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
@@ -753,44 +791,49 @@ implements
 				if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 				{
 					btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
-					Date now = new Date();
-					long time = now.getTime();
+					long time = RunLogger.sService.getTimeInMillis();
+							//now.getTime();
 					// logging start
-					RunLogger.sService.startLog();					
+					RunLogger.sService.startLog();		
 //				    if(mTimer == null){
 //				        timerTask = new UpdateTimeDisplayTask();
 //				        mTimer = new Timer(true);
 //				        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
-//				    }				
-				    RunLoggerService.createLogStocker(time);
+//				    }
+					RunLoggerService.clearRunLogStocker();
+				    RunLoggerService.createLogStocker();//time);
+				    RunLoggerService.getLogStocker().start(time);
 					
 					txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
 					txtTime.setText( LapData.createTimeFormatText( 0 ) );
 					txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
 					txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+					txtLocationCount.setText("0");
 					
 					txtDistance.setVisibility(View.VISIBLE);
 					txtSpeed.setVisibility(View.VISIBLE);
 					txtSpeed2.setVisibility(View.VISIBLE);
 					txtTime.setVisibility(View.VISIBLE);
-					btnLap.setVisibility(View.VISIBLE);			
+					btnLap.setVisibility(View.VISIBLE);		
 					if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 					{
 						txtLap.setVisibility(View.VISIBLE);
 					}
+					txtLocationCount.setVisibility(View.VISIBLE);
 					RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
 				}
 				else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 				{
+					RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 					// logging end
 					RunLogger.sService.stopLog();
 					clearGPS();		            
 		            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 		            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-					RunLoggerService.getLogStocker().stop(new Date().getTime());
+					RunLoggerService.getLogStocker().stop(RunLogger.sService.getTimeInMillis());//new Date().getTime());
 					// launch activity for save
 					Intent intent = new Intent( this, ResultActivity.class );
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
 			        startActivity(intent);				
 					
 					btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
@@ -798,7 +841,6 @@ implements
 	//				txtSpeed.setVisibility(View.VISIBLE);
 	//				txtTime.setVisibility(View.VISIBLE);
 					btnLap.setVisibility(View.GONE);						
-					RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -830,20 +872,30 @@ implements
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		if( v == btnCenter )
+		Region region = null;
+		if( v == btnCenter 
+		|| v == btnLap )
 		{
+			if( btnCenter == v )
+			{
+				region = regionCenterBtn;
+			}
+			else if( v == btnLap )
+			{
+				region = regionLapBtn;
+			}
 	        // タッチされた座標の取得
 	        int x1 = (int)event.getX();
 	        int y1 = (int)event.getY();
-			if( regionCenterBtn == null )
+			if( region == null )
 			{
 				// ボタンのリージョンを設定する
 		        // ->おそらく、座標は不要
 		        Path path = new Path();
 		        int x_cbtn = 0;//btnCenter.getLeft();
 		        int y_cbtn = 0;//btnCenter.getTop();
-		        int width_cbtn = btnCenter.getWidth();
-		        int height_cbtn = btnCenter.getHeight();
+		        int width_cbtn = v.getWidth();
+		        int height_cbtn = v.getHeight();
 		        // 頂点
 		        path.moveTo(x_cbtn + width_cbtn / 2
 		        		, y_cbtn);
@@ -861,10 +913,10 @@ implements
 		        path.close();
 		        RectF rectF = new RectF();
 		        path.computeBounds(rectF, true);	        
-		        regionCenterBtn = new Region();
-		        regionCenterBtn.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
+		        region = new Region();
+		        region.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
 			}
-	        if( false == regionCenterBtn.contains( x1, y1 ))
+	        if( false == region.contains( x1, y1 ))
 	        {
 	        	// ボタンの領域でない部分がタッチされていたら
 		        // OnTouchをキャンセルする

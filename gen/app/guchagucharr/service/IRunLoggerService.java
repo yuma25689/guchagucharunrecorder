@@ -42,6 +42,14 @@ case INTERFACE_TRANSACTION:
 reply.writeString(DESCRIPTOR);
 return true;
 }
+case TRANSACTION_getTimeInMillis:
+{
+data.enforceInterface(DESCRIPTOR);
+long _result = this.getTimeInMillis();
+reply.writeNoException();
+reply.writeLong(_result);
+return true;
+}
 case TRANSACTION_requestGPS:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -119,6 +127,23 @@ return mRemote;
 public java.lang.String getInterfaceDescriptor()
 {
 return DESCRIPTOR;
+}
+@Override public long getTimeInMillis() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+long _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getTimeInMillis, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readLong();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
 }
 @Override public int requestGPS() throws android.os.RemoteException
 {
@@ -240,15 +265,17 @@ _data.recycle();
 }
 }
 }
-static final int TRANSACTION_requestGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
-static final int TRANSACTION_getMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
-static final int TRANSACTION_setMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
-static final int TRANSACTION_clearGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
-static final int TRANSACTION_createLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
-static final int TRANSACTION_clearLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
-static final int TRANSACTION_startLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
-static final int TRANSACTION_stopLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_getTimeInMillis = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+static final int TRANSACTION_requestGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_getMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
+static final int TRANSACTION_setMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_clearGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_createLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_clearLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
+static final int TRANSACTION_startLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_stopLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
 }
+public long getTimeInMillis() throws android.os.RemoteException;
 public int requestGPS() throws android.os.RemoteException;
 public int getMode() throws android.os.RemoteException;
 public void setMode(int mode) throws android.os.RemoteException;

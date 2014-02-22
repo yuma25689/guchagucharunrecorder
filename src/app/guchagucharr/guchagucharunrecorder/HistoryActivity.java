@@ -3,7 +3,7 @@ package app.guchagucharr.guchagucharunrecorder;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+//import java.util.Date;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v4.view.ViewPager;
+//import android.text.format.Time;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -28,6 +29,7 @@ import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
+import app.guchagucharr.service.RunLogger;
 //import android.provider.BaseColumns;
 import app.guchagucharr.service.RunHistoryLoader.ActivityData;
 import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
@@ -127,8 +129,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
 			
 			// DisplayBlock追加
-			String titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
-					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
+			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
+					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
@@ -381,8 +383,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         	{
         		ActivityData data = loader.getHistoryData(item.getItemId());
     			name = data.getName();
-    			titleDateTime = sdfDateTime.format(new Date(data.getStartDateTime()))
-    					+ getString(R.string.to) + sdfDateTime.format(new Date(data.getStartDateTime() + timeTotal));
+    			titleDateTime = sdfDateTime.format(data.getStartDateTime())
+    					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
         	}
 	        text = name + System.getProperty("line.separator")
 	        + titleDateTime + System.getProperty("line.separator")

@@ -80,13 +80,13 @@ public class RunHistoryLoader {
 					int lapCountIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.LAP_COUNT);
 					int placeIdIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.PLACE_ID );				
 					int nameIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.NAME);
-					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					data.setId( cursor.getInt( idIndex ) );
 					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
 					data.setInsertDateTime( cursor.getLong( insertDatetimeIndex ) );
 					data.setLapCount( cursor.getLong( lapCountIndex ) );
 					data.setPlaceId( cursor.getLong( placeIdIndex ) );
 					data.setName( cursor.getString( nameIndex ) );
+					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					//data.setGpxFilePath( cursor.getString( gpxIndex ) );
 								
 					historyData.add( data );			
@@ -130,6 +130,7 @@ public class RunHistoryLoader {
 						RunHistoryTableContract.LAP_FIXED_TIME);
 				int lapFixedSpeedIndex = cursorChild.getColumnIndexOrThrow(
 						RunHistoryTableContract.LAP_FIXED_SPEED);
+				int gpxIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 				do {
 					ActivityLapData dataLap = new ActivityLapData();
 					dataLap.setId( cursorChild.getLong( idIndex ) );
@@ -141,7 +142,7 @@ public class RunHistoryLoader {
 					dataLap.setFixedDistance( cursorChild.getDouble( lapFixedDistanceIndex ) );
 					dataLap.setFixedTime( cursorChild.getLong( lapFixedTimeIndex ) );
 					dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
-				
+					dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
 					
 					if( vLapData.isEmpty() == false
 					&& dataLap.getParentId() != vLapData.lastElement().getParentId() )

@@ -30,12 +30,11 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
-import app.guchagucharr.guchagucharunrecorder.MainHandler;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
 import java.lang.ref.WeakReference;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -61,7 +60,7 @@ implements LocationListener
 								&& RunLogger.sService != null
 								&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 						{
-							long lapTime = new Date().getTime() 
+							long lapTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
 							
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
@@ -84,6 +83,12 @@ implements LocationListener
 		     });
 	     }
 	 }	
+	
+	public long getTimeInMillis()
+	{
+		//Calendar calendar = Calendar.getInstance();
+		return Calendar.getInstance().getTimeInMillis();
+	}
 	
 	// public static ResourceAccessor resourceAccessor;
 	private LocationManager mLocationManager;	
@@ -109,9 +114,9 @@ implements LocationListener
 		mode = mode_;
 	}
 	public static RunningLogStocker runLogStocker = null;
-	public static void createLogStocker(long time)
+	public static void createLogStocker()//long time)
 	{
-		runLogStocker = new RunningLogStocker(time);
+		runLogStocker = new RunningLogStocker();//time);
 	}
 	public static RunningLogStocker getLogStocker()
 	{
@@ -326,6 +331,12 @@ implements LocationListener
 		public void stopLog() throws RemoteException {
 			mService.get().stopLog();
 			Log.v("stopLog","come");
+		}
+
+		@Override
+		public long getTimeInMillis() throws RemoteException {
+			//Log.v("getTimeInMillis","come");
+			return mService.get().getTimeInMillis();
 		}
 		
     }

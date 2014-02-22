@@ -111,8 +111,8 @@ public class RunLogger {
 		}
 		sConnectionMap.clear();
 		
-		
 		ctx.stopService(new Intent(ctx, RunLoggerService.class));
+		serviceName = null;
         Log.v("stopService","come");		
 		sService = null;
 	}

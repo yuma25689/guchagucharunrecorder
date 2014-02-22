@@ -2,7 +2,6 @@ package app.guchagucharr.guchagucharunrecorder;
 
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
@@ -13,6 +12,7 @@ import android.graphics.BitmapFactory;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -32,6 +32,7 @@ import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
+import app.guchagucharr.service.RunLogger;
 import app.guchagucharr.service.RunLoggerService;
 import app.guchagucharr.service.RunningLogStocker;
 
@@ -300,8 +301,9 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// TODO: ���Ԃ̕\��
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));			
-			editName.setText( getString( R.string.default_activity_name ) + sdfDateTime.format(
-					new Date().getTime()));
+			editName.setText( //getString( R.string.default_activity_name ) 
+					sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
+					+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					RunLoggerService.getLogStocker().getTotalDistance() ) );
 			txtTime.setText( LapData.createTimeFormatText(

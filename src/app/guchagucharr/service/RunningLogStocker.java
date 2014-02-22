@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
@@ -62,6 +63,10 @@ public class RunningLogStocker {
 	{
 		return lapData.get(index);
 	}
+	public LapData getLastLapData()
+	{
+		return lapData.get(iLap);
+	}
 	public int getStockedLapCount()
 	{
 		return lapData.size();//+1;
@@ -88,7 +93,10 @@ public class RunningLogStocker {
 		currentLapData.clear();
 		iLap = 0;		
 	}
-	public RunningLogStocker(long time)
+	public RunningLogStocker()//long time)
+	{
+	}
+	public void start(long time)
 	{
 		clear();
 		totalStartTime = time;
@@ -285,16 +293,18 @@ public class RunningLogStocker {
 	}
 	
 	static Activity mActivityWhenSave = null;
-	/**
-	 * �擾���ꂽ���O�f�[�^�̕ۑ�
-	 * @return
-	 */
 	public void save(Activity activity, String name, boolean bSaveGPX )
 	{
 		mActivityWhenSave = activity;
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-    	Date date = new Date();
-    	String strDateTime = sdf.format( date );
+    	// Date date = new Date();
+    	String strDateTime = null;
+		try {
+			strDateTime = sdf.format( RunLogger.sService.getTimeInMillis() );
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	// it's retry process too
 		// gpx　out
 		if( bSaveGPX
@@ -305,7 +315,9 @@ public class RunningLogStocker {
 			outputGPXSaveResult = SAVING;
 			runHistorySaveResult = SAVING;			
 	    	// TODO: SDカードにつなげない時の処理
-	    	String dir = Environment.getExternalStorageDirectory() + "/" + activity.getPackageName();   
+	    	String dir = Environment.getExternalStorageDirectory() 
+	    			+ "/" + activity.getPackageName()
+	    			+ "/" + strDateTime;
 	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
 			outFileProc.outputGPX(activity, this, name, dir, //strDateTime, dir, 
 					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
