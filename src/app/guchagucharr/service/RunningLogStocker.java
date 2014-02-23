@@ -1,8 +1,14 @@
 package app.guchagucharr.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -10,7 +16,6 @@ import android.content.ContentValues;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
@@ -18,12 +23,25 @@ import app.guchagucharr.guchagucharunrecorder.R;
 
 public class RunningLogStocker {
 
+	GPXGeneratorSync gpxGen = null;
+	
 	//public static String KEY_LAP_INDEX = "KEY_LAP_INDEX";
-	private final int MAX_LOCATION_LOG_CNT = 72000;	
+	//private final int MAX_LOCATION_LOG_CNT = 72000;	
 	static long removeMilli( long val )
 	{
 		return val * 1000;
 	}
+	File workOutDir = null;
+	Vector<String> vImageUrisNotPutGpx = new Vector<String>();
+	HashMap<Long,String> mapImageUris = new HashMap<Long,String>();
+	public void addImageUri(String uri)
+	{
+		// TODO: これをGPXに書こうと思ったけど、そんな例はないらしい・・・
+		// とりあえず、ジオタグだけつけてなんとかする・・・？
+		vImageUrisNotPutGpx.add( uri );
+	}
+	
+	
 	long totalStartTime = 0;
 	long totalStopTime = 0;
 	double firstCorrectDistance = 0;
@@ -49,16 +67,16 @@ public class RunningLogStocker {
 	 * 
 	 * @return m/s
 	 */
-	public double getTotalSpeed()
-	{
-		double ret = 0;
-		for( int i=0; i<getStockedLapCount(); i++ )
-		{
-			ret += lapData.get(iLap).getSpeedAccurateAsPossible();
-		}
-		ret /= getStockedLapCount();
-		return ret;
-	}
+//	public double getTotalSpeed()
+//	{
+//		double ret = 0;
+//		for( int i=0; i<getStockedLapCount(); i++ )
+//		{
+//			ret += lapData.get(iLap).getSpeedAccurateAsPossible();
+//		}
+//		ret /= getStockedLapCount();
+//		return ret;
+//	}
 	public LapData getLapData(int index)
 	{
 		return lapData.get(index);
@@ -75,12 +93,22 @@ public class RunningLogStocker {
 	int iLap = 0;	// lap(from0)
 	LapData currentLapData = new LapData();
 	
+	int iLocationDataCount = 0;
 	SparseArray<LapData> lapData = new SparseArray<LapData>();
-	Vector<Location> vLocation = new Vector<Location>();
-	public Vector<Location> getLocationData()
+	Location currentLocation = null;
+	//Vector<Location> vLocation = new Vector<Location>();
+	public int getLocationDataCount()
 	{
-		return vLocation;
+		return iLocationDataCount;
 	}
+	public Location getCurrentLocation()
+	{
+		return currentLocation;
+	}
+//	public Vector<Location> getLocationData()
+//	{
+//		return vLocation;
+//	}
 	Location prevLocation = null;
 	public LapData getCurrentLapData()
 	{
@@ -96,15 +124,99 @@ public class RunningLogStocker {
 	public RunningLogStocker()//long time)
 	{
 	}
-	public void start(long time)
+	public boolean start(Activity activity, long time)
 	{
 		clear();
 		totalStartTime = time;
 		currentLapData.setStartTime(time);
+		// そのワークアウトのフォルダを作成
+		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+				activity.getString(R.string.time_for_id_format));
+		String strDateTime = sdfDateTime.format(time);		
+    	// TODO: SDカードにつなげない時の処理
+    	String dir = Environment.getExternalStorageDirectory() 
+    			+ "/" + activity.getPackageName()
+    			+ "/" + strDateTime;
+    	workOutDir = new File( dir );
+    	if( false == workOutDir.exists() )
+		{
+			if( false == workOutDir.mkdirs() )
+			{
+				Log.e("workOutDir create error", dir);
+				return false;
+			}
+		}
+    	Log.v("workOutDir created", dir);
+		// GPX出力開始
+		gpxGen = new GPXGeneratorSync();
+		// ファイル作成
+		resetTmpGpxFile(activity);
+		
+		return true;
+	}
+	/**
+	 * 
+	 * @param activity
+	 * @param startTime
+	 * @return null:失敗 ファイルパス:成功
+	 */
+	private String commitTmpGpxFile(Activity activity,long startTime)//String filePath)
+	{
+		String ret = null;
+		if( gpxGen != null )
+		{
+			gpxGen.endCreateGPXFile();
+			// ファイルをコピーする
+			// コピー先ファイルの作成
+			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+					activity.getString(R.string.time_for_id_format));
+			String strDateTime = sdfDateTime.format(startTime) + "_" + (iLap+1);
+			String outputFileName = strDateTime + GPXGeneratorSync.EXPORT_FILE_EXT;
+			String outputFilePath = workOutDir.getPath() + "/" + outputFileName;
+			
+			// コピー元ファイルの作成
+			File tmpDir = activity.getFilesDir();			
+			String gpxTmpFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;			
+			File gpxTmpFile = new File( gpxTmpFilePath );
+			if( gpxTmpFile.exists() )
+			{
+				File oFile = new File(outputFilePath);
+				try {
+					FileChannel iChannel = new FileInputStream(gpxTmpFile).getChannel();
+					FileChannel oChannel = new FileOutputStream(oFile).getChannel();
+					iChannel.transferTo(0, iChannel.size(), oChannel);
+					iChannel.close();
+					oChannel.close();
+					ret = outputFilePath;
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+					Log.e("FileCopy",e.getMessage());
+				} catch (IOException e) {
+					e.printStackTrace();
+					Log.e("FileCopy",e.getMessage());
+				}
+			}
+		}
+		return ret;
+	}
+	private void resetTmpGpxFile(Activity activity)
+	{
+		// フォルダ取得
+		File tmpDir = activity.getFilesDir();
+		// 一時ファイル名作成
+		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
+		// ファイルがあったら消す
+		File gpxFile = new File( gpxFilePath );
+		if( gpxFile.exists() )
+		{
+			gpxFile.delete();
+		}
+		// ファイルの書き込みを始める
+		gpxGen.startCreateGPXFile(activity, gpxFilePath);		
 	}
 	public void putLocationLog( Location location )
 	{
-		if( vLocation.isEmpty() )
+		if( 0 == iLocationDataCount ) // vLocation.isEmpty() )
 		{
 		}
 		else
@@ -112,11 +224,11 @@ public class RunningLogStocker {
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 		}
-		if( MAX_LOCATION_LOG_CNT < vLocation.size() )
-		{
-			// TODO: 精度の低いものを消す？
-			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
-		}
+//		if( MAX_LOCATION_LOG_CNT < iLocationDataCount )//vLocation.size() )
+//		{
+//			// TODO: 精度の低いものを消す？
+//			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
+//		}
 		// NOTICE:
 		// Lapを各ロケーションに格納したかったが、Bundleはメモリを食いそうなので、
 		// 未使用のbearingに無理矢理lapを突っ込む
@@ -126,21 +238,35 @@ public class RunningLogStocker {
 		location.setBearing(iLap);
 		
 		// TODO:再起動時のリカバリを考えて、メモリに貯めないでファイルに直接行くべき
-		vLocation.add(location);
-		prevLocation = new Location(location);
+		// ファイル出力
+		// TODO: 中断復帰時の挙動
+		if( gpxGen != null )
+		{
+			gpxGen.addLocationToCurrentGPXFile(location);
+			// vLocation.add(location);
+			currentLocation = location;
+			iLocationDataCount++;
+			prevLocation = new Location(location);
+		}
 	}
-	public void nextLap(Long time)
+	public void nextLap(Activity activity, Long time)
 	{
 		// TODO: コピーすべき？
 		currentLapData.setStopTime(time);
+		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
+		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
+		currentLapData.setGpxFilePath(strGpxFile);
+		resetTmpGpxFile(activity);
+
 		LapData saveLapData = new LapData(currentLapData);
 		lapData.put(iLap, saveLapData);
 		iLap++;
 		currentLapData.clear();
 		currentLapData.setStartTime(time);
-		if( 0 < vLocation.size() )
+		
+		if( 0 < iLocationDataCount )//vLocation.size() )
 		{
-			prevLocation = new Location( vLocation.lastElement() );
+			prevLocation = new Location( currentLocation );//vLocation.lastElement() );
 			prevLocation.setTime(time);
 		}
 		else
@@ -148,11 +274,14 @@ public class RunningLogStocker {
 			prevLocation = null;
 		}
 	}
-	public void stop( long time )
+	public void stop( Activity activity, long time )
 	{		
 		totalStopTime = time;
 		currentLapData.setStopTime(time);
-		lapData.put(iLap, currentLapData);		
+		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
+		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
+		currentLapData.setGpxFilePath(strGpxFile);		
+		lapData.put(iLap, currentLapData);
 	}
 	
 	public ContentValues createContentValues(int tableID, 
@@ -186,7 +315,7 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
-            ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[0] );
+            ret.put( RunHistoryTableContract.GPX_FILE_PATH, lapData.get(iExtra).getGpxFilePath() );//strExtra[0] );
 			
 		}
 		
@@ -240,10 +369,10 @@ public class RunningLogStocker {
         		insertCount = 1;
         		for( int iLap=0; iLap < log.getStockedLapCount(); iLap++ )
         		{
-                	String saveText2[] = { gpxFilePath };
+                	//String saveText2[] = { gpxFilePath };
 	            	values = log.createContentValues(RunHistoryTableContract.HISTORY_LAP_TABLE_ID, 
 	            			time, 
-	            			saveText2,
+	            			null,//saveText2,
 	            			id,	// �e��id
 	            			iLap);	// lap index
 	            	if( values == null )
@@ -296,33 +425,37 @@ public class RunningLogStocker {
 	public void save(Activity activity, String name, boolean bSaveGPX )
 	{
 		mActivityWhenSave = activity;
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
+    	//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
     	// Date date = new Date();
-    	String strDateTime = null;
-		try {
-			strDateTime = sdf.format( RunLogger.sService.getTimeInMillis() );
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	String strDateTime = null;
+//		try {
+//			strDateTime = sdf.format( RunLogger.sService.getTimeInMillis() );
+//		} catch (RemoteException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		// NOTICE: ここでこのフラグを立てることで、次のif文の上のフローには入らない
+		// なぜなら、ここではGPXを保存せず、常に保存し続ける処理に変更になった。
+		outputGPXSaveResult = SAVE_OK;
     	// it's retry process too
 		// gpx　out
-		if( bSaveGPX
-		&& ( outputGPXSaveResult == SAVE_NOT_TRY 
-		||  outputGPXSaveResult != SAVE_OK )
-		)
-		{
-			outputGPXSaveResult = SAVING;
-			runHistorySaveResult = SAVING;			
-	    	// TODO: SDカードにつなげない時の処理
-	    	String dir = Environment.getExternalStorageDirectory() 
-	    			+ "/" + activity.getPackageName()
-	    			+ "/" + strDateTime;
-	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
-			outFileProc.outputGPX(activity, this, name, dir, //strDateTime, dir, 
-					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
-		}
-		else if( runHistorySaveResult == SAVE_NOT_TRY 
+//		if( bSaveGPX
+//		&& ( outputGPXSaveResult == SAVE_NOT_TRY 
+//		||  outputGPXSaveResult != SAVE_OK )
+//		)
+//		{
+//			outputGPXSaveResult = SAVING;
+//			runHistorySaveResult = SAVING;			
+//	    	// TODO: SDカードにつなげない時の処理
+//	    	String dir = Environment.getExternalStorageDirectory() 
+//	    			+ "/" + activity.getPackageName()
+//	    			+ "/" + strDateTime;
+//	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
+//			outFileProc.outputGPX(activity, this, name, dir, //strDateTime, dir, 
+//					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
+//		}
+		//else 
+		if( runHistorySaveResult == SAVE_NOT_TRY 
 		||  runHistorySaveResult != SAVE_OK )
 		{
 			// GPXを保存する場合、スレッド終了後に行うのでここではやらない

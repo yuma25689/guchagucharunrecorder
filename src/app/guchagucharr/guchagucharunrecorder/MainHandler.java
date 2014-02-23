@@ -32,10 +32,23 @@ public class MainHandler extends Handler {
         	{
                 //OkosamaMediaPlayerActivity.getResourceAccessor().initMotionSenser(mActivity);
                 //OkosamaMediaPlayerActivity.getResourceAccessor().initSound();
-           		mViewController.initControls();
+           		if( -1 == mViewController.initControls() )
+           		{
+           			return;
+           		}
            		// 初期化が終わったら、とりあえずリクエストを送る
         		mViewController.requestGPS();
 	    		break;
+        	}
+        	case MessageDef.MSG_CAMERA_END:
+        	{
+        		String uri = null;
+        		if( message.obj != null )
+        		{
+        			uri = message.obj.toString();
+        		}
+        		mViewController.endCamera( uri );
+        		break;
         	}
 		}
 	}

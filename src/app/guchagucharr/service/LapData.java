@@ -17,6 +17,7 @@ public class LapData {
 		totalTime = data_.getTotalTime();
 		distance = data_.getDistance();
 		speed = data_.getSpeed();
+		gpxFilePath = data_.getGpxFilePath();
 		vSpeedQueue = (Vector<Double>) data_.getSpeedQueue().clone();	
 	}
 	public void clear()
@@ -26,6 +27,7 @@ public class LapData {
 		totalTime = 0;
 		distance = 0;
 		speed = 0;
+		gpxFilePath = null;
 		vSpeedQueue.clear();
 	}
 	long startTime = 0;
@@ -33,6 +35,7 @@ public class LapData {
 	long totalTime = 0;
 	double distance = 0;
 	double speed = 0;
+	String gpxFilePath = null;
 	final int SPEED_QUEUE_MAX = 100;
 	Vector<Double> vSpeedQueue = new Vector<Double>();
 	Vector<Double> getSpeedQueue()
@@ -212,5 +215,17 @@ public class LapData {
 		ret = String.format("%.2f", meterperhour / 1000 ) + ResourceAccessor.getInstance().IND_KMPERHOUR;
 		return ret;
 		
+	}
+	/**
+	 * @return the gpxFilePath
+	 */
+	public String getGpxFilePath() {
+		return gpxFilePath;
+	}
+	/**
+	 * @param gpxFilePath the gpxFilePath to set
+	 */
+	public void setGpxFilePath(String gpxFilePath) {
+		this.gpxFilePath = gpxFilePath;
 	}
 }

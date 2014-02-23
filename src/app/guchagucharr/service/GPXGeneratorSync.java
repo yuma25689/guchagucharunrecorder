@@ -2,6 +2,7 @@ package app.guchagucharr.service;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -25,6 +26,8 @@ public class GPXGeneratorSync {
 	// public static final String EXPORT_FILE_DIR = "/sdcard/patiman/export";
 	public static final String EXPORT_FILE_EXT = ".gpx";
 	public static final String LAP_TEXT = "Lap";
+	public static final String GPX_TEMP_FILE_NAME = "gpx.tmp";
+	
 //	private static final String[][] ESC_CHRS = {
 //		{"&","&amp;"},
 //		{"'","&apos;"},
@@ -88,7 +91,7 @@ public class GPXGeneratorSync {
 
 	File gpxFile = null;
     FileOutputStream fOut =  null;
-    BufferedOutputStream bos = null;
+    //BufferedOutputStream bos = null;
 	int iCurrentOutputLap = -1;
 
     public GPXGeneratorSync()//Vector<Location> vData_, Handler hdr_ )//SparseArray<LapData> lapData_, Handler hdr_)
@@ -101,7 +104,20 @@ public class GPXGeneratorSync {
     {
     	gpxFile = null;
         fOut =  null;
-        bos = null;
+    }
+
+    public BufferedOutputStream openGPXFileStream(File file)
+    {
+    	BufferedOutputStream bos = null;
+        //FileOutputStream fOut;
+		try {
+			FileOutputStream fOut = new FileOutputStream(file);
+	        bos = new BufferedOutputStream( fOut );    	
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return bos;
     }
     
 	/**
@@ -120,11 +136,10 @@ public class GPXGeneratorSync {
 		{
 			File gpxFile = new File( gpxFilePath );
             gpxFile.createNewFile();
+            BufferedOutputStream bos = openGPXFileStream(gpxFile);
 
-            FileOutputStream fOut =  new FileOutputStream(gpxFile);
-            BufferedOutputStream bos = new BufferedOutputStream( fOut );
-
-			_exporter = new Exporter( bos );
+            openGPXFile( bos );
+			//_exporter = new Exporter( bos );
 			_exporter.startExport();
 //	        for( Location loc:vData )
 //	        {
@@ -150,6 +165,20 @@ public class GPXGeneratorSync {
     {
         try {
         	_exporter.exportLoc( loc );
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.e("addLocationToCurrentGPXFile",e.getMessage());
+		}
+    }
+    public void openGPXFile(BufferedOutputStream bos)
+    {
+		_exporter = new Exporter(bos);    	
+    }
+    public void openGPXStream()
+    {
+        try {
+			_exporter.endExport();
+			_exporter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.e("addLocationToCurrentGPXFile",e.getMessage());
@@ -314,6 +343,7 @@ public class GPXGeneratorSync {
 			builder.append( TAG_NAME_TIME );
 			builder.append( TAG_RIGHT_BLANCKET );
 			Date date = new Date(loc.getTime());
+			// TODO: リソースに移す
 			SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 			dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
 			String strTmp = dateFormatGmt.format(date);

@@ -32,6 +32,8 @@
     <string name="datetime_display_format">M/dd HH:mm:ss</string>
     <string name="date_display_format">yyyy/MM/dd</string>
     <string name="time_display_format">HH:mm:ss</string>
+    <string name="gmt_date_time_for_gpx_format">yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'</string>
+    <string name="time_for_id_format">yyyyMMddHHmmssSSS</string>
     
     <string name="menu_detail">Detail</string>
     <string name="menu_delete">Delete</string>
@@ -53,5 +55,6 @@
 	<string name="to"> - </string>		
 	<string name="speed_label">[speed]</string>
     
-	<string name="gpx_share">share GPX file</string>	
+	<string name="gpx_share">share GPX file</string>
+	<string name="cant_start_workout_because_error">Sorry\, you can\'t start work out because SD card can\'t use.</string>
 </resources>

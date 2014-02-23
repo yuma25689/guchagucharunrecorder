@@ -136,7 +136,7 @@ public final class DroidDisplayInfo {
 			        		/ orgWidthOfBk;
 				}
 			
-				// handler�ɒʒm����
+				// handler
 				Message msg = Message.obtain();
 				msg.what = MessageDef.MSG_INIT_END;
 				msg.obj = bForceRecreate;
