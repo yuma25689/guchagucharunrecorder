@@ -398,6 +398,9 @@ implements
 	static final int RIGHT_CENTER_CTRL_MARGIN = 20;
 	static final int CENTER_ABOVE_CTRL_MARGIN = -15;
 	static final int CENTER_BELOW_CTRL_MARGIN = -15;
+	static final int CENTER_LEFT_CTRL_MARGIN = 15;
+	static final int CENTER_RIGHT_CTRL_MARGIN = 15;
+	static final int CENTER_TOP_CTRL_MARGIN = 15;
 	//static final int CENTER_BOTTOM_CTRL_MARGIN = 20;
 
 	//static final int TIME_TEXTVIEW_WIDTH = 150;
@@ -467,7 +470,7 @@ implements
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_runstartbutton_normal);
 		RelativeLayout.LayoutParams rlBtnCenter 
 		= dispInfo.createLayoutParamForNoPosOnBk( 
-				bmpoptions.outWidth, bmpoptions.outHeight, true );
+				bmpoptions.outWidth, bmpoptions.outHeight, false );
 		rlBtnCenter.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		rlBtnCenter.addRule(RelativeLayout.CENTER_VERTICAL);
 		btnCenter.setLayoutParams(rlBtnCenter);
@@ -510,10 +513,13 @@ implements
 		RelativeLayout.LayoutParams rlBtnGps 
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
-				bmpoptions.outWidth, bmpoptions.outHeight, true );
+				bmpoptions.outWidth, bmpoptions.outHeight, false );
 		//rlBtnGps.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		rlBtnGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
-		rlBtnGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;		
+//		rlBtnGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
+//		rlBtnGps.leftMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
+		rlBtnGps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		rlBtnGps.rightMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
+		
 		rlBtnGps.addRule(RelativeLayout.ABOVE, GPS_INDICATOR_ID);
 		//rlBtnGps.addRule(RelativeLayout.CENTER_VERTICAL);
 		//rlBtnGps.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -543,7 +549,7 @@ implements
 //			} catch (RemoteException e) {
 //				e.printStackTrace();
 //				Log.e("createLocationManager",e.getMessage());
-//			}			
+//			}
 			// TODO: 未受信の画像作成？
 			imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
 			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
@@ -555,8 +561,10 @@ implements
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
 		//rlIndGps.addRule(RelativeLayout.BELOW, GPS_BUTTON_ID);
 		//rlIndGps.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		rlIndGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
-		rlIndGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
+		//rlIndGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
+		rlIndGps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		rlIndGps.rightMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
+		//rlIndGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
 		rlIndGps.addRule(RelativeLayout.CENTER_VERTICAL );
 		imgGPS.setLayoutParams(rlIndGps);
 		imgGPS.setScaleType(ScaleType.FIT_XY);
@@ -568,8 +576,11 @@ implements
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
 		rlLocationCount.addRule(RelativeLayout.BELOW, GPS_INDICATOR_ID);
-		rlLocationCount.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
-		rlLocationCount.leftMargin = RIGHT_CENTER_CTRL_MARGIN;		
+//		rlLocationCount.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
+//		rlLocationCount.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
+		rlLocationCount.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		rlLocationCount.rightMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
+		
 		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
 		//rlLocationCount.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		txtLocationCount.setLayoutParams(rlLocationCount);
@@ -604,9 +615,20 @@ implements
 		RelativeLayout.LayoutParams rlTxtTime
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-		rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
-		rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
-		rlTxtTime.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+			rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
+			rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
+			rlTxtTime.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+			rlTxtTime.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
+			rlTxtTime.rightMargin = CENTER_LEFT_CTRL_MARGIN;
+			rlTxtTime.addRule(RelativeLayout.CENTER_VERTICAL);        	
+        }
 		txtTime.setLayoutParams(rlTxtTime);
 		txtTime.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		txtTime.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));
@@ -625,9 +647,21 @@ implements
 //		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
 //		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
 //		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-		rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-		rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-		rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+    		rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+    		rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+    		rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+    		rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+        }
+
 		txtDistance.setLayoutParams(rlTxtDistance);
 		txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		//txtDistance.setText("42.5353 km");
@@ -643,12 +677,23 @@ implements
 		RelativeLayout.LayoutParams rlTxtSpeed
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-//		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-//		rlTxtSpeed.leftMargin = LEFT_CENTER_CTRL_MARGIN;
-//		rlTxtSpeed.addRule(RelativeLayout.CENTER_VERTICAL);
-		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		//rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+        }
+		
 		txtSpeed.setLayoutParams(rlTxtSpeed);
 		txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
@@ -663,9 +708,23 @@ implements
 		RelativeLayout.LayoutParams rlTxtSpeed2
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+        }
+        else
+        {
+        	// 横向き
+    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		//rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+        }
+		
 		txtSpeed2.setLayoutParams(rlTxtSpeed2);
 		txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
@@ -692,6 +751,7 @@ implements
 		btnLap.setLayoutParams(rlBtnLap);
 		btnLap.setScaleType(ScaleType.FIT_XY);
 		btnLap.setOnClickListener(this);
+		btnLap.setOnTouchListener(this);
 		addViewToCompContainer(btnLap);
 		
 		// lap label
@@ -700,9 +760,22 @@ implements
 		RelativeLayout.LayoutParams rlTxtLap
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-		rlTxtLap.addRule(RelativeLayout.BELOW, LAP_BUTTON_ID);
-		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-		rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+    		rlTxtLap.addRule(RelativeLayout.BELOW, LAP_BUTTON_ID);
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+    		rlTxtLap.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+    		rlTxtLap.topMargin = CENTER_TOP_CTRL_MARGIN;
+    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+    		rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+		
 		txtLap.setLayoutParams(rlTxtLap);
 		txtLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(
 				R.color.theme_color_cantedit));
@@ -798,127 +871,144 @@ implements
 
 	@Override
 	public void onClick(View v) {
-		if( v == btnGPS )
-		{
-			if( false == bCenterBtnEnableRegionTouched )
+
+		try {
+			if( v != null )
 			{
-				return;
+				v.setEnabled(false);
 			}
-			String providers = Settings.Secure.getString(
-					getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-			Log.v("GPS", "Location Providers = " + providers);
-			if(providers.indexOf("gps", 0) < 0) {
-				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(intent);
-			} else {
-				// Toast.makeText(getApplicationContext(), 
-				// R.string.GPS_ON, Toast.LENGTH_LONG).show();
-				requestGPS();
-				//RunLogger.sService.requestGPS();
-			}
-		}
-		else if( v == btnHistory )
-		{
-			// launch activity for save
-			Intent intent = new Intent( this, HistoryActivity.class );
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
-	        startActivity(intent);			
-		}
-		else if( v == btnLap )
-		{
-			if( false == bLapBtnEnableRegionTouched )
-			{
-				return;
-			}			
-			// 次のラップへ
-			try {
-				RunLoggerService.getLogStocker().nextLap(this,RunLogger.sService.getTimeInMillis());
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
-			txtTime.setText( LapData.createTimeFormatText( 0 ) );
-			txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
-			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
 			
-			//new Date().getTime());
-			txtLap.setVisibility(View.VISIBLE);
-			txtLap.setText(getString(R.string.LAP_LABEL) 
-					+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
-		}
-		else if( v == btnCamera )
-		{
-			// TODO:撮影
-		}
-		else if( v == btnCenter )
-		{
-			try {
-				if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
+			if( v == btnGPS )
+			{
+				String providers = Settings.Secure.getString(
+						getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+				Log.v("GPS", "Location Providers = " + providers);
+				if(providers.indexOf("gps", 0) < 0) {
+					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					startActivity(intent);
+				} else {
+					// Toast.makeText(getApplicationContext(), 
+					// R.string.GPS_ON, Toast.LENGTH_LONG).show();
+					requestGPS();
+					//RunLogger.sService.requestGPS();
+				}
+			}
+			else if( v == btnHistory )
+			{
+				// launch activity for save
+				Intent intent = new Intent( this, HistoryActivity.class );
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);		 
+		        startActivity(intent);			
+			}
+			else if( v == btnLap )
+			{
+				if( false == bLapBtnEnableRegionTouched )
 				{
-					RunLoggerService.clearRunLogStocker();
-				    RunLoggerService.createLogStocker();//time);
-					
-					long time = RunLogger.sService.getTimeInMillis();
-					if( false == RunLoggerService.getLogStocker().start(this,time) )
+					return;
+				}
+				// 次のラップへ
+				try {
+					RunLoggerService.getLogStocker().nextLap(this,RunLogger.sService.getTimeInMillis());
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+				txtTime.setText( LapData.createTimeFormatText( 0 ) );
+				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
+				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+				
+				//new Date().getTime());
+				txtLap.setVisibility(View.VISIBLE);
+				txtLap.setText(getString(R.string.LAP_LABEL) 
+						+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
+			}
+			else if( v == btnCamera )
+			{
+				// カメラビュー
+				this.showCamera();
+			}
+			else if( v == btnCenter )
+			{
+				if( false == bCenterBtnEnableRegionTouched )
+				{
+					return;
+				}
+				try {
+					if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 					{
 						RunLoggerService.clearRunLogStocker();
-						Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
-						return;
+					    RunLoggerService.createLogStocker();//time);
+						
+						long time = RunLogger.sService.getTimeInMillis();
+						if( false == RunLoggerService.getLogStocker().start(this,time) )
+						{
+							RunLoggerService.clearRunLogStocker();
+							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							return;
+						}
+						btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
+								//now.getTime();
+						// logging start
+						RunLogger.sService.startLog();		
+	//				    if(mTimer == null){
+	//				        timerTask = new UpdateTimeDisplayTask();
+	//				        mTimer = new Timer(true);
+	//				        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
+	//				    }
+						
+						txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+						txtTime.setText( LapData.createTimeFormatText( 0 ) );
+						txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
+						txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+						txtLocationCount.setText("0");
+						
+						txtDistance.setVisibility(View.VISIBLE);
+						txtSpeed.setVisibility(View.VISIBLE);
+						txtSpeed2.setVisibility(View.VISIBLE);
+						txtTime.setVisibility(View.VISIBLE);
+						btnLap.setVisibility(View.VISIBLE);
+						btnCamera.setVisibility(View.VISIBLE);
+						if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+						{
+							txtLap.setVisibility(View.VISIBLE);
+						}
+						txtLocationCount.setVisibility(View.VISIBLE);
+						RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
 					}
-					btnCenter.setBackgroundResource(R.drawable.selector_runstop_button_image);
-							//now.getTime();
-					// logging start
-					RunLogger.sService.startLog();		
-//				    if(mTimer == null){
-//				        timerTask = new UpdateTimeDisplayTask();
-//				        mTimer = new Timer(true);
-//				        mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
-//				    }
-					
-					txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
-					txtTime.setText( LapData.createTimeFormatText( 0 ) );
-					txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
-					txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
-					txtLocationCount.setText("0");
-					
-					txtDistance.setVisibility(View.VISIBLE);
-					txtSpeed.setVisibility(View.VISIBLE);
-					txtSpeed2.setVisibility(View.VISIBLE);
-					txtTime.setVisibility(View.VISIBLE);
-					btnLap.setVisibility(View.VISIBLE);
-					btnCamera.setVisibility(View.VISIBLE);
-					if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+					else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 					{
-						txtLap.setVisibility(View.VISIBLE);
+						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
+						// logging end
+						RunLogger.sService.stopLog();
+						clearGPS();		            
+			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
+						// launch activity for save
+						Intent intent = new Intent( this, ResultActivity.class );
+						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
+				        startActivity(intent);				
+						
+						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+		//				txtDistance.setVisibility(View.VISIBLE);
+		//				txtSpeed.setVisibility(View.VISIBLE);
+		//				txtTime.setVisibility(View.VISIBLE);
+						btnLap.setVisibility(View.GONE);
+						btnCamera.setVisibility(View.GONE);
 					}
-					txtLocationCount.setVisibility(View.VISIBLE);
-					RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					Log.e("btnCenter","clicked error");
 				}
-				else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+			}
+		} finally {
+			if( v != null )
+			{
+				if( v == btnGPS || v == btnLap )
 				{
-					RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
-					// logging end
-					RunLogger.sService.stopLog();
-					clearGPS();		            
-		            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-		            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-					RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
-					// launch activity for save
-					Intent intent = new Intent( this, ResultActivity.class );
-					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
-			        startActivity(intent);				
-					
-					btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
-	//				txtDistance.setVisibility(View.VISIBLE);
-	//				txtSpeed.setVisibility(View.VISIBLE);
-	//				txtTime.setVisibility(View.VISIBLE);
-					btnLap.setVisibility(View.GONE);
-					btnCamera.setVisibility(View.GONE);
+					v.setEnabled(true);
 				}
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				Log.e("btnCenter","clicked error");
 			}
 		}
 	}
@@ -947,20 +1037,20 @@ implements
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		Region region = null;
-		Boolean bRegionFlag = null;
+		//Boolean bRegionFlag = null;
 		if( v == btnCenter 
 		|| v == btnLap )
 		{
 			if( btnCenter == v )
 			{
 				region = regionCenterBtn;
-				bRegionFlag = bCenterBtnEnableRegionTouched;
+				//bRegionFlag = bCenterBtnEnableRegionTouched;
  
 			}
 			else if( v == btnLap )
 			{
 				region = regionLapBtn;
-				bRegionFlag = bLapBtnEnableRegionTouched;
+				//bRegionFlag = bLapBtnEnableRegionTouched;
 			}
 	        // タッチされた座標の取得
 	        int x1 = (int)event.getX();
@@ -993,13 +1083,27 @@ implements
 		        path.computeBounds(rectF, true);	        
 		        region = new Region();
 		        region.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
-	        	bRegionFlag = true;
+				if( btnCenter == v )
+				{
+					bCenterBtnEnableRegionTouched = true;
+				}
+				else if( v == btnLap )
+				{
+					bLapBtnEnableRegionTouched = true;
+				}
 			}
 	        if( false == region.contains( x1, y1 ))
 	        {
 	        	// ボタンの領域でない部分がタッチされていたら
 		        // OnTouchをキャンセルする
-	        	bRegionFlag = false;
+				if( btnCenter == v )
+				{
+					bCenterBtnEnableRegionTouched = false;
+				}
+				else if( v == btnLap )
+				{
+					bLapBtnEnableRegionTouched = false;
+				}
  
 	        	// onTouchを返さないと、他の制御がおかしくなりそうなので、onTouchは返した後、
 	        	// pressイベントで無理矢理制御する

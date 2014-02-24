@@ -476,59 +476,72 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@Override
 	public void onClick(View v) {
 
-		if( v instanceof DisplayBlock )
+		try
 		{
-			DisplayBlock dispBlock = (DisplayBlock)v;
-			
-			if(dispBlock.getData() == null )
+			if( v != null )
 			{
+				v.setEnabled(false);
+			}
+		
+			if( v instanceof DisplayBlock )
+			{
+				DisplayBlock dispBlock = (DisplayBlock)v;
+				
+				if(dispBlock.getData() == null )
+				{
+				}
+				else
+				{
+					// dataの種別で処理を分ける
+					if( dispBlock.getData() instanceof ActivityData )
+					{
+						// ラップじゃない方のデータが表示されたら、ラップの表示が必要になる
+						selectedActivityData = (ActivityData) dispBlock.getData();
+						// TODO:ページが1ページしかない場合、ページの拡張を行う
+						if( adapter.getCount() == 1 )
+						{
+							adapter.setCount(2);
+						}
+						else if( adapter.getCount() == 2 )
+						{
+							if( null != lastSubLayout )
+							{
+								updateSubPage(lastSubLayout);
+							}
+						}
+						// adapter.notifyDataSetChanged();
+						// NOTICE: とりあえず、自動ページ移動はする？
+						mViewPager.arrowScroll(View.FOCUS_RIGHT);
+						// mViewPager.setCurrentItem(0);
+						return;
+					}
+					else if( dispBlock.getData() instanceof ActivityLapData )
+					{
+						
+						
+						return;
+					}
+				}
 			}
 			else
-			{
-				// dataの種別で処理を分ける
-				if( dispBlock.getData() instanceof ActivityData )
+			{				
+				if( v == gpxShareButton )
 				{
-					// ラップじゃない方のデータが表示されたら、ラップの表示が必要になる
-					selectedActivityData = (ActivityData) dispBlock.getData();
-					// TODO:ページが1ページしかない場合、ページの拡張を行う
-					if( adapter.getCount() == 1 )
-					{
-						adapter.setCount(2);
-					}
-					else if( adapter.getCount() == 2 )
-					{
-						if( null != lastSubLayout )
-						{
-							updateSubPage(lastSubLayout);
-						}
-					}
-					// adapter.notifyDataSetChanged();
-					// NOTICE: とりあえず、自動ページ移動はする？
-					mViewPager.arrowScroll(View.FOCUS_RIGHT);
-					// mViewPager.setCurrentItem(0);
-					return;
-				}
-				else if( dispBlock.getData() instanceof ActivityLapData )
-				{
+					// GPXの共有を行
+			        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);//ACTION_SEND);
+			        intent.addCategory(Intent.CATEGORY_DEFAULT);
+			        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+			        intent.setDataAndType(Uri.fromFile(new File(gpxFilePath)), "application/gpx+xml");
+			        // intent.putExtra(Intent.EXTRA_TEXT, gpxFilePath);
+			        startActivity(Intent.createChooser(
+			                intent, getString(R.string.gpx_share)));
 					
-					
-					return;
 				}
 			}
-		}
-		else
-		{
-			if( v == gpxShareButton )
+		} finally {
+			if( v != null )
 			{
-				// GPXの共有を行う
-		        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);//ACTION_SEND);
-		        intent.addCategory(Intent.CATEGORY_DEFAULT);
-		        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-		        intent.setDataAndType(Uri.fromFile(new File(gpxFilePath)), "application/gpx+xml");
-		        // intent.putExtra(Intent.EXTRA_TEXT, gpxFilePath);
-		        startActivity(Intent.createChooser(
-		                intent, getString(R.string.gpx_share)));
-				
+				//v.setEnabled(true);
 			}
 		}
 		

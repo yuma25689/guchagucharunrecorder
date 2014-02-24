@@ -306,9 +306,14 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 					+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					RunLoggerService.getLogStocker().getTotalDistance() ) );
+			// NOTICE:テスト用
+			String gpsLastTime = LapData.createTimeFormatText(
+					RunLoggerService.getLogStocker().getCurrentLocation().getTime() 
+					- RunLoggerService.getLogStocker().getLapData(0).getStartTime() );
 			txtTime.setText( LapData.createTimeFormatText(
-					RunLoggerService.getLogStocker().getTotalTime() ) );
-			txtSpeed.setText( LapData.createSpeedFormatText( 
+					RunLoggerService.getLogStocker().getTotalTime() ) + " " + gpsLastTime );
+			
+			txtSpeed.setText( LapData.createSpeedFormatText(
 					RunLoggerService.getLogStocker().getTotalDistance() 
 					/ RunLoggerService.getLogStocker().getTotalTime() ) );
 					// RunLoggerService.getLogStocker().getTotalSpeed() ) );
@@ -443,26 +448,41 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 
 	@Override
 	public void onClick(View v) {
-		if( v == btnGPS )
-		{
-			String providers = Settings.Secure.getString(
-					getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-			Log.v("GPS", "Location Providers = " + providers);
-			if(providers.indexOf("gps", 0) < 0) {
-				Toast.makeText(getApplicationContext(), R.string.GPS_OFF, Toast.LENGTH_LONG).show();
-			} else {
-				// �ݒ��ʂ̌ďo��
-				Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(intent);
+		try {
+			if( v != null )
+			{
+				v.setEnabled(false);
 			}
-		}
-		else if( v == btnCenter )
-		{
-			// TODO:cliping
-			
-			// TODO: arg2 -> GPX save setting create 
-			RunLoggerService.getLogStocker().save(this,editName.getText().toString(),true);
-			
+		
+			if( v == btnGPS )
+			{
+				String providers = Settings.Secure.getString(
+						getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+				Log.v("GPS", "Location Providers = " + providers);
+				if(providers.indexOf("gps", 0) < 0) {
+					Toast.makeText(getApplicationContext(), R.string.GPS_OFF, Toast.LENGTH_LONG).show();
+				} else {
+					// �ݒ��ʂ̌ďo��
+					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					startActivity(intent);
+				}
+			}
+			else if( v == btnCenter )
+			{
+				// TODO:cliping
+				
+				// TODO: arg2 -> GPX save setting create 
+				RunLoggerService.getLogStocker().save(this,editName.getText().toString(),true);
+				
+			}
+		} finally {
+			if( v != null )
+			{
+				if( btnGPS == v )
+				{
+					v.setEnabled(true);
+				}
+			}
 		}
 	}
 

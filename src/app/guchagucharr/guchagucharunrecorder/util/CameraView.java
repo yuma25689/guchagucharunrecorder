@@ -1,6 +1,7 @@
 package app.guchagucharr.guchagucharunrecorder.util;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -36,9 +37,23 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		Camera.Parameters p = camera.getParameters();
-		p.setPreviewSize(width,height);
-		camera.setParameters(p);
-		camera.startPreview();
+		List<Camera.Size> supportedSizes = p.getSupportedPreviewSizes();
+		if (supportedSizes != null && supportedSizes.size() > 0)
+		{
+			//p.setPreviewFormat(format);
+			// getSupportedPictureSizesは必ず１つしかサイズを返さないとドキュメントには書いてある
+			p.setPreviewSize(supportedSizes.get(0).width,supportedSizes.get(0).height);
+			Log.v("getSupportedPictureSizes", "width=" 
+			+ supportedSizes.get(0).width  + " height=" + supportedSizes.get(0).height);
+			try{
+				camera.setParameters(p);
+			} catch( Exception e ) {
+				Log.e("setParameters",e.getMessage());
+				return;
+			}
+			camera.startPreview();
+		}
+		// TODO: サポートされていなかったら、それをユーザへ通知
 	}
 
 	@Override

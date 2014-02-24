@@ -197,8 +197,8 @@ implements LocationListener
     {
 //    	Looper looper = Looper.getMainLooper();
 //    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, listener, looper);
-		final long MIN_TIME = 100;
-		final float MIN_METER = 0.5f;
+		final long MIN_TIME = 700;
+		final float MIN_METER = 1f;
 		String providers = Settings.Secure.getString(
 				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
 		if( providers.indexOf("gps", 0) < 0 )
