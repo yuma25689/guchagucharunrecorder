@@ -17,6 +17,7 @@ public class LapData {
 		totalTime = data_.getTotalTime();
 		distance = data_.getDistance();
 		speed = data_.getSpeed();
+		name = data_.getName();
 		gpxFilePath = data_.getGpxFilePath();
 		vSpeedQueue = (Vector<Double>) data_.getSpeedQueue().clone();	
 	}
@@ -27,6 +28,7 @@ public class LapData {
 		totalTime = 0;
 		distance = 0;
 		speed = 0;
+		name = null;
 		gpxFilePath = null;
 		vSpeedQueue.clear();
 	}
@@ -35,6 +37,7 @@ public class LapData {
 	long totalTime = 0;
 	double distance = 0;
 	double speed = 0;
+	String name = null;
 	String gpxFilePath = null;
 	final int SPEED_QUEUE_MAX = 100;
 	Vector<Double> vSpeedQueue = new Vector<Double>();
@@ -227,5 +230,17 @@ public class LapData {
 	 */
 	public void setGpxFilePath(String gpxFilePath) {
 		this.gpxFilePath = gpxFilePath;
+	}
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 }

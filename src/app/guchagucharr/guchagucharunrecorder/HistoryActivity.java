@@ -20,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -29,7 +28,6 @@ import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
-import app.guchagucharr.service.RunLogger;
 //import android.provider.BaseColumns;
 import app.guchagucharr.service.RunHistoryLoader.ActivityData;
 import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
@@ -43,8 +41,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private HistoryPagerAdapter adapter = null;
 	//private RelativeLayout lastMainLayout = null;
 	private RelativeLayout lastSubLayout = null;
-	private Button gpxShareButton = null;
-	private String gpxFilePath = null;
+//	private Button gpxShareButton = null;
+//	private String gpxFilePath = null;
 	
 	RunHistoryLoader loader = new RunHistoryLoader();
 	@Override
@@ -53,7 +51,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		setContentView(R.layout.activity_viewpager_only);
         handler = new PagerHandler( this, this );
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
-		
 		init();
 	}
 	@Override
@@ -159,7 +156,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					LapData.createTimeFormatText( timeTotal ),
 					//LapData.createSpeedFormatText( speedTotal ),
 					LapData.createSpeedFormatTextKmPerH( speedTotal ),
-					gpxExists,
+					//gpxExists,
 					lapCount
 			};
 			DisplayBlock dispBlock = new DisplayBlock(
@@ -167,7 +164,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
 					dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
 					data.getId(),
-					dispInfo, title, text, sizeType, eShapeType.SHAPE_BLOCK);
+					dispInfo, title, text, null, sizeType, eShapeType.SHAPE_BLOCK);
 			dispBlock.setData(data);
 			if( iPanelCount == 0 )
 			{
@@ -222,8 +219,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		lastSubLayout = rlBase;
 		RelativeLayout rl = (RelativeLayout) rlBase.findViewById(R.id.page_content1);
 		rl.removeAllViews();
-		boolean bGPXExists = false;
 		RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
+		// NOTICE: とりあえず、下段のビューは廃止
+		rl2.setVisibility(View.GONE);
 		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
 		if( lapData == null || lapData.size() == 0 )
 		{
@@ -231,26 +229,26 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		}
 		
 		// TODO: 暫定版なので後で直すこと
-		if( null == lapData.get(0).getGpxFilePath() )
-		{
-			rl2.setVisibility(View.GONE);
-		}
-		else
-		{
-			File file = new File(lapData.get(0).getGpxFilePath());
-			if( file != null && file.exists() )
-			{
-				rl2.setVisibility(View.VISIBLE);
-				gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
-				gpxShareButton.setOnClickListener(this);
-				gpxFilePath = lapData.get(0).getGpxFilePath();
-				bGPXExists = true;
-			}
-			else
-			{
-				rl2.setVisibility(View.GONE);
-			}
-		}
+//		if( null == lapData.get(0).getGpxFilePath() )
+//		{
+//			rl2.setVisibility(View.GONE);
+//		}
+//		else
+//		{
+//			File file = new File(lapData.get(0).getGpxFilePath());
+//			if( file != null && file.exists() )
+//			{
+//				rl2.setVisibility(View.VISIBLE);
+//				gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
+//				gpxShareButton.setOnClickListener(this);
+//				gpxFilePath = lapData.get(0).getGpxFilePath();
+//				bGPXExists = true;
+//			}
+//			else
+//			{
+//				rl2.setVisibility(View.GONE);
+//			}
+//		}
 		// NOTICE: 最高で６個しか置けない
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 				lapData.size());
@@ -258,6 +256,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //				getString(R.string.datetime_display_format));
 		int lastOddPanelID = 0;
 		int iPanelCount = 0;
+		
+		// 全てのラップデータをループ
 		for( ActivityLapData data : lapData )
 		{
 			double distance = 0;
@@ -266,9 +266,25 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			distance = data.getDistance();
 			time = data.getTime();				
 			speed = distance / ( time / 1000 ); 
-			
+			String gpxFilePath = data.getGpxFilePath();
+			//boolean bGPXExists = false;			
+//			if( gpxFilePath != null )
+//			{
+//				File file = new File(gpxFilePath);
+//				if( file.exists() )
+//				{
+//					rl2.setVisibility(View.VISIBLE);
+//	//				gpxShareButton = (Button) rl2.findViewById(R.id.gpx_share_button);
+//	//				gpxShareButton.setOnClickListener(this);
+//					//bGPXExists = true;
+//				}
+//			}
 			// DisplayBlock追加
-			String title = getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+			String title = data.getName(); //getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+			if( title == null )
+			{
+				title = getString(R.string.no_title);//getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+			}
 			String text[] = {
 					LapData.createDistanceFormatText( distance ),
 					LapData.createTimeFormatText( time ),
@@ -282,6 +298,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					dispInfo,
 					title,
 					text,
+					gpxFilePath,
 					sizeType, 
 					eShapeType.SHAPE_HORIZONTAL);
 			if( iPanelCount == 0 )
@@ -321,12 +338,24 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			// TODO: エラー発生を通知
 			finish();
 		}
-		getWindow().setLayout( 
-		dispInfo.getCorrectionXConsiderDensity(
-			ControlDefs.APP_DIALOG_WIDTH)
-		, dispInfo.getCorrectionYConsiderDensity(
-			ControlDefs.APP_DIALOG_HEIGHT)
-		);
+		if( dispInfo.isPortrait() )
+		{
+			getWindow().setLayout( 
+			dispInfo.getCorrectionXConsiderDensity(
+				ControlDefs.APP_DIALOG_WIDTH)
+			, dispInfo.getCorrectionYConsiderDensity(
+				ControlDefs.APP_DIALOG_HEIGHT)
+			);
+		}
+		else
+		{
+			getWindow().setLayout( 
+				dispInfo.getCorrectionYConsiderDensity(
+						ControlDefs.APP_DIALOG_HEIGHT)
+				,dispInfo.getCorrectionXConsiderDensity(
+						ControlDefs.APP_DIALOG_WIDTH)
+			);			
+		}
 	}
 	@Override
 	public DisplayInfo getDispInfo() {
@@ -524,19 +553,20 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				}
 			}
 			else
-			{				
-				if( v == gpxShareButton )
-				{
-					// GPXの共有を行
-			        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);//ACTION_SEND);
-			        intent.addCategory(Intent.CATEGORY_DEFAULT);
-			        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-			        intent.setDataAndType(Uri.fromFile(new File(gpxFilePath)), "application/gpx+xml");
-			        // intent.putExtra(Intent.EXTRA_TEXT, gpxFilePath);
-			        startActivity(Intent.createChooser(
-			                intent, getString(R.string.gpx_share)));
-					
-				}
+			{
+				// TODO: 後で調整
+//				if( v == gpxShareButton )
+//				{
+//					// GPXの共有を行
+//			        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);//ACTION_SEND);
+//			        intent.addCategory(Intent.CATEGORY_DEFAULT);
+//			        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+//			        intent.setDataAndType(Uri.fromFile(new File(gpxFilePath)), "application/gpx+xml");
+//			        // intent.putExtra(Intent.EXTRA_TEXT, gpxFilePath);
+//			        startActivity(Intent.createChooser(
+//			                intent, getString(R.string.gpx_share)));
+//					
+//				}
 			}
 		} finally {
 			if( v != null )

@@ -128,6 +128,8 @@ public class RunHistoryLoader {
 						RunHistoryTableContract.LAP_FIXED_DISTANCE);
 				int lapFixedTimeIndex = cursorChild.getColumnIndexOrThrow(
 						RunHistoryTableContract.LAP_FIXED_TIME);
+				int lapNameIndex = cursorChild.getColumnIndexOrThrow(
+						RunHistoryTableContract.NAME);
 				int lapFixedSpeedIndex = cursorChild.getColumnIndexOrThrow(
 						RunHistoryTableContract.LAP_FIXED_SPEED);
 				int gpxIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
@@ -142,6 +144,7 @@ public class RunHistoryLoader {
 					dataLap.setFixedDistance( cursorChild.getDouble( lapFixedDistanceIndex ) );
 					dataLap.setFixedTime( cursorChild.getLong( lapFixedTimeIndex ) );
 					dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
+					dataLap.setName( cursorChild.getString( lapNameIndex ));
 					dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
 					
 					if( vLapData.isEmpty() == false
@@ -278,6 +281,7 @@ public class RunHistoryLoader {
 		double fixedDistance; 
 		long fixedTime; 
 		double fixedSpeed;
+		String name;
 		String gpxFilePath;
 		/**
 		 * @return the id
@@ -422,6 +426,18 @@ public class RunHistoryLoader {
 		 */
 		public void setGpxFilePath(String gpxFilePath) {
 			this.gpxFilePath = gpxFilePath;
+		}
+		/**
+		 * @return the name
+		 */
+		public String getName() {
+			return name;
+		}
+		/**
+		 * @param name the name to set
+		 */
+		public void setName(String name) {
+			this.name = name;
 		}
 		
 	};

@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -32,9 +31,7 @@ import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
-import app.guchagucharr.service.RunLogger;
 import app.guchagucharr.service.RunLoggerService;
-import app.guchagucharr.service.RunningLogStocker;
 
 public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
 
@@ -126,12 +123,30 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(new ResultPagerAdapter(this, this));
 
-		getWindow().setLayout( 
-		dispInfo.getCorrectionXConsiderDensity(
-			ControlDefs.APP_DIALOG_WIDTH)
-		, dispInfo.getCorrectionYConsiderDensity(
-			ControlDefs.APP_DIALOG_HEIGHT)
-		);
+//		getWindow().setLayout( 
+//		dispInfo.getCorrectionXConsiderDensity(
+//			ControlDefs.APP_DIALOG_WIDTH)
+//		, dispInfo.getCorrectionYConsiderDensity(
+//			ControlDefs.APP_DIALOG_HEIGHT)
+//		);
+		if( dispInfo.isPortrait() )
+		{
+			getWindow().setLayout( 
+			dispInfo.getCorrectionXConsiderDensity(
+				ControlDefs.APP_DIALOG_WIDTH)
+			, dispInfo.getCorrectionYConsiderDensity(
+				ControlDefs.APP_DIALOG_HEIGHT)
+			);
+		}
+		else
+		{
+			getWindow().setLayout( 
+				dispInfo.getCorrectionYConsiderDensity(
+						ControlDefs.APP_DIALOG_HEIGHT)
+				,dispInfo.getCorrectionXConsiderDensity(
+						ControlDefs.APP_DIALOG_WIDTH)
+			);			
+		}
         
         return 0;
 	}
@@ -365,7 +380,12 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 						dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
 						dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
 						-1,
-						dispInfo, title, text, sizeType, eShapeType.SHAPE_HORIZONTAL);
+						dispInfo, title, text, 
+						// null,
+						lapData.getGpxFilePath(),	
+						// TODO: ここから別アクティビティに飛べるようになってしまうが、そうすると保存忘れのリスクは上がる
+						// できるだけ保存忘れが発生しないようにすること
+						sizeType, eShapeType.SHAPE_HORIZONTAL);
 				if( iPanelCount == 0 )
 				{
 					RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) dispBlock.getLayoutParams();

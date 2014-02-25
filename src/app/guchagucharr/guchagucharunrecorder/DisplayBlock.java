@@ -9,7 +9,13 @@ import android.util.StateSet;
 import android.widget.RelativeLayout;
 // import android.widget.RelativeLayout;
 import android.widget.TextView;
+import app.guchagucharr.guchagucharunrecorder.util.RouteButton;
 
+/**
+ * TODO: 無理矢理このクラスに入れ過ぎなので、分けた方がいいかもしれない
+ * @author 25689
+ *
+ */
 public class DisplayBlock extends RelativeLayout {
 
 	Object data = null;
@@ -53,6 +59,8 @@ public class DisplayBlock extends RelativeLayout {
 	
 	DisplayInfo dispInfo = null;
 	static final int ITEM_LEFT_MARGIN = 7;
+	static final int ITEM_RIGHT_MARGIN = 7;
+	static final int ITEM_BOTTOM_MARGIN = 7;
 	static final int BLOCK_MARGIN = 10;
 	static final int CORRECT_VALUE = 0;	// 調整用の値 あまりよくないのだが・・・
 	static final int BLOCK_MARGIN_HORZ = 10;
@@ -75,6 +83,7 @@ public class DisplayBlock extends RelativeLayout {
 	eShapeType shapeType = eShapeType.SHAPE_BLOCK;
 	int parentWidth = 0;
 	int parentHeight = 0;	
+	String gpxFilePath = null;
 	Activity mActivity = null;
 	long recordId = -1;
 	public long getRecordId()
@@ -87,7 +96,8 @@ public class DisplayBlock extends RelativeLayout {
 			int _parentHeight,
 			long recordId_,
 			DisplayInfo dispInfo_, 
-			String title_, String[] text_, 
+			String title_, String[] text_,
+			String strGpxFilePath_,
 			eSizeType sizeType_,
 			eShapeType shapeType_ ) {
 		super(activity);
@@ -98,6 +108,7 @@ public class DisplayBlock extends RelativeLayout {
 		dispInfo = dispInfo_;
 		title = title_;
 		text = text_;
+		gpxFilePath = strGpxFilePath_;
 		sizeType = sizeType_;
 		shapeType = shapeType_;
 		init();
@@ -149,7 +160,8 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			
 			int height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
-					* (magnify / 12 ) - BLOCK_MARGIN_HORZ * 2 );
+					//* (magnify / 12 ) - BLOCK_MARGIN_HORZ * 2 );
+					* (magnify / 6 ) - BLOCK_MARGIN_HORZ * 2 );
 			
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
 					parentWidth - BLOCK_MARGIN * 2,
@@ -203,7 +215,8 @@ public class DisplayBlock extends RelativeLayout {
 		{
 			iChildrenCount = text.length;
 		}
-		for( int i=0; i<iChildrenCount; ++i )
+		int i=0;
+		for( i=0; i<iChildrenCount; ++i )
 		{
 			if( text[i] == null )
 			{
@@ -265,6 +278,24 @@ public class DisplayBlock extends RelativeLayout {
 			txt.setText(text[i]);
 			addView( txt );
 			
+		}
+		
+		if( gpxFilePath != null )
+		{
+			RouteButton gpxBtn = new RouteButton(this.getContext(),gpxFilePath);
+			RelativeLayout.LayoutParams lpTmp = null;
+			lpTmp = new RelativeLayout.LayoutParams( 
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+					android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+			// 最後の項目の右
+			lpTmp.addRule( RelativeLayout.ALIGN_PARENT_RIGHT );
+			lpTmp.leftMargin = ITEM_LEFT_MARGIN;
+			lpTmp.bottomMargin = ITEM_BOTTOM_MARGIN;
+			lpTmp.addRule( RelativeLayout.ALIGN_PARENT_BOTTOM);
+			gpxBtn.setBackgroundResource(R.drawable.selector_route_button_image);
+			gpxBtn.setLayoutParams(lpTmp);
+			
+			addView( gpxBtn );
 		}
 	}
 	@SuppressWarnings("deprecation")

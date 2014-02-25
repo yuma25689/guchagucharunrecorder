@@ -55,6 +55,9 @@
 	<string name="to"> - </string>		
 	<string name="speed_label">[speed]</string>
     
-	<string name="gpx_share">share GPX file</string>
+	<string name="gpx_share">GPX file sharing</string>
 	<string name="cant_start_workout_because_error">Sorry\, you can\'t start work out because SD card can\'t use.</string>
+	
+	<string name="no_title">no title</string>
+		
 </resources>

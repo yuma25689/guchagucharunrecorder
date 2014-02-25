@@ -192,6 +192,7 @@ implements
     }
 	
 	//@Override
+	@Override
 	public void requestGPS()
 	{
 		// 2014/02/17 move to service
@@ -1145,8 +1146,8 @@ implements
 		cameraView.setHandler(handler);
 		RelativeLayout.LayoutParams rl
 		= dispInfo.createLayoutParamForNoPosOnBk( 
-				RelativeLayout.LayoutParams.MATCH_PARENT,
-				RelativeLayout.LayoutParams.MATCH_PARENT, true );
+				LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT, true );
 		// NOTICE: 下記は、おそらく不要
 		rl.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		rl.addRule(RelativeLayout.CENTER_VERTICAL);
