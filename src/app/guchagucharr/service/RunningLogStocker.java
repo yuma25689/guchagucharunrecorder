@@ -188,6 +188,7 @@ public class RunningLogStocker {
 					iChannel.close();
 					oChannel.close();
 					ret = outputFilePath;
+					clearTmpGpxFile(activity);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 					Log.e("FileCopy",e.getMessage());
@@ -199,7 +200,7 @@ public class RunningLogStocker {
 		}
 		return ret;
 	}
-	private void resetTmpGpxFile(Activity activity)
+	private void clearTmpGpxFile(Activity activity)
 	{
 		// フォルダ取得
 		File tmpDir = activity.getFilesDir();
@@ -210,7 +211,14 @@ public class RunningLogStocker {
 		if( gpxFile.exists() )
 		{
 			gpxFile.delete();
-		}
+		}		
+	}
+	private void resetTmpGpxFile(Activity activity)
+	{
+		// フォルダ取得
+		File tmpDir = activity.getFilesDir();
+		// 一時ファイル名作成
+		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		// ファイルの書き込みを始める
 		gpxGen.startCreateGPXFile(activity, gpxFilePath);		
 	}
@@ -280,7 +288,7 @@ public class RunningLogStocker {
 		currentLapData.setStopTime(time);
 		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
 		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
-		currentLapData.setGpxFilePath(strGpxFile);		
+		currentLapData.setGpxFilePath(strGpxFile);
 		lapData.put(iLap, currentLapData);
 	}
 	

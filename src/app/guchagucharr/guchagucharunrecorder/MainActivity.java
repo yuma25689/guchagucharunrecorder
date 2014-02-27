@@ -1,6 +1,8 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -36,6 +38,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.CameraView;
 import app.guchagucharr.interfaces.IMainViewController;
+import app.guchagucharr.service.GPXGeneratorSync;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLogger;
@@ -434,6 +437,16 @@ implements
 			componentContainer.removeView(v);
 		}
 	}
+	private boolean isTmpGpxFileExists(Activity activity)
+	{
+		// フォルダ取得
+		File tmpDir = activity.getFilesDir();
+		// 一時ファイル名作成
+		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
+		// ファイルがあったら消す
+		File gpxFile = new File( gpxFilePath );
+		return gpxFile.exists(); 
+	}	
 	
 	@Override
 	public int initControls()
@@ -443,6 +456,32 @@ implements
 		{
 			return -1;
 		}
+		try {
+			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal()
+			&& isTmpGpxFileExists(this) )
+			{
+			// ノーマルモードなのに、GPXがある
+			// ->前に落ちたと見なし、復帰処理に入る
+				RunLoggerService.clearRunLogStocker();
+				RunLoggerService.createLogStocker();
+				
+				// TODO:-----------GPXの断片から、ログストッカーの内容を復帰
+				long time = RunLogger.sService.getTimeInMillis();
+				if( false == RunLoggerService.getLogStocker().start(this,time) )
+				{
+					RunLoggerService.clearRunLogStocker();
+					Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+				}
+				// -----------
+				RunLogger.sService.startLog();		
+				
+				RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			Log.e("",e.getMessage());
+		}
+		
 		// モードは、サービス上に常に保持
 //        if( mTimer != null) 
 //        {
@@ -830,7 +869,9 @@ implements
 				txtTime.setVisibility(View.VISIBLE);		
 				btnLap.setVisibility(View.VISIBLE);
 				btnCamera.setVisibility(View.VISIBLE);
-				if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				btnCamera.setEnabled(true);
+				if( false == RunLoggerService.isEmptyLogStocker()
+				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 				{
 					txtLap.setVisibility(View.VISIBLE);
 				}
@@ -986,6 +1027,11 @@ implements
 			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
+						
+						if( RunLoggerService.getLogStocker().getCurrentLocation() == null )
+						{
+							return;
+						}
 						// launch activity for save
 						Intent intent = new Intent( this, ResultActivity.class );
 						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
