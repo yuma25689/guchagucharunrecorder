@@ -24,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
+import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eSizeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
@@ -131,7 +132,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
-			String gpxExists = null;
 			String lapCount = null;
 			// TODO: 後でラップのデータを見てちゃんと表示する
 //			String gpx = data.getGpxFilePath();
@@ -177,29 +177,55 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			else
 			{
 				dispBlock.setId(MAIN_FIRST_PANEL_ID+iPanelCount);
-				if( iPanelCount % 2 == 0 )
+				if( dispInfo.isPortrait() )
 				{
-					// ここにくるのは、奇数枚
-					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-					if( lastOddPanelID != 0 )
+					if( iPanelCount % 2 == 0 )
 					{
-						lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+						// ここにくるのは、奇数枚
+						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+						if( lastOddPanelID != 0 )
+						{
+							lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+						}
+						lastOddPanelID = dispBlock.getId();
 					}
-					lastOddPanelID = dispBlock.getId();
-				}
-				else
-				{
-					// 偶数枚
-					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-					if( lastOddPanelID != 0 )
+					else
 					{
-						lp.addRule(RelativeLayout.RIGHT_OF, lastOddPanelID);
+						// 偶数枚
+						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+						if( lastOddPanelID != 0 )
+						{
+							lp.addRule(RelativeLayout.RIGHT_OF, lastOddPanelID);
+						}
+						if( lastEvenPanelID != 0 )
+						{
+							lp.addRule(RelativeLayout.BELOW, lastEvenPanelID);
+						}
+						lastEvenPanelID = dispBlock.getId();
 					}
-					if( lastEvenPanelID != 0 )
+				} else {
+					// 横向きの場合
+					// 最高で２行にする
+					if( DisplayBlock.getBlockCountOnOnePage(sizeType) / 2 <= iPanelCount ) 
 					{
-						lp.addRule(RelativeLayout.BELOW, lastEvenPanelID);
+						// ここにくるのは、2行目
+						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+						lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+						if( DisplayBlock.getBlockCountOnOnePage(sizeType) / 2 < iPanelCount )
+						{
+							lp.addRule(RelativeLayout.RIGHT_OF, MAIN_FIRST_PANEL_ID+iPanelCount-1);
+						}
 					}
-					lastEvenPanelID = dispBlock.getId();
+					else
+					{
+						// ここにくるのは、1行目
+						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+						lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+						if( 0 < iPanelCount )
+						{
+							lp.addRule(RelativeLayout.RIGHT_OF, MAIN_FIRST_PANEL_ID+iPanelCount-1);
+						}
+					}
 				}
 			}
 			// 下に行くほど薄くする
@@ -219,9 +245,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		lastSubLayout = rlBase;
 		RelativeLayout rl = (RelativeLayout) rlBase.findViewById(R.id.page_content1);
 		rl.removeAllViews();
-		RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
+		//RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
 		// NOTICE: とりあえず、下段のビューは廃止
-		rl2.setVisibility(View.GONE);
+		//rl2.setVisibility(View.GONE);
 		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
 		if( lapData == null || lapData.size() == 0 )
 		{
@@ -301,23 +327,58 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					gpxFilePath,
 					sizeType, 
 					eShapeType.SHAPE_HORIZONTAL);
-			if( iPanelCount == 0 )
+			if( dispInfo.isPortrait() )
 			{
-				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-				lp.addRule(RelativeLayout.ALIGN_LEFT);
-				lp.addRule(RelativeLayout.ALIGN_TOP);
-				dispBlock.setId(SUB_FIRST_PANEL_ID);
-				lastOddPanelID = dispBlock.getId();
+				if( iPanelCount == 0 )
+				{
+					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+					lp.addRule(RelativeLayout.ALIGN_LEFT);
+					lp.addRule(RelativeLayout.ALIGN_TOP);
+					dispBlock.setId(SUB_FIRST_PANEL_ID);
+					lastOddPanelID = dispBlock.getId();
+				}
+				else
+				{
+					dispBlock.setId(SUB_FIRST_PANEL_ID+iPanelCount);
+					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+					if( lastOddPanelID != 0 )
+					{
+						lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+					}
+					lastOddPanelID = dispBlock.getId();
+				}
 			}
 			else
 			{
+				// 横向き
 				dispBlock.setId(SUB_FIRST_PANEL_ID+iPanelCount);
-				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-				if( lastOddPanelID != 0 )
+				if( iPanelCount % 2 == 0 ) 
 				{
-					lp.addRule(RelativeLayout.BELOW, lastOddPanelID);
+					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+					if( iPanelCount == 0 )
+					{
+						lp.addRule(RelativeLayout.ALIGN_TOP);
+					}
+					else
+					{
+						lp.addRule(RelativeLayout.BELOW, SUB_FIRST_PANEL_ID+iPanelCount-2);
+					}
 				}
-				lastOddPanelID = dispBlock.getId();
+				else if( iPanelCount % 2 == 1 )
+				{
+					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();					
+					lp.addRule(RelativeLayout.BELOW, SUB_FIRST_PANEL_ID+iPanelCount-2);
+					lp.addRule(RelativeLayout.RIGHT_OF, SUB_FIRST_PANEL_ID+iPanelCount-1);
+				}					
+//				else
+//				{
+//					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
+//					lp.addRule(RelativeLayout.ALIGN_BOTTOM);
+//					if( DisplayBlock.getBlockCountOnOnePage(sizeType) / 2 < iPanelCount )
+//					{
+//						lp.addRule(RelativeLayout.RIGHT_OF, SUB_FIRST_PANEL_ID+iPanelCount-1);
+//					}					
+//				}				
 			}
 			// 下に行くほど薄くする
 			final double COLOR_RANGE = 80;

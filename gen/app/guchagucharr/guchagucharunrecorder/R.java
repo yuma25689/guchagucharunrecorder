@@ -77,16 +77,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int selector_save_button_image=0x7f020032;
     }
     public static final class id {
-        public static final int center_view=0x7f070004;
         public static final int dummy_button=0x7f070003;
         public static final int fullscreen_content_controls=0x7f070002;
-        public static final int gpx_share_button=0x7f07000a;
-        public static final int layout_bottom=0x7f070006;
-        public static final int layout_top=0x7f070005;
+        public static final int layout_top=0x7f070004;
         public static final int main_content=0x7f070000;
-        public static final int page_content=0x7f070007;
-        public static final int page_content1=0x7f070008;
-        public static final int page_content2=0x7f070009;
+        public static final int page_content=0x7f070005;
+        public static final int page_content1=0x7f070006;
         public static final int viewpager1=0x7f070001;
     }
     public static final class layout {

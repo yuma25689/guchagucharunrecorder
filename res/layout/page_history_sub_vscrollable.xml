@@ -3,26 +3,28 @@
     android:id="@+id/page_content"    
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+    //<!-- 
     <View
         android:id="@+id/center_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_centerInParent="true"
         />
+ //-->        
 	<ScrollView 
-		android:layout_height="0dp"
+		android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/center_view" >    
+        >    
 		<RelativeLayout
 		    android:id="@+id/page_content1"
-			android:layout_height="wrap_content"
+			android:layout_height="match_parent"
 	        android:layout_width="match_parent"
 		    >
 		    
 		</RelativeLayout>
 	</ScrollView>
+ //<!-- 	
 	<RelativeLayout
 	    android:id="@+id/page_content2"
 		android:layout_height="0dp"
@@ -39,6 +41,6 @@
 	        android:text="@string/gpx_share"
         />	    
 	</RelativeLayout>
-	
+	 //-->
 
 </RelativeLayout>

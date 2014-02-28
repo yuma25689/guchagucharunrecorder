@@ -39,6 +39,23 @@ public class DisplayBlock extends RelativeLayout {
 		}
 		return eSizeType.MODE_ONE_SIXTH;
 	}
+	public static int getBlockCountOnOnePage(eSizeType sizeType)
+	{
+		if( sizeType == eSizeType.MODE_ONE )
+		{
+			return 1;
+		}
+		else if( sizeType == eSizeType.MODE_QUARTER )
+		{
+			return 4;
+		}
+		else if( sizeType == eSizeType.MODE_ONE_SIXTH )
+		{
+			return 6;
+		}
+		return 0;
+		
+	}
 	// private ResourceAccessor res;
 	public enum eSizeType {
 		MODE_ONE,
@@ -66,7 +83,7 @@ public class DisplayBlock extends RelativeLayout {
 	static final int BLOCK_MARGIN_HORZ = 10;
 	int width = 0;
 	int height = 0;
-	double magnify = 1;
+	double magnifyHeight = 1;
 	double fontMagnify = 1;
 	int magnifyWidth = 1;
 	
@@ -121,7 +138,7 @@ public class DisplayBlock extends RelativeLayout {
 	{
 		TextView txtTitle = new TextView(this.getContext());
 		txtTitle.setTextColor(Color.argb(0xAA, 0, 255, 0));
-		txtTitle.setTextSize((int)(fontSize * magnify));
+		txtTitle.setTextSize((int)(fontSize * magnifyHeight));
 		RelativeLayout.LayoutParams lp
 		= new RelativeLayout.LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -142,29 +159,58 @@ public class DisplayBlock extends RelativeLayout {
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 		{	
 			addTitle(MIN_TITLE_FONT_SIZE_HORZ);
-			// 倍率の調整
-			if( sizeType == eSizeType.MODE_ONE_SIXTH )
+			int width = parentWidth - BLOCK_MARGIN * 2;
+			int height = 0;
+			if( dispInfo.isPortrait() )
 			{
-				// 倍率調整なし
+				// 倍率の調整
+				if( sizeType == eSizeType.MODE_ONE_SIXTH )
+				{
+					// 倍率調整なし
+				}
+				else if( sizeType == eSizeType.MODE_QUARTER )
+				{
+					magnifyHeight = 1.5;
+					fontMagnify = 1.5;
+				}
+				else if( sizeType == eSizeType.MODE_ONE )
+				{
+					magnifyHeight = 6;
+					fontMagnify = 3;
+					magnifyWidth = 2;
+				}
+				width =  (int) (parentWidth - BLOCK_MARGIN * 2);
+				height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
+						//* (magnify / 12 ) - BLOCK_MARGIN_HORZ * 2 );
+						* (magnifyHeight / 6 ) - BLOCK_MARGIN_HORZ * 2 );				
 			}
-			else if( sizeType == eSizeType.MODE_QUARTER )
+			else
 			{
-				magnify = 1.5;
-				fontMagnify = 1.5;
+				// 倍率の調整
+				if( sizeType == eSizeType.MODE_ONE_SIXTH )
+				{
+					// 倍率調整なし
+				}
+				else if( sizeType == eSizeType.MODE_QUARTER )
+				{
+					magnifyHeight = 1.5;
+					fontMagnify = 1.5;
+				}
+				else if( sizeType == eSizeType.MODE_ONE )
+				{
+					magnifyHeight = 1;
+					fontMagnify = 3;
+					magnifyWidth = 2;
+				}
+				width = (int) (parentWidth * ((double)magnifyWidth/2) - BLOCK_MARGIN * 2);
+				height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
+						//* (magnifyHeight / 12 ) - BLOCK_MARGIN_HORZ * 2 );
+						* (magnifyHeight / 3 ) - BLOCK_MARGIN_HORZ * 2 );
+				
 			}
-			else if( sizeType == eSizeType.MODE_ONE )
-			{
-				magnify = 3;
-				fontMagnify = 2.2;
-				magnifyWidth = 2;
-			}
-			
-			int height = (int)( ( (double)parentHeight - dispInfo.getStatusBarHeight() )
-					//* (magnify / 12 ) - BLOCK_MARGIN_HORZ * 2 );
-					* (magnify / 6 ) - BLOCK_MARGIN_HORZ * 2 );
-			
+
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
-					parentWidth - BLOCK_MARGIN * 2,
+					width,
 					height,
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN_HORZ, BLOCK_MARGIN, BLOCK_MARGIN_HORZ);			
@@ -172,7 +218,6 @@ public class DisplayBlock extends RelativeLayout {
 		else
 		{
 			addTitle(MIN_TITLE_FONT_SIZE);
-			
 			// 倍率の調整
 			if( sizeType == eSizeType.MODE_ONE_SIXTH )
 			{
@@ -180,13 +225,13 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			else if( sizeType == eSizeType.MODE_QUARTER )
 			{
-				magnify = 2;
+				magnifyHeight = 2;
 				fontMagnify = 1.5;				
 			}
 			else if( sizeType == eSizeType.MODE_ONE )
 			{
-				magnify = 3;
-				fontMagnify = 2.2;				
+				magnifyHeight = 3;
+				fontMagnify = 2.2;
 				magnifyWidth = 2;
 			}
 			// SHAPE_BLOCKとみなす
@@ -194,10 +239,10 @@ public class DisplayBlock extends RelativeLayout {
 			int width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
 					- BLOCK_MARGIN * 2 );
 			int height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
-					* (magnify / 3 ) - BLOCK_MARGIN * 2);
+					* (magnifyHeight / 3 ) - BLOCK_MARGIN * 2);
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
-					width, 
-					height, 
+					width,
+					height,
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN);
 		}
