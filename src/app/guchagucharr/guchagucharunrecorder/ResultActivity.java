@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 //import android.graphics.drawable.BitmapDrawable;
@@ -74,7 +75,11 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
         dispInfo.init(this, componentContainer, handler, false);
         super.onResume();
     }
-		
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+	    dispInfo.init(this, componentContainer, handler, true);	
+	}		
 	@Override
 	protected void onPause()
 	{

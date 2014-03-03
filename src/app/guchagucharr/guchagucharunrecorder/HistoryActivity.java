@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -24,7 +25,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
-import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eSizeType;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
@@ -36,7 +36,7 @@ import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
 	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
-	private ViewPager mViewPager;	
+	private ViewPager mViewPager;
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
 	private HistoryPagerAdapter adapter = null;
@@ -44,7 +44,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private RelativeLayout lastSubLayout = null;
 //	private Button gpxShareButton = null;
 //	private String gpxFilePath = null;
-	
 	RunHistoryLoader loader = new RunHistoryLoader();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +60,12 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         super.onResume();
     }
 	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+	    dispInfo.init(this, componentContainer, handler, true);	
+	}
+	
+	@Override
 	public int initPager()
 	{
         init();
@@ -76,10 +81,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //		speedTotal += speed;
 //		long time = cursor.getLong( lapTimeIndex );
 //		timeTotal += time;
-	
 	static final int MAIN_FIRST_PANEL_ID = 1500;
 	static final int SUB_FIRST_PANEL_ID = 100000;
-	
+
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
@@ -125,7 +129,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				//speedTotal += //lapData.getSpeed();
 			}	
 			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
-			
 			// DisplayBlock追加
 			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
 					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
@@ -465,7 +468,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				timeTotal += lapData.getTime();				
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
-			}	
+			}
 			double speedTotal = distanceTotal / ( timeTotal / 1000 );
 			String name = null;
 			String titleDateTime = null;
@@ -482,18 +485,16 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        + getString(R.string.time_label) + LapData.createTimeFormatText( timeTotal ) + System.getProperty("line.separator")
 	        + getString(R.string.speed_label) + LapData.createSpeedFormatTextKmPerH( speedTotal ) + System.getProperty("line.separator")
 	        ;
-	        	        
 	        intent.putExtra(Intent.EXTRA_TEXT, text);
 	        startActivity(Intent.createChooser(
 	                intent, getString(R.string.Share)));
-	    	
 	    	return true;
 	    case CONTEXT_MENU_DELETE_ID:
 	        // メニュー押下時の操作
 	    	// トランザクションの考慮
 			getContentResolver().insert(
-					Uri.parse("content://" 
-					+ RunHistoryTableContract.AUTHORITY + "/" 
+					Uri.parse("content://"
+					+ RunHistoryTableContract.AUTHORITY + "/"
 					+ RunHistoryTableContract.HISTORY_TRANSACTION )
 					,null);
 	        try {

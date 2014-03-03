@@ -163,6 +163,27 @@ public class LapData {
 		
 		return ret;
 	}
+	public static String createDistanceFormatText(double distance,double totalDistance)
+	{
+		String ret = null;
+		final double DISTANCE_KM = 1000;
+		// TODO: �ݒ�ɂ���āAm/s��km/hour��؂�ւ�
+		if( distance < DISTANCE_KM )
+		{
+			ret = String.format( "%.3f", distance ) 
+					+ "( / " + String.format( "%.3f", totalDistance )  + ")"
+					+ ResourceAccessor.getInstance().IND_M;
+		}
+		else
+		{
+			// NOTICE:微妙な繰り上げ方
+			ret = String.format( "%.3f", distance / DISTANCE_KM ) 
+					+ "( / " + String.format( "%.3f", totalDistance / DISTANCE_KM )  + ")"
+					+ ResourceAccessor.getInstance().IND_KM;
+		}
+		
+		return ret;
+	}
 	public static String createTimeFormatText(long time)
 	{
 		String ret = null;

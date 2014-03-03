@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,6 +61,7 @@ implements
 {
 	public static String TIMER_NOTIFY = "TimeNotif";
 	public static String CURRENT_DURATION = "CurDur";
+	public static String TOTAL_DURATION = "TtlDur";
 	public static String LOCATION_DATA = "LocData";
 	public static String LOCATION_CHANGE_NOTIFY = "LocChgNotif";
 
@@ -123,8 +125,10 @@ implements
 	// init invisible
 	// time label
 	static TextView txtTime = null;
+	static TextView txtTimeOfLap = null;
 	// distance
 	static TextView txtDistance = null;
+	static TextView txtDistanceOfLap = null;
 	// speed
 	static TextView txtSpeed = null;
 	// speed2
@@ -167,7 +171,7 @@ implements
         //mToken = RunLogger.bindToService(this, this);
 	    
 //        if( 0 == RunLogger.getServiceConnectionCount() 
-//        || RunLogger.sService == null )
+//        || RunLogger.sService == null ) 
 //        {
 //        }
 	}	
@@ -193,6 +197,12 @@ implements
          
         super.onResume();
     }
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+	    dispInfo.init(this, componentContainer, handler, true);	
+	}
 	
 	//@Override
 	@Override
@@ -317,13 +327,30 @@ implements
 			if( false == RunLoggerService.isEmptyLogStocker() 
 					&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 			{
-				txtDistance.setText( LapData.createDistanceFormatText( 
-						RunLoggerService.getLogStocker().getCurrentLapData().getDistance() ) );
+				if( false == RunLoggerService.isEmptyLogStocker()
+				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				{
+					txtDistance.setText( LapData.createDistanceFormatText( 
+							RunLoggerService.getLogStocker().getCurrentLapData().getDistance()
+						)
+					);
+					txtDistanceOfLap.setText(LapData.createDistanceFormatText( 
+						RunLoggerService.getLogStocker().getTotalDistance()
+						)
+					);
+				}
+				else
+				{
+					txtDistance.setText( LapData.createDistanceFormatText( 
+						RunLoggerService.getLogStocker().getCurrentLapData().getDistance() )
+					);	
+				}
 				txtSpeed.setText( LapData.createSpeedFormatText( speed ) );//location.getSpeed() ) );
 				//runLogStocker.getCurrentLapData().getSpeed() ) );
 				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( speed ) );//location.getSpeed() ) );
 				//runLogStocker.getCu rrentLapData().getSpeed() ) );
-				txtLocationCount.setText( String.valueOf(RunLoggerService.getLogStocker().getLocationDataCount() ) );//getLocationData().size() ) );
+				txtLocationCount.setText( String.valueOf(RunLoggerService.getLogStocker().getLocationDataCount() ) );
+				//getLocationData().size() ) );
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -388,6 +415,8 @@ implements
 	static final int CENTER_BUTTON_ID = 1000;
 	static final int GPS_BUTTON_ID = 1001;
 	static final int GPS_INDICATOR_ID = 1002;
+	static final int TIME_TEXT_ID = 1003;
+	static final int DISTANCE_LAP_TEXT_ID = 1009;
 	static final int DISTANCE_TEXT_ID = 1010;
 	static final int SPEED_TEXT_ID = 1011;
 	static final int LAP_BUTTON_ID = 1012;
@@ -452,8 +481,10 @@ implements
 	public int initControls()
 	{
 		// TODO:サービスにつながれていないときに、ここに来てはいけない
+		Log.v("initControls","come");
 		if( RunLogger.sService == null )
 		{
+			Log.w("sService","null");
 			return -1;
 		}
 		try {
@@ -655,6 +686,7 @@ implements
 		RelativeLayout.LayoutParams rlTxtTime
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		txtTime.setId(TIME_TEXT_ID);
         if( true == dispInfo.isPortrait() )
         {
         	// 縦向き
@@ -676,7 +708,67 @@ implements
 		//txtTime.setText("99:99:99.999");
 		txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);
 		addViewToCompContainer(txtTime);
+		
+		// timeOfLap label
+		if( txtTimeOfLap == null )
+			txtTimeOfLap = new TextView(this);
+		RelativeLayout.LayoutParams rlTxtTimeOfLap
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+        	rlTxtTimeOfLap.addRule(RelativeLayout.ABOVE, TIME_TEXT_ID);
+        	rlTxtTimeOfLap.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
+        	rlTxtTimeOfLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+        	rlTxtTimeOfLap.addRule(RelativeLayout.ABOVE, TIME_TEXT_ID);
+        	rlTxtTimeOfLap.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);			
+        	rlTxtTimeOfLap.rightMargin = CENTER_LEFT_CTRL_MARGIN;
+			//rlTxtTime.addRule(RelativeLayout.CENTER_VERTICAL);        	
+        }
+		txtTimeOfLap.setLayoutParams(rlTxtTimeOfLap);
+		txtTimeOfLap.setBackgroundColor(
+				ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+		txtTimeOfLap.setTextColor(
+				ResourceAccessor.getInstance().getColor(R.color.text_color_important));
+		txtTimeOfLap.setSingleLine();
+		//txtTime.setText("99:99:99.999");
+		txtTimeOfLap.setTextSize(TIME_TEXTVIEW_FONT_SIZE);
+		addViewToCompContainer(txtTimeOfLap);
 
+		// distanceOfLap
+		if( txtDistanceOfLap == null )
+			txtDistanceOfLap = new TextView(this);
+		txtDistanceOfLap.setId(DISTANCE_LAP_TEXT_ID);
+		RelativeLayout.LayoutParams rlTxtDistanceOfLap
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+        	rlTxtDistanceOfLap.topMargin = CENTER_BELOW_CTRL_MARGIN;
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+    		rlTxtDistanceOfLap.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+    		rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_VERTICAL);
+        }
+        txtDistanceOfLap.setLayoutParams(rlTxtDistanceOfLap);
+        txtDistanceOfLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+		//txtDistanceOfLap.setText("42.5353 km");
+        txtDistanceOfLap.setSingleLine();
+        txtDistanceOfLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+        txtDistanceOfLap.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
+		addViewToCompContainer(txtDistanceOfLap);
+		
 		// distance
 		if( txtDistance == null )
 			txtDistance = new TextView(this);
@@ -690,7 +782,7 @@ implements
         if( true == dispInfo.isPortrait() )
         {
         	// 縦向き
-    		rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+    		rlTxtDistance.addRule(RelativeLayout.BELOW, DISTANCE_LAP_TEXT_ID);
     		rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
     		rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
         }
@@ -699,9 +791,9 @@ implements
         	// 横向き
     		rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
     		rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+        	rlTxtDistance.addRule(RelativeLayout.BELOW, DISTANCE_LAP_TEXT_ID);        	
+    		//rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
         }
-
 		txtDistance.setLayoutParams(rlTxtDistance);
 		txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 		//txtDistance.setText("42.5353 km");
@@ -709,6 +801,7 @@ implements
 		txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
 		addViewToCompContainer(txtDistance);
+		
 
 		// speed
 		if( txtSpeed == null )		
@@ -852,7 +945,9 @@ implements
 			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 			{
 				txtTime.setVisibility(View.GONE);
+				txtTimeOfLap.setVisibility(View.GONE);
 				txtDistance.setVisibility(View.GONE);
+				txtDistanceOfLap.setVisibility(View.GONE);
 				txtSpeed.setVisibility(View.GONE);
 				txtSpeed2.setVisibility(View.GONE);
 				btnLap.setVisibility(View.GONE);
@@ -874,6 +969,14 @@ implements
 				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 				{
 					txtLap.setVisibility(View.VISIBLE);
+					txtTimeOfLap.setVisibility(View.VISIBLE);
+					txtDistanceOfLap.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					txtLap.setVisibility(View.GONE);
+					txtTimeOfLap.setVisibility(View.GONE);
+					txtDistanceOfLap.setVisibility(View.GONE);					
 				}
 				if( false == RunLoggerService.isEmptyLogStocker() 
 				&& 0 < RunLoggerService.getLogStocker().getLocationDataCount() )//getLocationData().isEmpty() == false )
@@ -956,11 +1059,16 @@ implements
 					e.printStackTrace();
 				}
 				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
-				txtTime.setText( LapData.createTimeFormatText( 0 ) );
+				//txtTime.setText( LapData.createTimeFormatText( 0 ) );
 				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
 				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
 				
 				//new Date().getTime());
+				txtTimeOfLap.setVisibility(View.VISIBLE);
+				txtTimeOfLap.setText( LapData.createTimeFormatText( 0 ) );
+				txtDistanceOfLap.setVisibility(View.VISIBLE);
+				txtDistanceOfLap.setText( LapData.createDistanceFormatText( 0 ) );
+
 				txtLap.setVisibility(View.VISIBLE);
 				txtLap.setText(getString(R.string.LAP_LABEL) 
 						+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
@@ -1014,6 +1122,8 @@ implements
 						if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 						{
 							txtLap.setVisibility(View.VISIBLE);
+							txtTimeOfLap.setVisibility(View.VISIBLE);
+							txtDistanceOfLap.setVisibility(View.VISIBLE);
 						}
 						txtLocationCount.setVisibility(View.VISIBLE);
 						RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
@@ -1180,8 +1290,13 @@ implements
 			}
 			else if( MainActivity.TIMER_NOTIFY.equals( intent.getAction() ) )
 			{
-				// NOTICE: BroadcastReceiverでUI処理ができるのかは未確認
-				txtTime.setText( intent.getStringExtra(CURRENT_DURATION) );
+				// BroadcastReceiverから
+				txtTime.setText( intent.getStringExtra(TOTAL_DURATION) );
+				if( false == RunLoggerService.isEmptyLogStocker()
+				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				{				
+					txtTimeOfLap.setText( intent.getStringExtra(CURRENT_DURATION) );
+				}
 			}
 		}
 	}
@@ -1211,6 +1326,7 @@ implements
 			// TODO:サーフィスビューのクリア方法
 			cameraView.setVisibility( View.GONE );
 			removeViewFromCompContainer( cameraView );
+			btnCamera.setEnabled(true);
 			bCameraMode = false;
 			cameraView = null;
 		}

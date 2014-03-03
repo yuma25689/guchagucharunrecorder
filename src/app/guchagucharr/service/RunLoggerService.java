@@ -62,6 +62,12 @@ implements LocationListener
 						{
 							long lapTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
+							long totalTime = lapTime;
+							if( RunLoggerService.getLogStocker().getLapData(0) != null)
+							{
+								totalTime = getTimeInMillis()//new Date().getTime() 
+									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
+							}
 							
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
 							requestGPS();
@@ -70,6 +76,7 @@ implements LocationListener
 					        // Send intent to activity
 					        Intent activityNotifyIntent = new Intent();
 					        activityNotifyIntent.putExtra( MainActivity.CURRENT_DURATION, LapData.createTimeFormatText( lapTime ));
+					        activityNotifyIntent.putExtra( MainActivity.TOTAL_DURATION, LapData.createTimeFormatText( totalTime ));
 					        activityNotifyIntent.setAction(
 					        		MainActivity.TIMER_NOTIFY);
 					        getBaseContext().sendBroadcast(activityNotifyIntent);

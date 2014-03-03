@@ -2,6 +2,7 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -86,6 +87,7 @@ public class DisplayBlock extends RelativeLayout {
 	double magnifyHeight = 1;
 	double fontMagnify = 1;
 	int magnifyWidth = 1;
+	Paint paintForMeasureText = null;
 	
 //	Long time = null;
 //	Double distance = null;
@@ -129,6 +131,12 @@ public class DisplayBlock extends RelativeLayout {
 		sizeType = sizeType_;
 		shapeType = shapeType_;
 		init();
+	}
+	
+	float getMeasureTextWidth( float textSize, String text )
+	{
+		paintForMeasureText.setTextSize(textSize);
+		return paintForMeasureText.measureText(text);
 	}
 	
 	/**
@@ -246,6 +254,9 @@ public class DisplayBlock extends RelativeLayout {
 					false );
 			lpThis.setMargins(BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN, BLOCK_MARGIN);
 		}
+		paintForMeasureText = new Paint();
+		//paint.setTextSize(20);
+
 		setLayoutParams(lpThis);
 		// setOrientation(LinearLayout.VERTICAL);
 		setClickable(true);

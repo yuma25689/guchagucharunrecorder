@@ -50,8 +50,10 @@ public class RunningLogStocker {
 		double ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(iLap).getDistance();
+			ret += lapData.get(i).getDistance();
 		}
+		
+		ret += getCurrentLapData().getDistance();
 		return ret;
 	}
 	public long getTotalTime()

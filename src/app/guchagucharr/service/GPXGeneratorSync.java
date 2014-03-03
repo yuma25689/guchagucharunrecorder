@@ -169,16 +169,16 @@ public class GPXGeneratorSync {
     {
 		_exporter = new Exporter(bos);    	
     }
-    public void openGPXStream()
-    {
-        try {
-			_exporter.endExport();
-			_exporter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			Log.e("addLocationToCurrentGPXFile",e.getMessage());
-		}
-    }
+//    public void openGPXStream()
+//    {
+//        try {
+//			_exporter.endExport();
+//			_exporter.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			Log.e("addLocationToCurrentGPXFile",e.getMessage());
+//		}
+//    }
     public void endCreateGPXFile()
     {
         try {
@@ -245,14 +245,14 @@ public class GPXGeneratorSync {
 		 */
 		private void exportLoc( Location loc ) throws IOException
 		{
-			// NOTICE: 縺薙�繧｢繝励Μ縺ｧ縺ｯ縲∵悴菴ｿ逕ｨ縺ｮ鬆�岼Bearing繧鱈ap縺ｫ菴ｿ縺｣縺ｦ縺�ｋ
+			// NOTICE:
 			int iLapOfLocation = (int)loc.getBearing();
 			if( iCurrentOutputLap != iLapOfLocation )
 			{
-				if( iCurrentOutputLap != -1 )
-				{
-					_exporter.endLap();
-				}
+//				if( iCurrentOutputLap != -1 )
+//				{
+//					_exporter.endLap();
+//				}
 				_exporter.startLap(iLapOfLocation);
 				iCurrentOutputLap = iLapOfLocation;
 			}
