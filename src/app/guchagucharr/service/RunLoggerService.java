@@ -226,8 +226,8 @@ implements LocationListener
                 MIN_METER,
                 this);
             // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
-            if( lastGetLocationTime == 0 
-            || MIN_TIME*8 < getTimeInMillis() - lastGetLocationTime )
+            if( lastGetLocationTime != 0 
+            || MIN_TIME*10 < getTimeInMillis() - lastGetLocationTime )
             {
             	// A-GPS情報の削除
             	// Bundleである項目だけを指定できるが、nullで全て削除

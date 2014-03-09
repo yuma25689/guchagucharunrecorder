@@ -205,10 +205,11 @@ implements
 			}
 			if( mTimer == null )
 			{
-		        timerTask = new GpsRequestTask();			
+		        timerTask = new GpsRequestTask();
 		        mTimer = new Timer(true);
 		        mTimer.scheduleAtFixedRate( timerTask, 10000, 10000);
 			}
+			RunLogger.sService.clearGPS();
 			RunLogger.sService.requestGPS();
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -219,18 +220,29 @@ implements
 	@Override
 	protected void onPause()
 	{		
+	    if(mTimer != null){
+	    	
+	        mTimer.cancel();
+	        mTimer = null;
+	        timerTask = null;
+	    }		
+		
 //        if (mLocationManager != null) {
 //            mLocationManager.removeUpdates(this);
 //        }
 		if(mToken != null)
 		{
 			try {
+				if( RunLogger.sService != null )
+				{
+					clearGPS();
+				}
 				if( RunLogger.sService != null
 				&& RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 				{
 					RunLogger.sService.stopLog();
 					// ログ取得中でない場合は、完全に停止させる
-					RunLogger.sService.clearGPS();
+					// RunLogger.sService.clearGPS();
 					RunLogger.sService.clearLocationManager();					
 					// サービスの登録解除
 				    RunLogger.unbindFromService(mToken);
@@ -255,11 +267,6 @@ implements
         	this.unregisterReceiver(receiver);
         	receiver = null;
         }
-	    if(mTimer != null){
-	        mTimer.cancel();
-	        mTimer = null;
-	        timerTask = null;
-	    }		
 		
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
