@@ -2,6 +2,8 @@ package app.guchagucharr.guchagucharunrecorder;
 
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -77,35 +79,22 @@ implements
 	private MainHandler handler;
 	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
-//	private static UpdateTimeDisplayTask timerTask = null;
-//	class UpdateTimeDisplayTask extends TimerTask
-//	{
-//	     @Override
-//	     public void run() {
-//	         // mHandler through UI Thread to queueing
-//	    	 handler.post( new Runnable() {
-//	             @Override
-//				public void run() {	 
-//	                 // update now Time
-//	         		try {
-//						if( RunLoggerService.getLogStocker() != null 
-//								&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
-//						{
-//							long lapTime = new Date().getTime() 
-//									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
-//							txtTime.setText( LapData.createTimeFormatText( lapTime ) );
-//							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする
-//							// requestGPS();
-//							//RunLogger.sService.requestGPS();
-//						}
-//					} catch (RemoteException e) {
-//						e.printStackTrace();
-//						Log.e("UpdateTimeDisplayTask",e.getMessage());						
-//					}	            	 
-//	             }
-//	         });
-//	     }
-//	 }	
+	private Timer mTimer = null;	
+	private GpsRequestTask timerTask = null;
+	class GpsRequestTask extends TimerTask
+	{
+	     @Override
+	     public void run() {
+	    	 Log.v("GpsRequestTask","come");
+	    	 handler.post( new Runnable() {
+	             @Override
+	             public void run() { 
+			         clearGPS();
+			    	 requestGPS();
+	             }
+	    	 });
+	     }
+	 }	
 	
 	// contorls
 	// center button
@@ -214,6 +203,12 @@ implements
 			{
 				return;
 			}
+			if( mTimer == null )
+			{
+		        timerTask = new GpsRequestTask();			
+		        mTimer = new Timer(true);
+		        mTimer.scheduleAtFixedRate( timerTask, 10000, 10000);
+			}
 			RunLogger.sService.requestGPS();
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -260,6 +255,11 @@ implements
         	this.unregisterReceiver(receiver);
         	receiver = null;
         }
+	    if(mTimer != null){
+	        mTimer.cancel();
+	        mTimer = null;
+	        timerTask = null;
+	    }		
 		
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
@@ -323,8 +323,10 @@ implements
 	
 	public void updateLogDisplay(double speed)
 	{
+		Log.v("onLocationChanged - MainActivity", "come");
 		try {
 			if( false == RunLoggerService.isEmptyLogStocker() 
+					&& RunLogger.sService != null
 					&& RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 			{
 				if( false == RunLoggerService.isEmptyLogStocker()
@@ -336,6 +338,7 @@ implements
 					);
 					txtDistanceOfLap.setText(LapData.createDistanceFormatText( 
 						RunLoggerService.getLogStocker().getTotalDistance()
+						+ RunLoggerService.getLogStocker().getCurrentLapData().getDistance()
 						)
 					);
 				}
@@ -385,6 +388,11 @@ implements
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_soso);
 		}
+	    if(mTimer != null){
+	        mTimer.cancel();
+	        mTimer = null;
+	        timerTask = null;
+	    }		
 	}
 
 	// TODO: サービス側から呼ぶ必要があるかどうか確認

@@ -53,7 +53,7 @@ public class RunningLogStocker {
 			ret += lapData.get(i).getDistance();
 		}
 		
-		ret += getCurrentLapData().getDistance();
+		//ret += getCurrentLapData().getDistance();
 		return ret;
 	}
 	public long getTotalTime()
@@ -292,6 +292,7 @@ public class RunningLogStocker {
 		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
 		currentLapData.setGpxFilePath(strGpxFile);
 		lapData.put(iLap, currentLapData);
+		//currentLapData.clear();
 	}
 	
 	public ContentValues createContentValues(Activity activity, int tableID, 

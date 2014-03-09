@@ -41,6 +41,7 @@ import java.util.TimerTask;
 public class RunLoggerService extends Service 
 implements LocationListener
 {
+	private long lastGetLocationTime = 0;
 	private Handler handler;	
 	private Timer mTimer = null;	
 	private UpdateTimeDisplayTask timerTask = null;
@@ -69,6 +70,7 @@ implements LocationListener
 									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
 							}
 							
+							clearGPS();
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
 							requestGPS();
 							//RunLogger.sService.requestGPS();
@@ -204,7 +206,7 @@ implements LocationListener
     {
 //    	Looper looper = Looper.getMainLooper();
 //    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, listener, looper);
-		final long MIN_TIME = 700;
+		final long MIN_TIME = 900;
 		final float MIN_METER = 1f;
 		String providers = Settings.Secure.getString(
 				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
@@ -216,13 +218,27 @@ implements LocationListener
 		}
 		
         if (mLocationManager != null ) {
-        	//clearGPS();
+        	// clearGPS();
             mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
 //                LocationManager.NETWORK_PROVIDER,
                 MIN_TIME,
                 MIN_METER,
                 this);
+            // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
+            if( lastGetLocationTime == 0 
+            || MIN_TIME*8 < getTimeInMillis() - lastGetLocationTime )
+            {
+            	// A-GPS情報の削除
+            	// Bundleである項目だけを指定できるが、nullで全て削除
+            	mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
+            	// これでA-GPS情報のダウンロードを促すらしい
+            	mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+            	// NTPサーバから、現在時刻を更新してもらうのを促す？
+            	mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
+            	lastGetLocationTime = getTimeInMillis();
+            	Log.v("a-gps reset","a-gps reset occur" );
+            }
         }
     	
     	return 0;
@@ -408,6 +424,8 @@ implements LocationListener
         activityNotifyIntent.setAction(
         		MainActivity.LOCATION_CHANGE_NOTIFY);
         getBaseContext().sendBroadcast(activityNotifyIntent);
+        
+        lastGetLocationTime = location.getTime();
         
 	}
 
