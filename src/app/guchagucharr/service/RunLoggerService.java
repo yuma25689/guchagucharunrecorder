@@ -226,17 +226,19 @@ implements LocationListener
                 MIN_METER,
                 this);
             // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
-            if( lastGetLocationTime != 0 
-            || MIN_TIME*10 < getTimeInMillis() - lastGetLocationTime )
+            if( lastGetLocationTime == 0 
+            || MIN_TIME*1000 < getTimeInMillis() - lastGetLocationTime )
             {
             	// A-GPS情報の削除
             	// Bundleである項目だけを指定できるが、nullで全て削除
-            	mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
+            	// ->どうも、やるとやばそう
+            	//mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
             	// これでA-GPS情報のダウンロードを促すらしい
-            	mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+            	//Bundle bundle = new Bundle();
+            	//mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
             	// NTPサーバから、現在時刻を更新してもらうのを促す？
-            	mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
-            	lastGetLocationTime = getTimeInMillis();
+            	//mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
+            	//lastGetLocationTime = getTimeInMillis();
             	Log.v("a-gps reset","a-gps reset occur" );
             }
         }

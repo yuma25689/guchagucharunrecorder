@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunLoggerService;
@@ -371,7 +372,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				long time = 0;
 				distance = lapData.getDistance();
 				time = lapData.getTotalTime();				
-				speed = distance / ( time / 1000 ); 
+				speed = distance / ( time * UnitConversions.MS_TO_S ); 
 				
 				// DisplayBlock追加
 				String title = getString(R.string.LAP_LABEL) + ( i + 1 );

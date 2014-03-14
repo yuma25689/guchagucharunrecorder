@@ -25,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
@@ -128,7 +129,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
 			}	
-			speedTotal = distanceTotal / ( timeTotal / 1000 ); 
+			speedTotal = distanceTotal / ( timeTotal * UnitConversions.MS_TO_S ); 
 			// DisplayBlock追加
 			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
 					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
@@ -294,7 +295,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			long time = 0;
 			distance = data.getDistance();
 			time = data.getTime();				
-			speed = distance / ( time / 1000 ); 
+			speed = distance / ( time * UnitConversions.MS_TO_S ); 
 			String gpxFilePath = data.getGpxFilePath();
 			//boolean bGPXExists = false;			
 //			if( gpxFilePath != null )
@@ -469,7 +470,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
 			}
-			double speedTotal = distanceTotal / ( timeTotal / 1000 );
+			double speedTotal = distanceTotal / ( timeTotal * UnitConversions.MS_TO_S );
 			String name = null;
 			String titleDateTime = null;
         	if( null != loader.getHistoryData(item.getItemId()) )
