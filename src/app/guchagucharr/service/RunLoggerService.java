@@ -21,15 +21,16 @@ package app.guchagucharr.service;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
+//import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.provider.Settings;
+//import android.provider.Settings;
 import android.util.Log;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
+import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
@@ -38,9 +39,56 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.google.android.gms.location.LocationListener;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationRequest;
+
+/**
+ * 2014/03/14 サービス起動の段階で、リクエスト開始
+ * @author 25689
+ *
+ */
 public class RunLoggerService extends Service 
 implements LocationListener
 {
+	// 2014/03/14 MyTracksで利用しているLocationClientの利用
+	private final LocationClient locationClient;
+	private float requestLocationUpdatesDistance;
+	private long requestLocationUpdatesTime;
+	private final ConnectionCallbacks connectionCallbacks = 
+		new ConnectionCallbacks() {
+	    @Override
+	    public void onDisconnected() {}
+
+	    @Override
+	    public void onConnected(Bundle bunlde) {
+	      handler.post(new Runnable() {
+	        @Override
+	        public void run() {
+	          if ( locationClient.isConnected()) {
+	            LocationRequest locationRequest = new LocationRequest().setPriority(
+	                LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(requestLocationUpdatesTime)
+	                .setFastestInterval(requestLocationUpdatesTime)
+	                .setSmallestDisplacement(requestLocationUpdatesDistance);
+	            locationClient.requestLocationUpdates(
+	                locationRequest, RunLoggerService.this, 
+	                handler.getLooper());
+	          }
+	        }
+	      });
+	    }
+	  };
+	  private final OnConnectionFailedListener
+      onConnectionFailedListener = new OnConnectionFailedListener() {
+          @Override
+        public void onConnectionFailed(ConnectionResult connectionResult) {}
+      };
+
+	  
 	private long lastGetLocationTime = 0;
 	private Handler handler;	
 	private Timer mTimer = null;	
@@ -70,9 +118,9 @@ implements LocationListener
 									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
 							}
 							
-							clearGPS();
+							//clearGPS();
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
-							requestGPS();
+							//requestGPS();
 							//RunLogger.sService.requestGPS();
 		
 					        // Send intent to activity
@@ -100,7 +148,7 @@ implements LocationListener
 	}
 	
 	// public static ResourceAccessor resourceAccessor;
-	private LocationManager mLocationManager;	
+	//private LocationManager mLocationManager;	
 	//private RunningLogStocker runLogStocker = null;	
     //private WakeLock mWakeLock;
     //private int mServiceStartId = -1;
@@ -147,9 +195,16 @@ implements LocationListener
 		runLogStocker = null;
 	}
 	
-    public RunLoggerService()
+    public RunLoggerService()//boolean enableLocationClient)
     {
-        handler = new Handler();    	
+        handler = new Handler(); 
+		//if (enableLocationClient) {
+		    locationClient = new LocationClient(ResourceAccessor.getInstance().getActivity(), connectionCallbacks, onConnectionFailedListener);
+		    locationClient.connect();
+//		} else {
+//			locationClient = null;
+//		}
+        
     }
 
     /**
@@ -166,7 +221,7 @@ implements LocationListener
 //        PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
 //        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
 //        mWakeLock.setReferenceCounted(false);
-        createLocationManager();
+        // createLocationManager();
     }
 
     @Override
@@ -204,45 +259,53 @@ implements LocationListener
      */
     public int requestGPS()
     {
-//    	Looper looper = Looper.getMainLooper();
-//    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, listener, looper);
-		final long MIN_TIME = 900;
-		final float MIN_METER = 1f;
-		String providers = Settings.Secure.getString(
-				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if( providers.indexOf("gps", 0) < 0 )
+////    	Looper looper = Looper.getMainLooper();
+////    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, listener, looper);
+//		final long MIN_TIME = 900;
+//		final float MIN_METER = 1f;
+//		String providers = Settings.Secure.getString(
+//				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//		if( providers.indexOf("gps", 0) < 0 )
+//		{
+//			// GPSが許可されていないと思われる
+//			Log.v("initGPS", "GPS not allowed.");
+//			return 1;
+//		}
+//		
+//        if (mLocationManager != null ) {
+//        	// clearGPS();
+//            mLocationManager.requestLocationUpdates(
+//                LocationManager.GPS_PROVIDER,
+////                LocationManager.NETWORK_PROVIDER,
+//                MIN_TIME,
+//                MIN_METER,
+//                this);
+//            // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
+//            if( lastGetLocationTime == 0 
+//            || MIN_TIME*1000 < getTimeInMillis() - lastGetLocationTime )
+//            {
+//            	// A-GPS情報の削除
+//            	// Bundleである項目だけを指定できるが、nullで全て削除
+//            	// ->どうも、やるとやばそう
+//            	//mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
+//            	// これでA-GPS情報のダウンロードを促すらしい
+//            	//Bundle bundle = new Bundle();
+//            	//mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+//            	// NTPサーバから、現在時刻を更新してもらうのを促す？
+//            	//mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
+//            	//lastGetLocationTime = getTimeInMillis();
+//            	Log.v("a-gps reset","a-gps reset occur" );
+//            }
+//        }
+//
+		if( locationClient != null )
 		{
-			// GPSが許可されていないと思われる
-			Log.v("initGPS", "GPS not allowed.");
-			return 1;
+			if( false == locationClient.isConnected() )
+			{
+				locationClient.connect();
+			}
 		}
-		
-        if (mLocationManager != null ) {
-        	// clearGPS();
-            mLocationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-//                LocationManager.NETWORK_PROVIDER,
-                MIN_TIME,
-                MIN_METER,
-                this);
-            // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
-            if( lastGetLocationTime == 0 
-            || MIN_TIME*1000 < getTimeInMillis() - lastGetLocationTime )
-            {
-            	// A-GPS情報の削除
-            	// Bundleである項目だけを指定できるが、nullで全て削除
-            	// ->どうも、やるとやばそう
-            	//mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
-            	// これでA-GPS情報のダウンロードを促すらしい
-            	//Bundle bundle = new Bundle();
-            	//mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
-            	// NTPサーバから、現在時刻を更新してもらうのを促す？
-            	//mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
-            	//lastGetLocationTime = getTimeInMillis();
-            	Log.v("a-gps reset","a-gps reset occur" );
-            }
-        }
-    	
+
     	return 0;
     }
     
@@ -337,12 +400,12 @@ implements LocationListener
 
 		@Override
 		public void createLocationManager() throws RemoteException {
-			mService.get().createLocationManager();
+			//mService.get().createLocationManager();
 		}
 
 		@Override
 		public void clearLocationManager() throws RemoteException {
-			mService.get().clearLocationManager();
+			// mService.get().clearLocationManager();
 			
 		}
 
@@ -368,19 +431,23 @@ implements LocationListener
     
 	private final IBinder mBinder = new ServiceStub(this);
 
-	void createLocationManager()
-	{
-		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-	}
-	void clearLocationManager()
-	{
-		mLocationManager = null;
-	}
+//	void createLocationManager()
+//	{
+//		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//	}
+//	void clearLocationManager()
+//	{
+//		mLocationManager = null;
+//	}
 	void clearGPS()
 	{
-		if (mLocationManager != null) {
-	        mLocationManager.removeUpdates(this);
+	    if (locationClient != null) {
+	    	locationClient.disconnect();
 	    }
+		
+//		if (mLocationManager != null) {
+//	        mLocationManager.removeUpdates(this);
+//	    }
 	}
 	void startLog()
 	{
@@ -388,6 +455,8 @@ implements LocationListener
         timerTask = new UpdateTimeDisplayTask();
         mTimer = new Timer(true);
         mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
+        //clearGPS();
+        requestGPS();
 	    //}		
 	}
 	void stopLog()
@@ -403,7 +472,7 @@ implements LocationListener
 		Log.v("GPS","onLocationChanged");
 		// NOTICE: 受診毎に切断
 		// TODO:つなぐタイミング制御
-		clearGPS();
+		// clearGPS();
 		if( false == isEmptyLogStocker() 
 				&& mode == eMode.MODE_MEASURING )
 		{
@@ -431,21 +500,59 @@ implements LocationListener
         
 	}
 
-	@Override
-	public void onProviderDisabled(String provider) {
-		Log.v("gps","onProviderDisabled");
-		// NOTICE: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
-		// たぶん、必要ない？		
-	}
+//	@Override
+//	public void onProviderDisabled(String provider) {
+//		Log.v("gps","onProviderDisabled");
+//		// NOTICE: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
+//		// たぶん、必要ない？		
+//	}
 
-	@Override
-	public void onProviderEnabled(String provider) {
-		Log.v("gps","onProviderEnabled");
-	}
+	  /**
+	   * Requests location updates. This is an ongoing request, thus the caller
+	   * needs to check the status of {@link #isAllowed}.
+	   * 
+	   * @param minTime the minimal time
+	   * @param minDistance the minimal distance
+	   * @param locationListener the location listener
+	   */
+	  public void requestLocationUpdates(
+	      final long minTime, final float minDistance, final LocationListener locationListener) {
+	    handler.post(new Runnable() {
+	        @Override
+	      public void run() {
+	        requestLocationUpdatesTime = minTime;
+	        requestLocationUpdatesDistance = minDistance;
+	        // requestLocationUpdates = locationListener;
+	        connectionCallbacks.onConnected(null);
+	      }
+	    });
+	  }
 
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// どうやら、宛てにならないようなので、廃止する		
-		Log.v("gps","onStatusChanged");
-	}
+	  /**
+	   * Removes location updates.
+	   * 
+	   * @param locationListener the location listener
+	   */
+	  public void removeLocationUpdates(final LocationListener locationListener) {
+	    handler.post(new Runnable() {
+	        @Override
+	      public void run() {
+	        // requestLocationUpdates = null;
+	        if (locationClient != null && locationClient.isConnected()) {
+	          locationClient.removeLocationUpdates(locationListener);
+	        }
+	      }
+	    });
+	  }
+	
+//	@Override
+//	public void onProviderEnabled(String provider) {
+//		Log.v("gps","onProviderEnabled");
+//	}
+//
+//	@Override
+//	public void onStatusChanged(String provider, int status, Bundle extras) {
+//		// どうやら、宛てにならないようなので、廃止する		
+//		Log.v("gps","onStatusChanged");
+//	}
 }

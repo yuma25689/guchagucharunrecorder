@@ -73,10 +73,10 @@ public class RunLogger {
         	}
         }
         ContextWrapper cw = new ContextWrapper(realActivity);
-        serviceName = cw.startService(new Intent(cw, RunLoggerService.class));
+        serviceName = cw.startService(new Intent(cw, app.guchagucharr.service.RunLoggerService.class));
         Log.v("componentName"," " + serviceName);
         ServiceBinder sb = new ServiceBinder(callback);
-        if (cw.bindService((new Intent()).setClass(cw, RunLoggerService.class), sb, 0 )) { 
+        if (cw.bindService((new Intent()).setClass(cw, app.guchagucharr.service.RunLoggerService.class), sb, 0 )) { 
         		//Context.BIND_AUTO_CREATE)) {
             Log.v("bindService","come");        
             sConnectionMap.put(cw, sb);

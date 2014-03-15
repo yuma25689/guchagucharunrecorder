@@ -3,7 +3,8 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import java.io.File;
 import java.util.Timer;
-import java.util.TimerTask;
+//import java.util.TimerTask;
+
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -12,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+//import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
@@ -49,6 +51,10 @@ import app.guchagucharr.service.RunLoggerService;
 import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.RunLoggerService.eMode;
 
+//import com.google.android.gms.location.LocationClient;
+//import com.google.android.gms.location.LocationListener;
+//import com.google.android.gms.location.LocationRequest;
+
 /**
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
  * @author 25689
@@ -80,21 +86,21 @@ implements
 	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	private Timer mTimer = null;	
-	private GpsRequestTask timerTask = null;
-	class GpsRequestTask extends TimerTask
-	{
-	     @Override
-	     public void run() {
-	    	 Log.v("GpsRequestTask","come");
-	    	 handler.post( new Runnable() {
-	             @Override
-	             public void run() { 
-			         clearGPS();
-			    	 requestGPS();
-	             }
-	    	 });
-	     }
-	 }	
+	//private GpsRequestTask timerTask = null;
+//	class GpsRequestTask extends TimerTask
+//	{
+//	     @Override
+//	     public void run() {
+//	    	 Log.v("GpsRequestTask","come");
+//	    	 handler.post( new Runnable() {
+//	             @Override
+//	             public void run() { 
+//			         clearGPS();
+//			    	 requestGPS();
+//	             }
+//	    	 });
+//	     }
+//	 }	
 	
 	// contorls
 	// center button
@@ -183,14 +189,19 @@ implements
 		regionCenterBtn = null;
 		regionLapBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
-         
+
         super.onResume();
     }
+	
+	// TODO onResumeよりもっと下位のイベントがあれば、それを設定して、
+	// isArrowGPSSetting == true であれば requestGPSをコール
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 	    dispInfo.init(this, componentContainer, handler, true);	
+
+	    requestGPS();
 	}
 	
 	//@Override
@@ -199,16 +210,17 @@ implements
 	{
 		// 2014/02/17 move to service
 		try {
-			if(RunLogger.sService == null )
+			if(RunLogger.sService == null 
+			|| isArrowGPSSetting() == false )
 			{
 				return;
 			}
-			if( mTimer == null )
-			{
-		        timerTask = new GpsRequestTask();
-		        mTimer = new Timer(true);
-		        mTimer.scheduleAtFixedRate( timerTask, 10000, 10000);
-			}
+//			if( mTimer == null )
+//			{
+//		        timerTask = new GpsRequestTask();
+//		        mTimer = new Timer(true);
+//		        mTimer.scheduleAtFixedRate( timerTask, 10000, 10000);
+//			} 
 			RunLogger.sService.clearGPS();
 			RunLogger.sService.requestGPS();
 		} catch (RemoteException e) {
@@ -224,7 +236,7 @@ implements
 	    	
 	        mTimer.cancel();
 	        mTimer = null;
-	        timerTask = null;
+	        //timerTask = null;
 	    }		
 		
 //        if (mLocationManager != null) {
@@ -233,13 +245,14 @@ implements
 		if(mToken != null)
 		{
 			try {
-				if( RunLogger.sService != null )
-				{
-					clearGPS();
-				}
+//				if( RunLogger.sService != null )
+//				{
+//					clearGPS();
+//				}
 				if( RunLogger.sService != null
 				&& RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 				{
+					clearGPS();
 					RunLogger.sService.stopLog();
 					// ログ取得中でない場合は、完全に停止させる
 					// RunLogger.sService.clearGPS();
@@ -330,7 +343,7 @@ implements
 	
 	public void updateLogDisplay(double speed)
 	{
-		Log.v("onLocationChanged - MainActivity", "come");
+		Log.v("updateLogDisplay - MainActivity", "come");
 		try {
 			if( false == RunLoggerService.isEmptyLogStocker() 
 					&& RunLogger.sService != null
@@ -364,7 +377,7 @@ implements
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("onLocationChanged - MainActivity", e.getMessage());
+			Log.e("updateLogDisplay - MainActivity", e.getMessage());
 		}		
 	}
 	//@Override
@@ -398,8 +411,19 @@ implements
 	    if(mTimer != null){
 	        mTimer.cancel();
 	        mTimer = null;
-	        timerTask = null;
-	    }		
+	        // timerTask = null;
+	    }
+//	    try {
+//			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
+//			{
+//				// まだ記録開始していなければ、GPSを停止する
+//				// 不要かもしれない
+//				clearGPS();
+//			}
+//		} catch (RemoteException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	// TODO: サービス側から呼ぶ必要があるかどうか確認
@@ -491,6 +515,16 @@ implements
 		File gpxFile = new File( gpxFilePath );
 		return gpxFile.exists(); 
 	}	
+	
+	public boolean isArrowGPSSetting()
+	{
+		String providers = Settings.Secure.getString(
+				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if(providers.indexOf("gps", 0) < 0) {
+			return false;
+		}
+		return true;
+	}
 	
 	@Override
 	public int initControls()
@@ -622,9 +656,7 @@ implements
 			imgGPS = new ImageView(this);
 		}
 		imgGPS.setId(GPS_INDICATOR_ID);
-		String providers = Settings.Secure.getString(
-				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if(providers.indexOf("gps", 0) < 0) 
+		if(false == isArrowGPSSetting()) 
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
 		}
@@ -1040,10 +1072,7 @@ implements
 			
 			if( v == btnGPS )
 			{
-				String providers = Settings.Secure.getString(
-						getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-				Log.v("GPS", "Location Providers = " + providers);
-				if(providers.indexOf("gps", 0) < 0) {
+				if(false == isArrowGPSSetting()) {
 					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 					startActivity(intent);
 				} else {
