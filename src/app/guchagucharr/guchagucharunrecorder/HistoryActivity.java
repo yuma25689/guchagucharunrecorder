@@ -477,10 +477,14 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         	{
         		ActivityData data = loader.getHistoryData(item.getItemId());
     			name = data.getName();
+    			if( name != null && name.isEmpty() == false )
+    			{
+    				name += System.getProperty("line.separator");
+    			}
     			titleDateTime = sdfDateTime.format(data.getStartDateTime())
     					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
         	}
-	        text = name + System.getProperty("line.separator")
+	        text = name
 	        + titleDateTime + System.getProperty("line.separator")
 	        + getString(R.string.distance_label) + LapData.createDistanceFormatText( distanceTotal ) + System.getProperty("line.separator")
 	        + getString(R.string.time_label) + LapData.createTimeFormatText( timeTotal ) + System.getProperty("line.separator")

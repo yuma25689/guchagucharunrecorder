@@ -3,10 +3,12 @@ package app.guchagucharr.guchagucharunrecorder;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.FontMetrics;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.StateSet;
+import android.util.TypedValue;
 import android.widget.RelativeLayout;
 // import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -76,6 +78,7 @@ public class DisplayBlock extends RelativeLayout {
 	static final float MIN_ITEM_FONT_SIZE_HORZ = 12f;
 	
 	DisplayInfo dispInfo = null;
+	static final int ITEM_PADDING = 5;
 	static final int ITEM_LEFT_MARGIN = 7;
 	static final int ITEM_RIGHT_MARGIN = 7;
 	static final int ITEM_BOTTOM_MARGIN = 7;
@@ -133,6 +136,56 @@ public class DisplayBlock extends RelativeLayout {
 		init();
 	}
 	
+	
+	/**
+	 * あるサイズ調整
+	 */
+	private float getProperTextSize(int viewWidth,int viewHeight,String text)
+	{
+		/** 最小のテキストサイズ */
+		final float MIN_TEXT_SIZE = 10f;
+		final float MAX_TEXT_SIZE = 50f;
+
+		float textSize = MAX_TEXT_SIZE;
+		// Paintにテキストサイズ設定
+		paintForMeasureText.setTextSize(textSize);
+		
+		// テキストの縦幅取得
+		FontMetrics fm = paintForMeasureText.getFontMetrics();
+		float textHeight = (float) (Math.abs(fm.top)) + (Math.abs(fm.descent));
+
+		// テキストの横幅取得
+		float textWidth = getMeasureTextWidth(textSize,text);
+
+		// 縦幅と、横幅が収まるまでループ
+		while (viewHeight < textHeight || viewWidth < textWidth)
+		{
+			// 調整しているテキストサイズが、定義している最小サイズ以下か。
+			if (MIN_TEXT_SIZE >= textSize)
+			{
+				// 最小サイズ以下になる場合は最小サイズ
+				textSize = MIN_TEXT_SIZE;
+				break;
+			}
+
+			// テキストサイズをデクリメント
+			textSize--;
+
+			// Paintにテキストサイズ設定
+			paintForMeasureText.setTextSize(textSize);
+
+			// テキストの縦幅を再取得
+			fm = paintForMeasureText.getFontMetrics();
+			textHeight = (float) (Math.abs(fm.top)) + (Math.abs(fm.descent));
+
+			// テキストの横幅を再取得
+			textWidth = getMeasureTextWidth(textSize,text);
+		}
+
+		// テキストサイズ設定
+		//setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+		return textSize;
+	}	
 	float getMeasureTextWidth( float textSize, String text )
 	{
 		paintForMeasureText.setTextSize(textSize);
@@ -167,8 +220,8 @@ public class DisplayBlock extends RelativeLayout {
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 		{	
 			addTitle(MIN_TITLE_FONT_SIZE_HORZ);
-			int width = parentWidth - BLOCK_MARGIN * 2;
-			int height = 0;
+			width = parentWidth - BLOCK_MARGIN * 2;
+			height = 0;
 			if( dispInfo.isPortrait() )
 			{
 				// 倍率の調整
@@ -244,9 +297,9 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			// SHAPE_BLOCKとみなす
 			// タイル状にレイアウトするイメージ
-			int width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
+			width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
 					- BLOCK_MARGIN * 2 );
-			int height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
+			height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
 					* (magnifyHeight / 3 ) - BLOCK_MARGIN * 2);
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
 					width,
@@ -271,6 +324,15 @@ public class DisplayBlock extends RelativeLayout {
 		{
 			iChildrenCount = text.length;
 		}
+		int iShowTextCount = 0;
+		for( int j=0; j<iChildrenCount; ++j )
+		{
+			if( text[j] == null )
+			{
+				continue;
+			}
+			iShowTextCount++;
+		}
 		int i=0;
 		for( i=0; i<iChildrenCount; ++i )
 		{
@@ -281,13 +343,16 @@ public class DisplayBlock extends RelativeLayout {
 			TextView txt = new TextView(this.getContext());
 			txt.setId(i+1);
 			txt.setTextColor(Color.argb(0xAA, 255, 255, 255));
+			//txt.setPadding(ITEM_PADDING,0,ITEM_PADDING,0);
 			RelativeLayout.LayoutParams lpTmp = null;
 			if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 			{
-				lpTmp = new RelativeLayout.LayoutParams( 
+				lpTmp = new RelativeLayout.LayoutParams(
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
+				float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,height/iShowTextCount,text[i]);
+				//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
+				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
 				txt.setSingleLine(false);
 				lpTmp.leftMargin = BLOCK_MARGIN;
 				if( i == 0 )
@@ -297,14 +362,14 @@ public class DisplayBlock extends RelativeLayout {
 				}
 				else
 				{
-					if( (i+1) % 3 == 0 )
-					{
-						lpTmp.addRule(BELOW,i-1);
-					}
-					else
-					{
-						lpTmp.addRule(RIGHT_OF,i);
-					}
+					//if( (i+1) % 3 == 0 )
+					//{
+						lpTmp.addRule(BELOW,i);
+					//}
+					//else
+					//{
+						//lpTmp.addRule(RIGHT_OF,i);
+					//}
 				}
 			}
 			else
@@ -312,7 +377,9 @@ public class DisplayBlock extends RelativeLayout {
 				lpTmp = new RelativeLayout.LayoutParams( 
 						android.view.ViewGroup.LayoutParams.MATCH_PARENT,
 						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
+				float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,height/iShowTextCount,text[i]);
+				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+				//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
 				if( i== 0)
 				{
 					lpTmp.addRule(ALIGN_LEFT);

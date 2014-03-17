@@ -322,9 +322,9 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			// TODO: ���Ԃ̕\��
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));			
-			editName.setText( //getString( R.string.default_activity_name ) 
-					sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
-					+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
+			editName.setText( getString( R.string.default_activity_name ) ); 
+					//sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
+					//+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
 					RunLoggerService.getLogStocker().getTotalDistance() ) );
 			// NOTICE:テスト用
