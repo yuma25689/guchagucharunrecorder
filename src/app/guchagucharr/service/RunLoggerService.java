@@ -476,6 +476,13 @@ implements LocationListener
 		if( false == isEmptyLogStocker() 
 				&& mode == eMode.MODE_MEASURING )
 		{
+			// TODO: 精度は、設定に
+			// 50m以上の誤差がある場合は、切り捨てる
+			if( 50 < location.getAccuracy() )
+			{
+				Log.v("get location data but not stock","because over 50 accuracy");
+				return;
+			}
 			Log.v("add","location info");
 			// NOTICE: この関数でほとんど全てのログを取っているようなもの
 			putLocationLog(location);

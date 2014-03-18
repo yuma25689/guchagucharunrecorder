@@ -30,6 +30,7 @@
     <string name="SaveOK">The results have saved.</string>
     
     <string name="datetime_display_format">M/dd HH:mm:ss</string>
+    <string name="datetime_display_format2">dd HH:mm:ss</string>
     <string name="date_display_format">yyyy/MM/dd</string>
     <string name="time_display_format">HH:mm:ss</string>
     <string name="gmt_date_time_for_gpx_format">yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'</string>

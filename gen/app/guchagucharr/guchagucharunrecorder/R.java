@@ -230,14 +230,15 @@ containing a value of this type.
         public static final int main_stopbutton_normal=0x7f020047;
         public static final int main_stopbutton_press=0x7f020048;
         public static final int selector_camera_button_image=0x7f020049;
-        public static final int selector_gps_button_image=0x7f02004a;
-        public static final int selector_history_button_image=0x7f02004b;
-        public static final int selector_mainitem_panel_image=0x7f02004c;
-        public static final int selector_next_button_image=0x7f02004d;
-        public static final int selector_route_button_image=0x7f02004e;
-        public static final int selector_runstart_button_image=0x7f02004f;
-        public static final int selector_runstop_button_image=0x7f020050;
-        public static final int selector_save_button_image=0x7f020051;
+        public static final int selector_cancel_button_image=0x7f02004a;
+        public static final int selector_gps_button_image=0x7f02004b;
+        public static final int selector_history_button_image=0x7f02004c;
+        public static final int selector_mainitem_panel_image=0x7f02004d;
+        public static final int selector_next_button_image=0x7f02004e;
+        public static final int selector_route_button_image=0x7f02004f;
+        public static final int selector_runstart_button_image=0x7f020050;
+        public static final int selector_runstop_button_image=0x7f020051;
+        public static final int selector_save_button_image=0x7f020052;
     }
     public static final class id {
         public static final int dummy_button=0x7f050008;
@@ -265,21 +266,21 @@ containing a value of this type.
     }
     public static final class string {
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f060024;
-        public static final int Delete_failed=0x7f060038;
-        public static final int Deleted=0x7f060037;
+        public static final int Delete_failed=0x7f060039;
+        public static final int Deleted=0x7f060038;
         public static final int GPS_OFF=0x7f06001b;
         public static final int GPS_ON=0x7f06001a;
-        public static final int GPX_EXISTS=0x7f060033;
-        public static final int GPX_LOSE=0x7f060034;
-        public static final int LAP_COUNT_LABEL=0x7f060035;
-        public static final int LAP_LABEL=0x7f060036;
+        public static final int GPX_EXISTS=0x7f060034;
+        public static final int GPX_LOSE=0x7f060035;
+        public static final int LAP_COUNT_LABEL=0x7f060036;
+        public static final int LAP_LABEL=0x7f060037;
         public static final int MSG_EXPORT_PROGRESS=0x7f060025;
         public static final int SaveError=0x7f060026;
         public static final int SaveErrorDatabaseOnly=0x7f060029;
         public static final int SaveErrorGPX=0x7f060027;
         public static final int SaveErrorGPXOnly=0x7f060028;
         public static final int SaveOK=0x7f06002a;
-        public static final int Share=0x7f060039;
+        public static final int Share=0x7f06003a;
         public static final int app_name=0x7f060015;
         /**   Title for notification shown when GooglePlayServices is unavailable [CHAR LIMIT=70] 
          */
@@ -291,7 +292,7 @@ containing a value of this type.
          */
         public static final int auth_client_requested_by_msg=0x7f060011;
         public static final int cant_get=0x7f060023;
-        public static final int cant_start_workout_because_error=0x7f060040;
+        public static final int cant_start_workout_because_error=0x7f060041;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=40] 
@@ -347,10 +348,11 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f06000e;
-        public static final int date_display_format=0x7f06002c;
+        public static final int date_display_format=0x7f06002d;
         public static final int datetime_display_format=0x7f06002b;
-        public static final int default_activity_name=0x7f06003a;
-        public static final int distance_label=0x7f06003b;
+        public static final int datetime_display_format2=0x7f06002c;
+        public static final int default_activity_name=0x7f06003b;
+        public static final int distance_label=0x7f06003c;
         public static final int dummy_button=0x7f060016;
         public static final int dummy_content=0x7f060017;
         /**  Do not translate. Duration format for duration >= 1 hour 
@@ -359,8 +361,8 @@ containing a value of this type.
         /**  Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f060018;
-        public static final int gmt_date_time_for_gpx_format=0x7f06002e;
-        public static final int gpx_share=0x7f06003f;
+        public static final int gmt_date_time_for_gpx_format=0x7f06002f;
+        public static final int gpx_share=0x7f060040;
         public static final int hour=0x7f060020;
         public static final int killometer=0x7f06001d;
         public static final int killoperhour=0x7f060022;
@@ -375,19 +377,19 @@ containing a value of this type.
         public static final int location_client_ulr_inactive_age_under_13=0x7f060012;
         public static final int location_client_ulr_inactive_age_unknown=0x7f060013;
         public static final int location_client_ulr_inactive_unknown_restriction=0x7f060014;
-        public static final int menu_delete=0x7f060031;
-        public static final int menu_detail=0x7f060030;
-        public static final int menu_share=0x7f060032;
+        public static final int menu_delete=0x7f060032;
+        public static final int menu_detail=0x7f060031;
+        public static final int menu_share=0x7f060033;
         public static final int meter=0x7f06001c;
         public static final int meterpersecond=0x7f060021;
         public static final int minute=0x7f06001f;
-        public static final int no_title=0x7f060041;
+        public static final int no_title=0x7f060042;
         public static final int second=0x7f06001e;
-        public static final int speed_label=0x7f06003e;
-        public static final int time_display_format=0x7f06002d;
-        public static final int time_for_id_format=0x7f06002f;
-        public static final int time_label=0x7f06003c;
-        public static final int to=0x7f06003d;
+        public static final int speed_label=0x7f06003f;
+        public static final int time_display_format=0x7f06002e;
+        public static final int time_for_id_format=0x7f060030;
+        public static final int time_label=0x7f06003d;
+        public static final int to=0x7f06003e;
     }
     public static final class style {
         /** 

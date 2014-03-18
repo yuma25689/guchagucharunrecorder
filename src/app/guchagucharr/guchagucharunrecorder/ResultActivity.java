@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Region;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
@@ -17,8 +20,10 @@ import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 //import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -35,13 +40,25 @@ import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunLoggerService;
 
-public class ResultActivity extends Activity implements IPageViewController, OnClickListener {
+public class ResultActivity extends Activity 
+implements IPageViewController
+, OnClickListener 
+, OnTouchListener
+{
 
+	Region regionCenterBtn = null;
+	Boolean bCenterBtnEnableRegionTouched = false;
+	Region regionCancelBtn = null;
+	Boolean bCancelBtnEnableRegionTouched = false;
+	
+	private RelativeLayout lastSubLayout = null;
+	
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	private ViewPager mViewPager;	
+	private ResultPagerAdapter adapter;
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
-	private LayoutInflater inflater = null;
+	//private LayoutInflater inflater = null;
 	static final int SUB_FIRST_PANEL_ID = 100000;
 	
 	//private RunningLogStocker runLogStocker;
@@ -50,7 +67,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	
 	ImageButton btnCenter = null;
 	ImageButton btnGPS = null;
-	ImageView imgGPS = null;
+	//ImageView imgGPS = null;
 	EditText editName = null;
 	TextView txtTime = null;
 	TextView txtDistance = null;
@@ -58,6 +75,7 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	TextView txtSpeed2 = null;
 	ImageButton btnCancel = null;
 	TextView txtLap = null;
+	ImageButton imgDetailExists = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,19 +86,19 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
         handler = new PagerHandler( this, this );
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
 
-	    inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
+	    //inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
 	}
 
 	@Override
     protected void onResume() {
-        dispInfo.init(this, componentContainer, handler, false);
+        dispInfo.init(this, componentContainer, handler, true);
         super.onResume();
     }
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-	    dispInfo.init(this, componentContainer, handler, true);	
-	}		
+//	@Override
+//	public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//	    dispInfo.init(this, componentContainer, handler, true);	
+//	}		
 	@Override
 	protected void onPause()
 	{
@@ -107,6 +125,10 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	static final int RIGHT_CENTER_CTRL_MARGIN = 20;
 	static final int CENTER_ABOVE_CTRL_MARGIN = -15;
 	static final int CENTER_BELOW_CTRL_MARGIN = -15;
+	static final int CENTER_LEFT_CTRL_MARGIN = 15;
+	static final int CENTER_RIGHT_CTRL_MARGIN = 15;
+	static final int CENTER_TOP_CTRL_MARGIN = 15;
+	
 	//static final int CENTER_BOTTOM_CTRL_MARGIN = 20;
 
 	//static final int TIME_TEXTVIEW_WIDTH = 150;
@@ -122,12 +144,12 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	static final int SPEED_TEXTVIEW_FONT_SIZE = 25;
 	static final int LAP_TEXTVIEW_FONT_SIZE = 25;
 	
-	
 	@Override
 	public int initPager()
 	{		
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
-        this.mViewPager.setAdapter(new ResultPagerAdapter(this, this));
+        adapter = new ResultPagerAdapter(this, this);
+        this.mViewPager.setAdapter(adapter);
 
 //		getWindow().setLayout( 
 //		dispInfo.getCorrectionXConsiderDensity(
@@ -174,13 +196,15 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 					R.drawable.main_savebutton_normal);
 			RelativeLayout.LayoutParams rlBtnCenter 
 			= dispInfo.createLayoutParamForNoPosOnBk( 
-					bmpoptions.outWidth, bmpoptions.outHeight, true );
+					bmpoptions.outWidth, bmpoptions.outHeight, false );
 			rlBtnCenter.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			rlBtnCenter.addRule(RelativeLayout.CENTER_VERTICAL);
 			btnCenter.setLayoutParams(rlBtnCenter);
 			btnCenter.setScaleType(ScaleType.FIT_XY);
 			btnCenter.setOnClickListener(this);
-			rl.addView(btnCenter);
+			//rl.addView(btnCenter);
+			addViewToCompContainer(rl,btnCenter);
+
 			
 			btnGPS = new ImageButton(this);
 			btnGPS.setId(GPS_BUTTON_ID);
@@ -196,21 +220,23 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			btnGPS.setLayoutParams(rlBtnGps);
 			btnGPS.setScaleType(ScaleType.FIT_XY);
 			btnGPS.setOnClickListener(this);
-			rl.addView(btnGPS);
+			//rl.addView(btnGPS);
+			addViewToCompContainer(rl,btnGPS);
+			
 	
-			imgGPS = new ImageView(this);
-			imgGPS.setId(GPS_INDICATOR_ID);
-			imgGPS.setBackgroundResource( R.drawable.gps_bad );
-			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.gps_bad);
-			RelativeLayout.LayoutParams rlIndGps 
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					bmpoptions.outWidth, bmpoptions.outHeight, true );
-			rlIndGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
-			rlIndGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
-			rlIndGps.addRule(RelativeLayout.CENTER_VERTICAL );
-			imgGPS.setLayoutParams(rlIndGps);
-			imgGPS.setScaleType(ScaleType.FIT_XY);
-			rl.addView(imgGPS);
+//			imgGPS = new ImageView(this);
+//			imgGPS.setId(GPS_INDICATOR_ID);
+//			imgGPS.setBackgroundResource( R.drawable.gps_bad );
+//			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.gps_bad);
+//			RelativeLayout.LayoutParams rlIndGps 
+//			= dispInfo.createLayoutParamForNoPosOnBk( 
+//					bmpoptions.outWidth, bmpoptions.outHeight, true );
+//			rlIndGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
+//			rlIndGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
+//			rlIndGps.addRule(RelativeLayout.CENTER_VERTICAL );
+//			imgGPS.setLayoutParams(rlIndGps);
+//			imgGPS.setScaleType(ScaleType.FIT_XY);
+//			rl.addView(imgGPS);
 	
 			editName = new EditText(this);
 			RelativeLayout.LayoutParams rlEditName
@@ -226,7 +252,8 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			editName.setSingleLine();
 			//txtTime.setText("99:99:99.999");
 			//txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
-			rl.addView(editName);		
+			// rl.addView(editName);
+			addViewToCompContainer(rl,editName);			
 			
 			
 			txtTime = new TextView(this);
@@ -234,16 +261,51 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			RelativeLayout.LayoutParams rlTxtTime
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-			rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
-			rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
-			rlTxtTime.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+				rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
+				rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
+				rlTxtTime.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+				rlTxtTime.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
+				rlTxtTime.rightMargin = CENTER_LEFT_CTRL_MARGIN;
+				rlTxtTime.addRule(RelativeLayout.CENTER_VERTICAL);        	
+	        }
+//			rlTxtTime.addRule(RelativeLayout.ABOVE, CENTER_BUTTON_ID);
+//			rlTxtTime.bottomMargin = CENTER_ABOVE_CTRL_MARGIN;
+//			rlTxtTime.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			txtTime.setLayoutParams(rlTxtTime);
 			txtTime.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 			txtTime.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));
 			txtTime.setSingleLine();
 			//txtTime.setText("99:99:99.999");
 			txtTime.setTextSize(TIME_TEXTVIEW_FONT_SIZE);		
-			rl.addView(txtTime);
+			//rl.addView(txtTime);
+			addViewToCompContainer(rl,txtTime);
+			
+			// cancel button
+			if( btnCancel == null )
+				btnCancel = new ImageButton(this);
+			//btnCancel.setId();
+			btnCancel.setBackgroundResource( R.drawable.selector_cancel_button_image );
+			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+					R.drawable.main_cancelbutton_normal);
+			RelativeLayout.LayoutParams rlBtnCancel
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
+					bmpoptions.outWidth, bmpoptions.outHeight, true );
+			rlBtnCancel.addRule(RelativeLayout.ALIGN_PARENT_LEFT );
+			rlBtnCancel.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
+			
+			btnCancel.setLayoutParams(rlBtnCancel);
+			btnCancel.setScaleType(ScaleType.FIT_XY);
+			btnCancel.setOnClickListener(this);
+			btnCancel.setOnTouchListener(this);
+			addViewToCompContainer(rl,btnCancel);
 			
 			// ����
 			txtDistance = new TextView(this);
@@ -254,9 +316,24 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	//		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
 	//		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
 	//		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	        	rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+	        	rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+	        	rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+	        	rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	        	rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+	        }
+			
+//			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+//			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+//			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			txtTime.setLayoutParams(rlTxtTime);
 			txtDistance.setLayoutParams(rlTxtDistance);
 			txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
@@ -264,7 +341,9 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			txtDistance.setSingleLine();
 			txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 			txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
-			rl.addView(txtDistance);
+			// rl.addView(txtDistance);
+			addViewToCompContainer(rl,txtDistance);
+			
 	
 			// ���x
 			txtSpeed = new TextView(this);
@@ -272,54 +351,110 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 			RelativeLayout.LayoutParams rlTxtSpeed
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-	//		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-	//		rlTxtSpeed.leftMargin = LEFT_CENTER_CTRL_MARGIN;
-	//		rlTxtSpeed.addRule(RelativeLayout.CENTER_VERTICAL);
-			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-			//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+	    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+	    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	        }
+			
+//			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+//			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			txtSpeed.setLayoutParams(rlTxtSpeed);
 			txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 			txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
 			txtSpeed.setSingleLine();
 			//txtSpeed.setText("12.5 km/h");
 			txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			rl.addView(txtSpeed);
+			//rl.addView(txtSpeed);
+			addViewToCompContainer(rl,txtSpeed);
+	
 			
 			// speed
 			txtSpeed2 = new TextView(this);
 			RelativeLayout.LayoutParams rlTxtSpeed2
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-			//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+	    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+	        }
+	        else
+	        {
+	        	// 横向き
+	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+	    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	        }
+			
+//			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+//			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			txtSpeed2.setLayoutParams(rlTxtSpeed2);
 			txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
 			txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
 			txtSpeed2.setSingleLine();
 			//txtSpeed.setText("12.5 km/h");
 			txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			rl.addView(txtSpeed2);
+			//rl.addView(txtSpeed2);
+			addViewToCompContainer(rl,txtSpeed2);
+			
 			
 			// lap label
 			txtLap = new TextView(this);
 			RelativeLayout.LayoutParams rlTxtLap
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-			rlTxtLap.addRule(RelativeLayout.ABOVE,TIME_TXT_ID);
-			rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	    		rlTxtLap.addRule(RelativeLayout.ABOVE, TIME_TXT_ID);
+	    		rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+	    		rlTxtLap.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+	    		rlTxtLap.topMargin = CENTER_TOP_CTRL_MARGIN;
+	    		rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+//			rlTxtLap.addRule(RelativeLayout.ABOVE,TIME_TXT_ID);
+//			rlTxtLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			txtLap.setLayoutParams(rlTxtLap);
 			txtLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(
 					R.color.theme_color_cantedit));
 			txtLap.setTextSize(LAP_TEXTVIEW_FONT_SIZE);
 			txtLap.setSingleLine();
 			txtLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			rl.addView(txtLap);
+			// rl.addView(txtLap);
+			addViewToCompContainer(rl,txtLap);			
+
+
+			// 画像でいいかと思ったが、押したら反応するようにする
+			imgDetailExists = new ImageButton(this);
+			//imgDetailExists.setId(GPS_INDICATOR_ID);
+			imgDetailExists.setBackgroundResource( R.drawable.ind_detail_exist );
+			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.ind_detail_exist);
+			RelativeLayout.LayoutParams rlIndDetail 
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					bmpoptions.outWidth, bmpoptions.outHeight, true );
+			rlIndDetail.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
+			rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
+			rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
+			imgDetailExists.setLayoutParams(rlIndDetail);
+			imgDetailExists.setScaleType(ScaleType.FIT_XY);
+			imgDetailExists.setOnClickListener(this);			
+			rl.addView(imgDetailExists);
 			
-			//btnCancel = new ImageButton(this);
-			
-			// TODO: ���Ԃ̕\��
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));			
 			editName.setText( getString( R.string.default_activity_name ) ); 
@@ -355,6 +490,11 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
+			String title[] = {""};
+			if( 1 < RunLoggerService.getLogStocker().getStockedLapCount() )
+			{
+				title = new String[RunLoggerService.getLogStocker().getStockedLapCount()];
+			}			
 			// NOTICE: 最高で６個しか置けない
 			DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 					RunLoggerService.getLogStocker().getStockedLapCount());
@@ -375,7 +515,10 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				speed = distance / ( time * UnitConversions.MS_TO_S ); 
 				
 				// DisplayBlock追加
-				String title = getString(R.string.LAP_LABEL) + ( i + 1 );
+				if( 1 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				{
+					title[i] = String.valueOf( i + 1 );
+				}
 				String text[] = {
 						LapData.createDistanceFormatText( distance ),
 						LapData.createTimeFormatText( time ),
@@ -415,58 +558,12 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				double rate = COLOR_RANGE / RunLoggerService.getLogStocker().getStockedLapCount();
 				int iMinus = (int) (iPanelCount * rate);
 				dispBlock.setBackgroundColorAsStateList(0xFF, 20 + iMinus, 70 + iMinus, 0 );
-				rl.addView(dispBlock);
+				//rl.addView(dispBlock);
+				addViewToCompContainer(rl,dispBlock);
+				
 				iPanelCount++;
 			}
-			
-//			final int BLOCK_PADDING = 3;
-//			// 時間
-//			// 距離
-//			// 速度
-//			// 上記３つOr２つを縦に並べたものを1ブロックにする
-//			// とりあえずブロックの大きさは、文字が全て入るコントロールの最小の大きさとする
-//			int iContentCount = RunLoggerService.getLogStocker().getStockedLapCount();
-//			final int CONTENT_COUNT_ONE = 1;
-//			final int CONTENT_COUNT_SOSO = 5;
-//			final int CONTENT_COUNT_MANY = 10;
-//			int iWidth = 0;
-//			int iHeight = 0;
-//			if( dispInfo.isPortrait() )
-//			{
-//				iWidth = ControlDefs.APP_BASE_WIDTH;
-//				iHeight = ControlDefs.APP_BASE_HEIGHT;
-//				inflater.inflate( R.layout.page_vscrollable, rl );
-//				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );
-//				// 数によって、並べ方を変える
-//				if( iContentCount == CONTENT_COUNT_ONE )
-//				{
-//					// 地図も表示してみる？
-//					// それに加えて、キロごとのデータも？
-//				}
-//				else if( CONTENT_COUNT_MANY <= iContentCount )
-//				{
-//					int iEvenLineLeftPadding = 0;
-//					int iOddLineLeftPadding = 30;
-//					// ->ラップではあまりない？
-//					// スクロールビューなので、何も考えずに全てのブロックを積む
-//					// ひょっとしたらパフォーマンスの問題が出るかもしれない
-//					// 不規則な大きさのブロックで組んだようなレイアウトにする
-//					int iYearBlockWidth = 50;
-//					int iYearBlockHeight = 50;
-//					
-//				}
-//				
-//				
-//			}
-//			else
-//			{
-//				iWidth = ControlDefs.APP_BASE_HEIGHT;
-//				iHeight = ControlDefs.APP_BASE_WIDTH;
-//				
-//				inflater.inflate( R.layout.page_hscrollable, rl );
-//				RelativeLayout rlContent = (RelativeLayout) rl.findViewById( R.id.page_content );				
-//			}
-//			rl.setBackgroundColor(Color.WHITE);
+			lastSubLayout = rl;			
 		}
 		return ret;
 	}
@@ -501,6 +598,28 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 				RunLoggerService.getLogStocker().save(this,editName.getText().toString(),true);
 				
 			}
+			else if( v == btnCancel )
+			{
+				// 保存せずに終了する
+				// TODO: 確認ダイアログ
+				finish();
+			}
+			else if( v == imgDetailExists )
+			{
+//				if( adapter.getCount() == 1 )
+//				{
+//					adapter.setCount(2);
+//				}
+//				else if( adapter.getCount() == 2 )
+//				{
+//					if( null != lastSubLayout )
+//					{
+//						initControls(RESULT_PAGE_LAP,lastSubLayout);
+//					}
+//				}				
+				mViewPager.arrowScroll(View.FOCUS_RIGHT);
+				Log.v("imgDetail","click");
+			}
 		} finally {
 			if( v != null )
 			{
@@ -516,4 +635,91 @@ public class ResultActivity extends Activity implements IPageViewController, OnC
 	public DisplayInfo getDispInfo() {
 		return dispInfo;
 	}
+	private void addViewToCompContainer( RelativeLayout rl, View v )
+	{
+		if( v.getParent() != null )
+		{	
+			((ViewGroup)v.getParent()).removeView(v);
+		}
+		rl.addView(v);		
+	}
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		Region region = null;
+		//Boolean bRegionFlag = null;
+		if( v == btnCenter 
+		|| v == btnCancel )
+		{
+			if( btnCenter == v )
+			{
+				region = regionCenterBtn;
+				//bRegionFlag = bCenterBtnEnableRegionTouched;
+ 
+			}
+			else if( v == btnCancel )
+			{
+				region = regionCancelBtn;
+				//bRegionFlag = bCancelBtnEnableRegionTouched;
+			}
+	        // タッチされた座標の取得
+	        int x1 = (int)event.getX();
+	        int y1 = (int)event.getY();
+			if( region == null )
+			{
+				// ボタンのリージョンを設定する
+		        // ->おそらく、座標は不要
+		        Path path = new Path();
+		        int x_cbtn = 0;//btnCenter.getLeft();
+		        int y_cbtn = 0;//btnCenter.getTop();
+		        int width_cbtn = v.getWidth();
+		        int height_cbtn = v.getHeight();
+		        // 頂点
+		        path.moveTo(x_cbtn + width_cbtn / 2
+		        		, y_cbtn);
+		        // 左の先へ
+		        path.lineTo( x_cbtn, y_cbtn + height_cbtn / 2);
+		        // 下の先へ
+		        path.lineTo( x_cbtn + width_cbtn / 2
+		        		, y_cbtn + height_cbtn );
+		        // 右の先へ
+		        path.lineTo( x_cbtn + width_cbtn
+		        		, y_cbtn + height_cbtn / 2 );
+		        // 頂点へ戻る？
+	//	        path.moveTo(x_cbtn + width_cbtn / 2
+	//	        		, y_cbtn );
+		        path.close();
+		        RectF rectF = new RectF();
+		        path.computeBounds(rectF, true);	        
+		        region = new Region();
+		        region.setPath(path, new Region((int) rectF.left, (int) rectF.top, (int) rectF.right, (int) rectF.bottom));
+				if( btnCenter == v )
+				{
+					bCenterBtnEnableRegionTouched = true;
+				}
+				else if( v == btnCancel )
+				{
+					bCancelBtnEnableRegionTouched = true;
+				}
+			}
+	        if( false == region.contains( x1, y1 ))
+	        {
+	        	// ボタンの領域でない部分がタッチされていたら
+		        // OnTouchをキャンセルする
+				if( btnCenter == v )
+				{
+					bCenterBtnEnableRegionTouched = false;
+				}
+				else if( v == btnCancel )
+				{
+					bCancelBtnEnableRegionTouched = false;
+				}
+ 
+	        	// onTouchを返さないと、他の制御がおかしくなりそうなので、onTouchは返した後、
+	        	// pressイベントで無理矢理制御する
+		        //return true;
+	        }
+		}
+		return false;
+	}
+
 }

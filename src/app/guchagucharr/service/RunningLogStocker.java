@@ -326,7 +326,14 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
-            ret.put( RunHistoryTableContract.NAME, activity.getString(R.string.LAP_LABEL) + ( iExtra + 1 ) );
+            if( strExtra != null)
+            {
+            	ret.put( RunHistoryTableContract.NAME, strExtra[0]);//activity.getString(R.string.LAP_LABEL) + ( iExtra + 1 ) );
+            }
+            else
+            {
+            	ret.put( RunHistoryTableContract.NAME, "");            	
+            }
             ret.put( RunHistoryTableContract.GPX_FILE_PATH, lapData.get(iExtra).getGpxFilePath() );//strExtra[0] );
 			
 		}
@@ -382,12 +389,19 @@ public class RunningLogStocker {
         		insertCount = 1;
         		for( int iLap=0; iLap < log.getStockedLapCount(); iLap++ )
         		{
+        			String[] texts = null;
+        			if( 1 < log.getStockedLapCount() )
+        			{
+        				String name = String.valueOf( iLap + 1 );
+            			texts = new String[1];
+            			texts[0] = name;
+        			}
                 	//String saveText2[] = { gpxFilePath };
 	            	values = log.createContentValues(
 	            			activity,
 	            			RunHistoryTableContract.HISTORY_LAP_TABLE_ID, 
 	            			time, 
-	            			null,//saveText2,
+	            			texts,//saveText2,
 	            			id,	// �e��id
 	            			iLap);	// lap index
 	            	if( values == null )

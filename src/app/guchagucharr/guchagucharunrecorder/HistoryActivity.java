@@ -3,6 +3,9 @@ package app.guchagucharr.guchagucharunrecorder;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 //import java.util.Date;
 import java.util.Vector;
 
@@ -56,15 +59,15 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	}
 	@Override
     protected void onResume() {
-        dispInfo.init(this, componentContainer, handler, false);
+        dispInfo.init(this, componentContainer, handler, true);
         adapter = new HistoryPagerAdapter(this, this);
         super.onResume();
     }
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-	    dispInfo.init(this, componentContainer, handler, true);	
-	}
+//	@Override
+//	public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//	    //dispInfo.init(this, componentContainer, handler, true);	
+//	}
 	
 	@Override
 	public int initPager()
@@ -72,7 +75,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         init();
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(adapter);
-        
         return 0;
 	}
 //	do {
@@ -111,6 +113,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				mainData.size());
 		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 				getString(R.string.datetime_display_format));
+		SimpleDateFormat sdfDateTimeAfter = null;
 //		SimpleDateFormat sdfDate = new SimpleDateFormat(getString(R.string.date_display_format));
 //		SimpleDateFormat sdfTime = new SimpleDateFormat(getString(R.string.time_display_format));
 		int lastEvenPanelID = 0;
@@ -131,11 +134,50 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			}	
 			speedTotal = distanceTotal / ( timeTotal * UnitConversions.MS_TO_S ); 
 			// DisplayBlock追加
-			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
-					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
+//			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
+//					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
 //			String titleDate = sdfDate.format(new Date(data.getDateTime()));
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
-			String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
+			//String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
+			//Locale locale = Locale.getDefault();
+			Calendar calStart = Calendar.getInstance();//TimeZone.getDefault(),
+					//locale);//TimeZone.getTimeZone("UTC"));
+			calStart.setTimeInMillis(data.getStartDateTime());
+			//calStart.set(Calendar.HOUR, 0);
+			calStart.set(Calendar.HOUR_OF_DAY, 0);
+			calStart.set(Calendar.MINUTE, 0);
+			calStart.set(Calendar.SECOND, 0);
+			calStart.set(Calendar.MILLISECOND, 0);
+			Calendar calEnd = Calendar.getInstance();//TimeZone.getDefault(),
+					//locale);//TimeZone.getTimeZone("UTC"));
+			calEnd.setTimeInMillis(data.getStartDateTime() + timeTotal);
+			//calEnd.set(Calendar.HOUR, 0);
+			calEnd.set(Calendar.HOUR_OF_DAY, 0);			
+			calEnd.set(Calendar.MINUTE, 0);
+			calEnd.set(Calendar.SECOND, 0);
+			calEnd.set(Calendar.MILLISECOND, 0);
+			if( calStart.equals(calEnd) == false )
+			{
+				calStart.set(Calendar.DATE, 0);
+				calEnd.set(Calendar.DATE, 0);
+				if( calStart.equals(calEnd) == false )
+				{
+					sdfDateTimeAfter = new SimpleDateFormat(
+							getString(R.string.datetime_display_format));					
+				}
+				else
+				{
+					sdfDateTimeAfter = new SimpleDateFormat(
+							getString(R.string.datetime_display_format2));
+				}
+			}
+			else
+			{
+				sdfDateTimeAfter = new SimpleDateFormat(
+						getString(R.string.time_display_format));
+			}
+			String[] title = {sdfDateTime.format(data.getStartDateTime()),
+					sdfDateTimeAfter.format(data.getStartDateTime() + timeTotal)};
 			String lapCount = null;
 			// TODO: 後でラップのデータを見てちゃんと表示する
 //			String gpx = data.getGpxFilePath();
@@ -310,10 +352,10 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //				}
 //			}
 			// DisplayBlock追加
-			String title = data.getName(); //getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
-			if( title == null )
+			String[] title = {data.getName()}; //getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+			if( title[0] == null )
 			{
-				title = getString(R.string.no_title);//getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
+				title[0] = getString(R.string.no_title);//getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
 			}
 			String text[] = {
 					LapData.createDistanceFormatText( distance ),
@@ -437,7 +479,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	 
 	    //コンテキストメニューの設定
 	    DisplayBlock block = (DisplayBlock) v;
-	    menu.setHeaderTitle(block.getTitle());
+	    menu.setHeaderTitle(block.getTitle()[0]);
 	    // menu.setHeaderView
 	    //menu.setHeaderIcon
 	    //Menu.add(int groupId, int itemId, int order, CharSequence title)
@@ -450,7 +492,24 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	public boolean onContextItemSelected(MenuItem item) {
 	    switch (item.getGroupId()) {
 	    case CONTEXT_MENU_DETAIL_ID:
-	        // メニュー押下時の操作
+	        // 詳細メニュー
+	    	// 今のところ、最上位のデータを想定
+	    	selectedActivityData = (ActivityData) loader.getHistoryData(item.getGroupId());
+			// TODO:ページが1ページしかない場合、ページの拡張を行う
+			if( adapter.getCount() == 1 )
+			{
+				adapter.setCount(2);
+			}
+			else if( adapter.getCount() == 2 )
+			{
+				if( null != lastSubLayout )
+				{
+					updateSubPage(lastSubLayout);
+				}
+			}
+			// adapter.notifyDataSetChanged();
+			// NOTICE: とりあえず、自動ページ移動はする？
+			mViewPager.arrowScroll(View.FOCUS_RIGHT);
 	        return true;
 	    case CONTEXT_MENU_SHARE_ID:
 	    	// TODO: GPXかテキストかを選択すること！
@@ -578,7 +637,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			{
 				v.setEnabled(false);
 			}
-		
 			if( v instanceof DisplayBlock )
 			{
 				DisplayBlock dispBlock = (DisplayBlock)v;

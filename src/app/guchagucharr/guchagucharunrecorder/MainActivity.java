@@ -51,10 +51,6 @@ import app.guchagucharr.service.RunLoggerService;
 import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.RunLoggerService.eMode;
 
-//import com.google.android.gms.location.LocationClient;
-//import com.google.android.gms.location.LocationListener;
-//import com.google.android.gms.location.LocationRequest;
-
 /**
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
  * @author 25689
@@ -86,22 +82,8 @@ implements
 	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	private Timer mTimer = null;	
-	//private GpsRequestTask timerTask = null;
-//	class GpsRequestTask extends TimerTask
-//	{
-//	     @Override
-//	     public void run() {
-//	    	 Log.v("GpsRequestTask","come");
-//	    	 handler.post( new Runnable() {
-//	             @Override
-//	             public void run() { 
-//			         clearGPS();
-//			    	 requestGPS();
-//	             }
-//	    	 });
-//	     }
-//	 }	
 	
+	boolean bUseGPS = true;
 	// contorls
 	// center button
 	ImageButton btnCenter = null;
@@ -109,6 +91,8 @@ implements
 	Boolean bCenterBtnEnableRegionTouched = false;
 	Region regionLapBtn = null;
 	Boolean bLapBtnEnableRegionTouched = false;
+	Region regionCancelBtn = null;
+	Boolean bCancelBtnEnableRegionTouched = false;
 	// GPS button
 	ImageButton btnGPS = null;
 	// GPS indicator
@@ -139,19 +123,10 @@ implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		// test用
-//		Locale locale = new Locale("jp");
-//		Locale.setDefault(locale);
-//		Configuration config = new Configuration();
-//		config.locale = Locale.getDefault();
-//		getResources().updateConfiguration(config, null);
 		setContentView(R.layout.activity_main);
 		
         // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
-
-        // -> サービスへ移動のため、ここでは行わない
-		//requestGPS();
 
 		// create handler
         handler = new MainHandler( this, this );
@@ -163,12 +138,6 @@ implements
 	@Override
 	protected void onStart() {
 	    super.onStart();
-        //mToken = RunLogger.bindToService(this, this);
-	    
-//        if( 0 == RunLogger.getServiceConnectionCount() 
-//        || RunLogger.sService == null ) 
-//        {
-//        }
 	}	
 	@Override
     protected void onResume() {
@@ -188,6 +157,7 @@ implements
 		// now, initialize there.
 		regionCenterBtn = null;
 		regionLapBtn = null;
+		regionCancelBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
 
         super.onResume();
@@ -285,6 +255,7 @@ implements
 		//android.R.drawable.ic_menu_mylocation
 		regionCenterBtn = null;
 		regionLapBtn = null;
+		regionCancelBtn = null;
 
 		clearCamera();
         super.onPause();	
@@ -426,29 +397,6 @@ implements
 //		}
 	}
 
-	// TODO: サービス側から呼ぶ必要があるかどうか確認
-	//@Override
-//	public void onProviderDisabled(String provider) {
-//		//bGPSCanUse = false;
-//		Log.v("gps","onProviderDisabled");
-//		//imgGPS.setBackgroundResource(R.drawable.gps_bad);
-//		//btnCenter.setEnabled(false);
-//		// TODO: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
-//		String providers = Settings.Secure.getString(
-//				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-//		if(providers.indexOf("gps", 0) < 0) 
-//		{
-//			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
-//		}		
-//	}
-
-//	@Override
-//	public void onProviderEnabled(String provider) {
-//		//bGPSCanUse = true;
-//		Log.v("gps","onProviderEnabled");
-//		//imgGPS.setBackgroundResource(R.drawable.gps_good);
-//		//btnCenter.setEnabled(true);
-//	}
 
 	// init controls
 	static final int CENTER_BUTTON_ID = 1000;
@@ -968,7 +916,6 @@ implements
 		if( btnCamera == null )
 			btnCamera = new ImageButton(this);
 		btnCamera.setId(CAMERA_BUTTON_ID);
-		// TODO: next lapみたいな文言
 		btnCamera.setBackgroundResource( R.drawable.selector_camera_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
 				R.drawable.main_camerabutton_normal);
@@ -976,7 +923,7 @@ implements
 		= dispInfo.createLayoutParamForNoPosOnBk( 
 				// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
 				bmpoptions.outWidth, bmpoptions.outHeight, true );
-		rlbtnCamera.addRule(RelativeLayout.ALIGN_PARENT_LEFT );
+		rlbtnCamera.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
 		rlbtnCamera.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
 		
 		btnCamera.setLayoutParams(rlbtnCamera);
@@ -984,10 +931,25 @@ implements
 		btnCamera.setOnClickListener(this);
 		addViewToCompContainer(btnCamera);
 
-		// TODO: キャンセルボタンを、右下に配置
-		// cancel?
-		//btnCancel = new ImageButton(this);
+		// Cancelボタン
+		if( btnCancel == null )
+			btnCancel = new ImageButton(this);		
+		btnCancel.setBackgroundResource( R.drawable.selector_cancel_button_image );
+		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+				R.drawable.main_cancelbutton_normal);
+		RelativeLayout.LayoutParams rlBtnCancel
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				// LEFT_TOP_CTRL_1_LEFT_MARGIN, LEFT_TOP_CTRL_1_TOP_MARGIN, 
+				bmpoptions.outWidth, bmpoptions.outHeight, true );
+		rlBtnCancel.addRule(RelativeLayout.ALIGN_PARENT_LEFT );
+		rlBtnCancel.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
 		
+		btnCancel.setLayoutParams(rlBtnCancel);
+		btnCancel.setScaleType(ScaleType.FIT_XY);
+		btnCancel.setOnClickListener(this);
+		btnCancel.setOnTouchListener(this);
+		addViewToCompContainer(btnCancel);
+				
 		try {
 			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 			{
@@ -999,6 +961,7 @@ implements
 				txtSpeed2.setVisibility(View.GONE);
 				btnLap.setVisibility(View.GONE);
 				btnCamera.setVisibility(View.GONE);
+				btnCancel.setVisibility(View.GONE);
 				txtLap.setVisibility(View.GONE);
 				btnCenter.setEnabled(false);
 				txtLocationCount.setVisibility(View.GONE);
@@ -1011,7 +974,10 @@ implements
 				txtTime.setVisibility(View.VISIBLE);		
 				btnLap.setVisibility(View.VISIBLE);
 				btnCamera.setVisibility(View.VISIBLE);
+				btnCancel.setVisibility(View.VISIBLE);
 				btnCamera.setEnabled(true);
+				btnCancel.setEnabled(true);
+
 				if( false == RunLoggerService.isEmptyLogStocker()
 				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 				{
@@ -1117,6 +1083,51 @@ implements
 				txtLap.setText(getString(R.string.LAP_LABEL) 
 						+ ( RunLoggerService.getLogStocker().getStockedLapCount() + 1));
 			}
+			else if( v == btnCancel )
+			{
+				if( false == bCancelBtnEnableRegionTouched )
+				{
+					return;
+				}
+				try {
+					// 全てクリアする
+					// TODO:確認ダイアログ
+					if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
+					{
+						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
+						// logging end
+						RunLogger.sService.stopLog();
+						clearGPS();
+			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
+						
+						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+						txtTime.setVisibility(View.GONE);
+						txtTimeOfLap.setVisibility(View.GONE);
+						txtDistance.setVisibility(View.GONE);
+						txtDistanceOfLap.setVisibility(View.GONE);
+						txtSpeed.setVisibility(View.GONE);
+						txtSpeed2.setVisibility(View.GONE);
+						txtLap.setVisibility(View.GONE);
+						btnCenter.setEnabled(false);
+						txtLocationCount.setVisibility(View.GONE);
+						btnLap.setVisibility(View.GONE);
+						btnCamera.setVisibility(View.GONE);
+						btnCancel.setVisibility(View.GONE);
+						imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+						if( bUseGPS )
+						{
+							requestGPS();
+						}
+						Log.v("btnCancel","clicked");
+						return;
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					Log.e("btnCancel","clicked error");
+				}
+			}			
 			else if( v == btnCamera )
 			{
 				// カメラビュー
@@ -1163,6 +1174,8 @@ implements
 						txtTime.setVisibility(View.VISIBLE);
 						btnLap.setVisibility(View.VISIBLE);
 						btnCamera.setVisibility(View.VISIBLE);
+						btnCancel.setVisibility(View.VISIBLE);
+						btnCancel.setEnabled(true);						
 						if( 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 						{
 							txtLap.setVisibility(View.VISIBLE);
@@ -1182,6 +1195,20 @@ implements
 			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
 						
+						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+						txtTime.setVisibility(View.GONE);
+						txtTimeOfLap.setVisibility(View.GONE);
+						txtDistance.setVisibility(View.GONE);
+						txtDistanceOfLap.setVisibility(View.GONE);
+						txtSpeed.setVisibility(View.GONE);
+						txtSpeed2.setVisibility(View.GONE);
+						txtLap.setVisibility(View.GONE);
+						btnCenter.setEnabled(false);
+						txtLocationCount.setVisibility(View.GONE);
+						btnLap.setVisibility(View.GONE);
+						btnCamera.setVisibility(View.GONE);
+						btnCancel.setVisibility(View.GONE);
+						
 						if( RunLoggerService.getLogStocker().getCurrentLocation() == null )
 						{
 							return;
@@ -1191,12 +1218,13 @@ implements
 						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
 				        startActivity(intent);				
 						
-						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
-		//				txtDistance.setVisibility(View.VISIBLE);
-		//				txtSpeed.setVisibility(View.VISIBLE);
-		//				txtTime.setVisibility(View.VISIBLE);
-						btnLap.setVisibility(View.GONE);
-						btnCamera.setVisibility(View.GONE);
+//						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+//		//				txtDistance.setVisibility(View.VISIBLE);
+//		//				txtSpeed.setVisibility(View.VISIBLE);
+//		//				txtTime.setVisibility(View.VISIBLE);
+//						btnLap.setVisibility(View.GONE);
+//						btnCamera.setVisibility(View.GONE);
+//						btnCancel.setVisibility(View.GONE);
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
@@ -1206,7 +1234,7 @@ implements
 		} finally {
 			if( v != null )
 			{
-				if( v == btnGPS || v == btnLap )
+				if( v == btnGPS || v == btnLap || v==btnCancel)
 				{
 					v.setEnabled(true);
 				}
@@ -1240,7 +1268,8 @@ implements
 		Region region = null;
 		//Boolean bRegionFlag = null;
 		if( v == btnCenter 
-		|| v == btnLap )
+		|| v == btnLap 
+		|| v == btnCancel )
 		{
 			if( btnCenter == v )
 			{
@@ -1252,6 +1281,10 @@ implements
 			{
 				region = regionLapBtn;
 				//bRegionFlag = bLapBtnEnableRegionTouched;
+			}
+			else if( v == btnCancel )
+			{
+				region = regionCancelBtn;
 			}
 	        // タッチされた座標の取得
 	        int x1 = (int)event.getX();
@@ -1292,6 +1325,10 @@ implements
 				{
 					bLapBtnEnableRegionTouched = true;
 				}
+				else if( v == btnCancel )
+				{
+					bCancelBtnEnableRegionTouched = true;
+				}
 			}
 	        if( false == region.contains( x1, y1 ))
 	        {
@@ -1304,6 +1341,10 @@ implements
 				else if( v == btnLap )
 				{
 					bLapBtnEnableRegionTouched = false;
+				}
+				else if( v == btnCancel )
+				{
+					bCancelBtnEnableRegionTouched = false;
 				}
  
 	        	// onTouchを返さないと、他の制御がおかしくなりそうなので、onTouchは返した後、

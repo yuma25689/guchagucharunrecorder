@@ -13,14 +13,24 @@ import app.guchagucharr.interfaces.IPageViewController;
 
 
 public class ResultPagerAdapter extends PagerAdapter {
+    private int mPageCount = 1;
+    public void setCount(int pageCount)
+    {
+    	if( mPageCount != pageCount )
+    	{
+    		mPageCount = pageCount;
+			// TODO: ã“ã‚Œã§æ›´æ–°ã¯è¡Œã‚ã‚Œã‚‹ã®ã‹ãƒ»ãƒ»ãƒ»è¦ç¢ºèª
+			notifyDataSetChanged();    		
+    	}
+    }
 	 
     private static final int TOTAL_PAGE = 2;
-    private LayoutInflater mInflter;    // ƒŒƒCƒAƒEƒg‚ğì‚é‚â‚Â
-    private IPageViewController mParent;   // ƒAƒNƒeƒBƒrƒeƒB
+    private LayoutInflater mInflter;    // ï¿½ï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    private IPageViewController mParent;   // ï¿½Aï¿½Nï¿½eï¿½Bï¿½rï¿½eï¿½B
  
     /**
-     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-     * @param context ƒRƒ“ƒeƒLƒXƒg
+     * ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
+     * @param context ï¿½Rï¿½ï¿½ï¿½eï¿½Lï¿½Xï¿½g
      */
     public ResultPagerAdapter(final Activity activity, IPageViewController parent ) {
         this.mInflter = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -28,9 +38,9 @@ public class ResultPagerAdapter extends PagerAdapter {
     }
  
     /**
-     * ƒy[ƒW‚ğì‚é‚Æ‚«‚ÌŒÄ‚Î‚ê‚é
-     * @param container ‚±‚Ì’†‚Éƒrƒ…[‚ğì‚é(ƒŒƒCƒAƒEƒg‚©‚ç‚Ğ‚Á‚Ï‚Ä‚«‚½‚è)
-     * @param position ƒCƒ“ƒXƒ^ƒ“ƒX‚ğì‚éˆÊ’u
+     * ï¿½yï¿½[ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ÌŒÄ‚Î‚ï¿½ï¿½
+     * @param container ï¿½ï¿½ï¿½Ì’ï¿½ï¿½Éƒrï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½Ğ‚ï¿½ï¿½Ï‚Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½)
+     * @param position ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½Ê’u
      * @return
      */
     @Override
@@ -45,8 +55,8 @@ public class ResultPagerAdapter extends PagerAdapter {
     }
      
     /**
-     * íœ‚³‚ê‚éƒ^ƒCƒ~ƒ“ƒO‚ÅŒÄ‚Î‚ê‚éB
-     * í‚Éƒƒ‚ƒŠ‚ÉƒŒƒCƒAƒEƒg‚ğƒL[ƒv‚¹‚¸‚É‚»‚Ì‚Â‚Çì‚èo‚·İŒv‚ç‚µ‚¢B
+     * ï¿½íœï¿½ï¿½ï¿½ï¿½ï¿½^ï¿½Cï¿½~ï¿½ï¿½ï¿½Oï¿½ÅŒÄ‚Î‚ï¿½ï¿½B
+     * ï¿½ï¿½Éƒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éƒï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½Lï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Ì‚Â‚Çï¿½ï¿½oï¿½ï¿½ï¿½İŒvï¿½ç‚µï¿½ï¿½ï¿½B
      */
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
@@ -56,21 +66,21 @@ public class ResultPagerAdapter extends PagerAdapter {
     }
  
     /**
-     * ƒy[ƒW‚Ì–‡”‚ğ•Ô‚·
+     * ï¿½yï¿½[ï¿½Wï¿½Ì–ï¿½ï¿½ï¿½ï¿½ï¿½Ô‚ï¿½
      */
     @Override
     public int getCount() {
-        // TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+        // TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½\ï¿½bï¿½hï¿½Eï¿½Xï¿½^ï¿½u
         return TOTAL_PAGE;
     }
  
     /**
-     * ƒrƒ…[“¯m‚Ì”äŠr
-     * ‘½•ª“à•”‚ÅŒÄ‚Ño‚³‚ê‚é‚ñ‚¶‚á‚È‚¢‚©‚ÈH
+     * ï¿½rï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½mï¿½Ì”ï¿½r
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÅŒÄ‚Ñoï¿½ï¿½ï¿½ï¿½ï¿½ñ‚¶‚ï¿½È‚ï¿½ï¿½ï¿½ï¿½ÈH
      */
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        // TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+        // TODO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½\ï¿½bï¿½hï¿½Eï¿½Xï¿½^ï¿½u
         return view.equals(object);
     }
      
