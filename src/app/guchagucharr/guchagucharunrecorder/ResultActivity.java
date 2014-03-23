@@ -212,7 +212,7 @@ implements IPageViewController
 			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_gpsbutton_normal);
 			RelativeLayout.LayoutParams rlBtnGps 
 			= dispInfo.createLayoutParamForNoPosOnBk( 
-					bmpoptions.outWidth, bmpoptions.outHeight, true );
+					bmpoptions.outWidth, bmpoptions.outHeight, false );
 			rlBtnGps.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID );
 			rlBtnGps.leftMargin = RIGHT_CENTER_CTRL_MARGIN;		
 			rlBtnGps.addRule(RelativeLayout.ABOVE, GPS_INDICATOR_ID);

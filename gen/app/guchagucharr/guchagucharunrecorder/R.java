@@ -244,6 +244,7 @@ containing a value of this type.
         public static final int dummy_button=0x7f050008;
         public static final int fullscreen_content_controls=0x7f050007;
         public static final int hybrid=0x7f050004;
+        public static final int id_menu_recovery=0x7f05000c;
         public static final int layout_top=0x7f050009;
         public static final int main_content=0x7f050005;
         public static final int none=0x7f050000;
@@ -263,6 +264,9 @@ containing a value of this type.
         public static final int page_hscrollable=0x7f030005;
         public static final int page_vscrollable=0x7f030006;
         public static final int result_page=0x7f030007;
+    }
+    public static final class menu {
+        public static final int main_menu=0x7f080000;
     }
     public static final class string {
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f060024;
@@ -379,6 +383,7 @@ containing a value of this type.
         public static final int location_client_ulr_inactive_unknown_restriction=0x7f060014;
         public static final int menu_delete=0x7f060032;
         public static final int menu_detail=0x7f060031;
+        public static final int menu_recovery=0x7f060043;
         public static final int menu_share=0x7f060033;
         public static final int meter=0x7f06001c;
         public static final int meterpersecond=0x7f060021;

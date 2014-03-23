@@ -3,6 +3,7 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import java.io.File;
 import java.util.Timer;
+
 //import java.util.TimerTask;
 
 
@@ -25,10 +26,14 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -276,7 +281,7 @@ implements
 					RunLogger.sService.stopLog();
 					// ログ取得中でない場合は、完全に停止させる
 					RunLogger.sService.clearGPS();
-					RunLogger.sService.clearLocationManager();					
+					RunLogger.sService.clearLocationManager();
 					// サービスの登録解除
 				    RunLogger.unbindFromService(mToken);
 				    // サービスの停止
@@ -286,7 +291,7 @@ implements
 				{
 					// ログ取得中
 					// サービスとActivityの切り離しのみ
-				    RunLogger.unbindFromService(mToken);					
+				    RunLogger.unbindFromService(mToken);		
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -367,17 +372,17 @@ implements
         Log.v("Bearing", String.valueOf(location.getBearing()));
 		
 		// TODO: 精度の表示
-		if( 30 < location.getAccuracy() )
+		if( 50 < location.getAccuracy() )
 		{
 			imgGPS.setBackgroundResource(R.drawable.gps_bad);
 		}
-		else if( 20 >= location.getAccuracy() )
+		else if( 30 >= location.getAccuracy() )
 		{
-			imgGPS.setBackgroundResource(R.drawable.gps_good);
+			imgGPS.setBackgroundResource(R.drawable.gps_soso);
 		}
 		else if( 10 >= location.getAccuracy() )
 		{
-			imgGPS.setBackgroundResource(R.drawable.gps_soso);
+			imgGPS.setBackgroundResource(R.drawable.gps_good);
 		}
 	    if(mTimer != null){
 	        mTimer.cancel();
@@ -735,35 +740,6 @@ implements
 		txtTimeOfLap.setTextSize(TIME_TEXTVIEW_FONT_SIZE);
 		addViewToCompContainer(txtTimeOfLap);
 
-		// distanceOfLap
-		if( txtDistanceOfLap == null )
-			txtDistanceOfLap = new TextView(this);
-		txtDistanceOfLap.setId(DISTANCE_LAP_TEXT_ID);
-		RelativeLayout.LayoutParams rlTxtDistanceOfLap
-		= dispInfo.createLayoutParamForNoPosOnBk( 
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-        if( true == dispInfo.isPortrait() )
-        {
-        	// 縦向き
-        	rlTxtDistanceOfLap.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-        	rlTxtDistanceOfLap.topMargin = CENTER_BELOW_CTRL_MARGIN;
-        	rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        }
-        else
-        {
-        	// 横向き
-        	rlTxtDistanceOfLap.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-    		rlTxtDistanceOfLap.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-    		rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_VERTICAL);
-        }
-        txtDistanceOfLap.setLayoutParams(rlTxtDistanceOfLap);
-        txtDistanceOfLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-		//txtDistanceOfLap.setText("42.5353 km");
-        txtDistanceOfLap.setSingleLine();
-        txtDistanceOfLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-        txtDistanceOfLap.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
-		addViewToCompContainer(txtDistanceOfLap);
-		
 		// distance
 		if( txtDistance == null )
 			txtDistance = new TextView(this);
@@ -786,8 +762,8 @@ implements
         	// 横向き
     		rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
     		rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-        	rlTxtDistance.addRule(RelativeLayout.BELOW, DISTANCE_LAP_TEXT_ID);        	
-    		//rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+        	//rlTxtDistance.addRule(RelativeLayout.BELOW, DISTANCE_LAP_TEXT_ID);        	
+    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
         }
 		txtDistance.setLayoutParams(rlTxtDistance);
 		txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
@@ -797,7 +773,36 @@ implements
 		txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
 		addViewToCompContainer(txtDistance);
 		
-
+		// distanceOfLap
+		if( txtDistanceOfLap == null )
+			txtDistanceOfLap = new TextView(this);
+		txtDistanceOfLap.setId(DISTANCE_LAP_TEXT_ID);
+		RelativeLayout.LayoutParams rlTxtDistanceOfLap
+		= dispInfo.createLayoutParamForNoPosOnBk( 
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+        if( true == dispInfo.isPortrait() )
+        {
+        	// 縦向き
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+        	rlTxtDistanceOfLap.topMargin = CENTER_BELOW_CTRL_MARGIN;
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        }
+        else
+        {
+        	// 横向き
+        	rlTxtDistanceOfLap.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+    		rlTxtDistanceOfLap.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+    		//rlTxtDistanceOfLap.addRule(RelativeLayout.CENTER_VERTICAL);
+    		rlTxtDistanceOfLap.addRule(RelativeLayout.ABOVE, DISTANCE_TEXT_ID);    		
+        }
+        txtDistanceOfLap.setLayoutParams(rlTxtDistanceOfLap);
+        txtDistanceOfLap.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+		//txtDistanceOfLap.setText("42.5353 km");
+        txtDistanceOfLap.setSingleLine();
+        txtDistanceOfLap.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+        txtDistanceOfLap.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
+		addViewToCompContainer(txtDistanceOfLap);
+		
 		// speed
 		if( txtSpeed == null )		
 			txtSpeed = new TextView(this);
@@ -1442,5 +1447,30 @@ implements
 			}
 		}
 	}
+	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+      }
+      
+      @Override
+      public boolean onPrepareOptionsMenu(Menu menu) {
+        // updateMenuItems(isGpsStarted, isRecording);
+        return super.onPrepareOptionsMenu(menu);
+      }
+      
+      @Override
+      public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+          case R.id.id_menu_recovery:
+            return true;
+          default:
+            return super.onOptionsItemSelected(item);
+        }
+      }
+	
 
 }

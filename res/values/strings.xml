@@ -60,5 +60,6 @@
 	<string name="cant_start_workout_because_error">Sorry\, you can\'t start work out because SD card can\'t use.</string>
 	
 	<string name="no_title"></string>
-		
+	<string name="menu_recovery">recovery</string>
+			
 </resources>
