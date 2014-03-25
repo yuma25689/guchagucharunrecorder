@@ -63,7 +63,6 @@ public class EditBlock extends RelativeLayout {
 	public EditBlock(Activity activity,
 			int _parentWidth,
 			int _parentHeight,
-			String columnDataType_,
 			DisplayInfo dispInfo_,
 			ColumnData columnData_,
 			int iEstimatedBlockCount_

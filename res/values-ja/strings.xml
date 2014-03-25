@@ -33,7 +33,9 @@
     <string name="menu_detail">詳細</string>
     <string name="menu_delete">削除</string>
     <string name="menu_share">共有</string>
-    
+	<string name="menu_edit">編集</string>
+	<string name="menu_recovery">復元</string>
+	    
     <string name="GPX_EXISTS">GPXファイルあり</string>
     <string name="GPX_LOSE">GPXファイル紛失</string>
     <string name="LAP_COUNT_LABEL">ラップ数:</string>
@@ -54,5 +56,8 @@
 	<string name="cant_start_workout_because_error">SDカードにファイルを作成するのを失敗したので、ワークアウトを開始できませんでした。</string>
 
 	<string name="no_title"></string>	
-	<string name="menu_recovery">復元</string>
+	
+	<string name="description_save">編集内容を保存</string>
+	<string name="description_cancel">編集をキャンセル</string>
+		
 </resources>

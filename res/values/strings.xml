@@ -39,6 +39,8 @@
     <string name="menu_detail">Detail</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_share">Share</string>
+    <string name="menu_edit">Edit</string>
+	<string name="menu_recovery">recovery</string>
     
     <string name="GPX_EXISTS">GPX exist</string>
     <string name="GPX_LOSE">GPX lost</string>
@@ -60,6 +62,8 @@
 	<string name="cant_start_workout_because_error">Sorry\, you can\'t start work out because SD card can\'t use.</string>
 	
 	<string name="no_title"></string>
-	<string name="menu_recovery">recovery</string>
-			
+	
+	<string name="description_save">save the edit contents.</string>
+	<string name="description_cancel">cancel the edit contents.</string>
+					
 </resources>

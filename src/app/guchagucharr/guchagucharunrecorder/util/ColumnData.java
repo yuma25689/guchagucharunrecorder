@@ -3,12 +3,49 @@ package app.guchagucharr.guchagucharunrecorder.util;
 import app.guchagucharr.service.SQLiteContract;
 
 public class ColumnData {
+	boolean hidden = false;
+	boolean editable = true;
 	String columnName;
 	String labelBefore;
 	String labelAfter;
 	String dataType = SQLiteContract.NONE;
 	String text;
 	String hint;
+	public ColumnData(boolean hidden, boolean editable, String columnName, String labelBefore,
+			String labelAfter, String dataType, String text, String hint) {
+		super();
+		this.hidden = hidden;
+		this.editable = editable;
+		this.columnName = columnName;
+		this.labelBefore = labelBefore;
+		this.labelAfter = labelAfter;
+		this.dataType = dataType;
+		this.text = text;
+		this.hint = hint;
+	}
+	public ColumnData(boolean editable, String columnName, String labelBefore,
+			String labelAfter, String dataType, String text, String hint) {
+		super();
+		this.editable = editable;
+		this.columnName = columnName;
+		this.labelBefore = labelBefore;
+		this.labelAfter = labelAfter;
+		this.dataType = dataType;
+		this.text = text;
+		this.hint = hint;
+	}
+	/**
+	 * @return the hidden
+	 */
+	public boolean isHidden() {
+		return hidden;
+	}
+	/**
+	 * @param hidden the hidden to set
+	 */
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
 	/**
 	 * @return the labelBefore
 	 */

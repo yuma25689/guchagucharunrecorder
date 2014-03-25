@@ -38,6 +38,10 @@ import app.guchagucharr.service.RunHistoryLoader.ActivityData;
 import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
+	static final int CONTEXT_MENU_DETAIL_ID = 0;
+	static final int CONTEXT_MENU_DELETE_ID = 1;
+	static final int CONTEXT_MENU_SHARE_ID = 2;
+	
 	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	private ViewPager mViewPager;
@@ -468,9 +472,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	public DisplayInfo getDispInfo() {
 		return dispInfo;
 	}
-	static final int CONTEXT_MENU_DETAIL_ID = 0;
-	static final int CONTEXT_MENU_DELETE_ID = 1;
-	static final int CONTEXT_MENU_SHARE_ID = 2;
 	 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {

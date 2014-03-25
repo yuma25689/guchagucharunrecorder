@@ -26,11 +26,9 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -153,10 +151,6 @@ implements
         intentFilter.addAction(TIMER_NOTIFY);
         registerReceiver(receiver,intentFilter);
 
-        // 呼ばれる回数が多すぎるかもしれない
-	    // Bind( Or Create and Bind) to Service
-        mToken = RunLogger.bindToService(this, this);
-
     	// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
@@ -165,6 +159,10 @@ implements
 		regionCancelBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
 
+        // 呼ばれる回数が多すぎるかもしれない
+        // 03/25 Activityがnullになっている可能性があるので、
+	    // Bind( Or Create and Bind) to Service
+        // mToken = RunLogger.bindToService(this, this);
         super.onResume();
     }
 	
@@ -224,24 +222,26 @@ implements
 //				{
 //					clearGPS();
 //				}
-				if( RunLogger.sService != null
-				&& RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+				if( RunLogger.sService != null )
 				{
-					clearGPS();
-					RunLogger.sService.stopLog();
-					// ログ取得中でない場合は、完全に停止させる
-					// RunLogger.sService.clearGPS();
-					RunLogger.sService.clearLocationManager();					
-					// サービスの登録解除
-				    RunLogger.unbindFromService(mToken);
-				    // サービスの停止
-				    RunLogger.stopService(this);
-				}
-				else
-				{
-					// ログ取得中
-					// サービスとActivityの切り離しのみ
-				    RunLogger.unbindFromService(mToken);					
+					if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+					{
+						clearGPS();
+						RunLogger.sService.stopLog();
+						// ログ取得中でない場合は、完全に停止させる
+						// RunLogger.sService.clearGPS();
+						RunLogger.sService.clearLocationManager();					
+						// サービスの登録解除
+					    RunLogger.unbindFromService(mToken);
+					    // サービスの停止
+					    RunLogger.stopService(this);
+					}
+					else
+					{
+						// ログ取得中
+						// サービスとActivityの切り離しのみ
+					    RunLogger.unbindFromService(mToken);					
+					}
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -482,6 +482,10 @@ implements
 	@Override
 	public int initControls()
 	{
+        // 呼ばれる回数が多すぎるかもしれない
+	    // Bind( Or Create and Bind) to Service
+        mToken = RunLogger.bindToService(this, this);
+		
 		// TODO:サービスにつながれていないときに、ここに来てはいけない
 		Log.v("initControls","come");
 		if( RunLogger.sService == null )

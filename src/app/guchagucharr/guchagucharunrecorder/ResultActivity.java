@@ -4,9 +4,7 @@ package app.guchagucharr.guchagucharunrecorder;
 import java.text.SimpleDateFormat;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
@@ -19,9 +17,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
@@ -29,7 +29,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
@@ -45,6 +44,7 @@ implements IPageViewController
 , OnClickListener 
 , OnTouchListener
 {
+	static final int CONTEXT_MENU_EDIT_ID = 0;
 
 	Region regionCenterBtn = null;
 	Boolean bCenterBtnEnableRegionTouched = false;
@@ -720,6 +720,38 @@ implements IPageViewController
 	        }
 		}
 		return false;
+	}
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	 
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	 
+	    //コンテキストメニューの設定
+	    DisplayBlock block = (DisplayBlock) v;
+	    menu.setHeaderTitle(block.getTitle()[0]);
+	    // menu.setHeaderView
+	    //menu.setHeaderIcon
+	    //Menu.add(int groupId, int itemId, int order, CharSequence title)
+	    //menu.add(CONTEXT_MENU_DETAIL_ID, (int)block.getRecordId(), 0, R.string.menu_detail);
+	    menu.add(CONTEXT_MENU_EDIT_ID, (int)block.getRecordId(), 0, R.string.menu_edit);
+	    //menu.add(CONTEXT_MENU_DELETE_ID, (int)block.getRecordId(), 0, R.string.menu_delete);
+	    
+	}
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	    switch (item.getGroupId()) {
+	    case CONTEXT_MENU_EDIT_ID:
+	        // 編集メニュー
+			// launch activity for save
+			Intent intent = new Intent( this, EditActivity.class );
+			// TODO:編集データ識別子の設定
+			// intent.set
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        startActivity(intent);	    	
+	    	return true;
+	    default:
+	        return super.onContextItemSelected(item);
+	    }
 	}
 
 }

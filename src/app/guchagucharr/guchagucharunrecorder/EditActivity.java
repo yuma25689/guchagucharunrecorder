@@ -38,7 +38,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.page_vscrollable);
+		setContentView(R.layout.activity_edit);
 
 		handler = new EditHandler(this,this);
         componentContainer = (ViewGroup) findViewById(R.id.page_content);

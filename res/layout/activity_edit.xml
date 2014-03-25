@@ -1,0 +1,43 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:baselineAligned="false"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <!-- android:background="@drawable/main_background" -->
+	<ScrollView 
+	   android:layout_weight="1"
+	   android:layout_width="0dip"
+	   android:layout_height="match_parent" >
+		<RelativeLayout
+		    android:id="@+id/page_content"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+		</RelativeLayout>
+	</ScrollView>
+
+	<RelativeLayout
+	    android:id="@+id/edit_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+    	<ImageButton
+    	android:contentDescription="@string/description_save"
+    	android:layout_centerVertical="true"
+    	android:layout_alignParentRight="true"
+		android:id="@+id/edit_savebutton"
+		android:background="@drawable/selector_save_mini_button_image"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content" />    	    
+    	<ImageButton
+		android:contentDescription="@string/description_cancel"    	    
+    	android:layout_centerVertical="true"
+    	android:layout_alignParentLeft="true"
+		android:id="@+id/edit_cancelbutton"
+		android:background="@drawable/selector_cancel_button_image"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content" />    	    
+    	
+   	</RelativeLayout>
+	
+</LinearLayout>
