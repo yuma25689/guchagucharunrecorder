@@ -8,9 +8,11 @@ import java.util.Timer;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -144,6 +146,27 @@ implements
 	}	
 	@Override
     protected void onResume() {
+		
+//		  private void checkGooglePlayServices() {
+//			    int code = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+//			    if (code != ConnectionResult.SUCCESS) {
+//			      Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
+//			          code, this, GOOGLE_PLAY_SERVICES_REQUEST_CODE, new DialogInterface.OnCancelListener() {
+//
+//			              @Override
+//			            public void onCancel(DialogInterface dialogInterface) {
+//			              finish();
+//			            }
+//			          });
+//			      if (dialog != null) {
+//			        dialog.show();
+//			        return;
+//			      }
+//			    }
+		
+		// 03/25 Activityがnullな可能性？
+		ResourceAccessor.getInstance().setActivity(this);
+		
         // サービスからの通知を受けるレシーバの作成、登録
         receiver = new ServiceNotifyReceiver();
         intentFilter = new IntentFilter();
@@ -160,9 +183,8 @@ implements
         dispInfo.init(this, componentContainer, handler,false);
 
         // 呼ばれる回数が多すぎるかもしれない
-        // 03/25 Activityがnullになっている可能性があるので、
-	    // Bind( Or Create and Bind) to Service
-        // mToken = RunLogger.bindToService(this, this);
+        // Bind( Or Create and Bind) to Service
+        mToken = RunLogger.bindToService(this, this);
         super.onResume();
     }
 	
@@ -202,6 +224,20 @@ implements
 		}
 	}
 	
+	void stopService() throws RemoteException
+	{
+		clearGPS();
+		RunLogger.sService.stopLog();
+		// ログ取得中でない場合は、完全に停止させる
+		// RunLogger.sService.clearGPS();
+		RunLogger.sService.clearLocationManager();					
+		// サービスの登録解除
+	    RunLogger.unbindFromService(mToken);
+	    // サービスの停止
+	    RunLogger.stopService(this);		
+	}
+	
+	
 	@Override
 	protected void onPause()
 	{		
@@ -218,23 +254,20 @@ implements
 		if(mToken != null)
 		{
 			try {
-//				if( RunLogger.sService != null )
-//				{
-//					clearGPS();
-//				}
 				if( RunLogger.sService != null )
 				{
 					if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 					{
-						clearGPS();
-						RunLogger.sService.stopLog();
-						// ログ取得中でない場合は、完全に停止させる
-						// RunLogger.sService.clearGPS();
-						RunLogger.sService.clearLocationManager();					
-						// サービスの登録解除
-					    RunLogger.unbindFromService(mToken);
-					    // サービスの停止
-					    RunLogger.stopService(this);
+						stopService();
+						//						clearGPS();
+//						RunLogger.sService.stopLog();
+//						// ログ取得中でない場合は、完全に停止させる
+//						// RunLogger.sService.clearGPS();
+//						RunLogger.sService.clearLocationManager();					
+//						// サービスの登録解除
+//					    RunLogger.unbindFromService(mToken);
+//					    // サービスの停止
+//					    RunLogger.stopService(this);
 					}
 					else
 					{
@@ -268,37 +301,31 @@ implements
 	@Override
 	protected void onStop()
 	{
-		// TODO: 残念ながら、ここで、いちいちLocationを保存する仕組みにしないと、
-		// ランニング中にアプリケーションが終了するだけで、ランニングデータが消えてしまう。
-		// GPXファイルを常に書き続けるような作りと、
-		// GPXファイルからLocationデータを復帰させるような仕組みがあればいいのではないかと思われる。
+		/*
 		// サービスとの接続を切断
 		if(mToken != null)
 		{
 			try {
-				if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+				if( RunLogger.sService != null )
 				{
-					RunLogger.sService.stopLog();
-					// ログ取得中でない場合は、完全に停止させる
-					RunLogger.sService.clearGPS();
-					RunLogger.sService.clearLocationManager();
-					// サービスの登録解除
-				    RunLogger.unbindFromService(mToken);
-				    // サービスの停止
-				    RunLogger.stopService(this);
-				}
-				else
-				{
-					// ログ取得中
-					// サービスとActivityの切り離しのみ
-				    RunLogger.unbindFromService(mToken);		
+					if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+					{
+						stopService();
+					}
+					else
+					{
+						// ログ取得中
+						// サービスとActivityの切り離しのみ
+					    RunLogger.unbindFromService(mToken);					
+					}
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				Log.e("onPause","RemoteException");
+				Log.e("onStop","RemoteException");
 			}
 		    mToken = null;
 		}
+		*/
 				
         // clearGPS();
         super.onStop();
@@ -360,7 +387,10 @@ implements
 	public void onLocationChanged(Location location) {
 		//bGPSCanUse = true;
 		Log.v("onLocationChanged - MainActivity","come");
-		btnCenter.setEnabled(true);
+		if( btnCenter != null && btnCenter.isEnabled() == false )
+		{
+			btnCenter.setEnabled(true);
+		}
 		updateLogDisplay( location.getSpeed() );
 		Log.v("----------", "----------");
         Log.v("Latitude", String.valueOf(location.getLatitude()));
@@ -371,19 +401,26 @@ implements
         Log.v("Speed", String.valueOf(location.getSpeed()));
         Log.v("Bearing", String.valueOf(location.getBearing()));
 		
-		// TODO: 精度の表示
-		if( 50 < location.getAccuracy() )
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_bad);
-		}
-		else if( 30 >= location.getAccuracy() )
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_soso);
-		}
-		else if( 10 >= location.getAccuracy() )
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_good);
-		}
+        if( imgGPS != null )
+        {
+			// TODO: 精度の表示
+        	if( false == isArrowGPSSetting() )
+        	{
+        		imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+        	}
+        	else if( 50 < location.getAccuracy() )
+			{
+				imgGPS.setBackgroundResource(R.drawable.gps_bad);
+			}
+			else if( 30 >= location.getAccuracy() )
+			{
+				imgGPS.setBackgroundResource(R.drawable.gps_soso);
+			}
+			else if( 10 >= location.getAccuracy() )
+			{
+				imgGPS.setBackgroundResource(R.drawable.gps_good);
+			}
+        }
 	    if(mTimer != null){
 	        mTimer.cancel();
 	        mTimer = null;
@@ -479,12 +516,25 @@ implements
 		return true;
 	}
 	
+	void resetGpsIndicator()
+	{
+		if(false == isArrowGPSSetting()) 
+		{
+			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+		}
+		else
+		{
+			// TODO: 未受信の画像作成？
+			imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+		}
+		
+	}
 	@Override
 	public int initControls()
 	{
         // 呼ばれる回数が多すぎるかもしれない
 	    // Bind( Or Create and Bind) to Service
-        mToken = RunLogger.bindToService(this, this);
+        //mToken = RunLogger.bindToService(this, this);
 		
 		// TODO:サービスにつながれていないときに、ここに来てはいけない
 		Log.v("initControls","come");
@@ -497,6 +547,7 @@ implements
 			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal()
 			&& isTmpGpxFileExists(this) )
 			{
+				Log.v("recovery process","come");
 			// ノーマルモードなのに、GPXがある
 			// ->前に落ちたと見なし、復帰処理に入る
 				RunLoggerService.clearRunLogStocker();
@@ -613,22 +664,23 @@ implements
 			imgGPS = new ImageView(this);
 		}
 		imgGPS.setId(GPS_INDICATOR_ID);
-		if(false == isArrowGPSSetting()) 
-		{
-			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
-		}
-		else
-		{
-//			try {
-//				RunLogger.sService.createLocationManager();
-//			} catch (RemoteException e) {
-//				e.printStackTrace();
-//				Log.e("createLocationManager",e.getMessage());
-//			}
-			// TODO: 未受信の画像作成？
-			imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
-			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
-		}
+		resetGpsIndicator();
+//		if(false == isArrowGPSSetting()) 
+//		{
+//			imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
+//		}
+//		else
+//		{
+////			try {
+////				RunLogger.sService.createLocationManager();
+////			} catch (RemoteException e) {
+////				e.printStackTrace();
+////				Log.e("createLocationManager",e.getMessage());
+////			}
+//			// TODO: 未受信の画像作成？
+//			imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+//			//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+//		}
 		//imgGPS.setBackgroundResource( R.drawable.gps_bad );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.gps_bad);
 		RelativeLayout.LayoutParams rlIndGps 
@@ -1124,7 +1176,8 @@ implements
 						btnLap.setVisibility(View.GONE);
 						btnCamera.setVisibility(View.GONE);
 						btnCancel.setVisibility(View.GONE);
-						imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
+						resetGpsIndicator();
+						//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
 						if( bUseGPS )
 						{
 							requestGPS();
@@ -1467,10 +1520,10 @@ implements
       
       @Override
       public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
+        //Intent intent;
         switch (item.getItemId()) {
-          case R.id.id_menu_recovery:
-            return true;
+          //case ID_MENU_RECOVERY:
+            //return true;
           default:
             return super.onOptionsItemSelected(item);
         }

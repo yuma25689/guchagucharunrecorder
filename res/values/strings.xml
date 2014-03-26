@@ -65,5 +65,33 @@
 	
 	<string name="description_save">save the edit contents.</string>
 	<string name="description_cancel">cancel the edit contents.</string>
-					
+
+	<!-- for edit dialog -->
+	<string name="label_start_date_time">StartTime</string>
+	<string name="label_insert_date_time">InsertTime</string>
+	<string name="label_lapname">Name</string>
+	<string name="label_lap_distance">Distance</string>
+	<string name="label_lap_time">LapTime</string>
+	<string name="label_lap_speed">LapSpeed</string>
+	<string name="label_lap_distance_fixed">InputDistance</string>
+	<string name="label_lap_time_fixed">InputLapTime</string>
+	<string name="label_lap_speed_fixed">InputLapSpeed</string>
+	<string name="label_gpxfilepath">GpxFilePath</string>
+	<string name="label_gpxfilepath_fixed">InputGpxFilePath</string>
+												
+	<string name="hint_startdatetime">recording start time</string>
+	<string name="hint_insertdatetime">recording end time?</string>
+	<string name="hint_lapname">name of the lap</string>
+	<string name="hint_lapdistance">distance of the lap</string>
+	<string name="hint_lap_time">time of the lap</string>
+	<string name="hint_lap_speed">speed of the lap</string>
+	<string name="hint_lapdistance_fixed">distance of the lap that input by you(higher priority)</string>
+	<string name="hint_lap_time_fixed">time of the lap that input by you(higher priority)</string>
+	<string name="hint_lap_speed_fixed">speed of the lap that input by you(higher priority)</string>
+	<string name="hint_gpxfilepath">path of the gpx file of the lap</string>
+	<string name="hint_gpxfilepath_fixed">path of the gpx file of the lap input by you(higher priority)</string>
+		
+	<string name="label_unit_distance">m</string>
+	<string name="label_unit_speed">km/h</string>
+	
 </resources>

@@ -56,7 +56,7 @@ public class RunLoggerService extends Service
 implements LocationListener
 {
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
-	private final LocationClient locationClient;
+	private LocationClient locationClient;
 	private float requestLocationUpdatesDistance;
 	private long requestLocationUpdatesTime;
 	private final ConnectionCallbacks connectionCallbacks = 
@@ -89,10 +89,10 @@ implements LocationListener
       };
 
 	  
-	private long lastGetLocationTime = 0;
+	//private long lastGetLocationTime = 0;
 	private Handler handler;	
-	private Timer mTimer = null;	
-	private UpdateTimeDisplayTask timerTask = null;
+	private static Timer mTimer = null;	
+	private static UpdateTimeDisplayTask timerTask = null;
 	class UpdateTimeDisplayTask extends TimerTask
 	{
 	     @Override
@@ -199,8 +199,8 @@ implements LocationListener
     {
         handler = new Handler(); 
 		//if (enableLocationClient) {
-		    locationClient = new LocationClient(ResourceAccessor.getInstance().getActivity(), connectionCallbacks, onConnectionFailedListener);
-		    locationClient.connect();
+//		    locationClient = new LocationClient(ResourceAccessor.getInstance().getActivity(), connectionCallbacks, onConnectionFailedListener);
+//		    locationClient.connect();
 //		} else {
 //			locationClient = null;
 //		}
@@ -213,6 +213,8 @@ implements LocationListener
     @Override
     public void onCreate() {
         super.onCreate();
+	    locationClient = new LocationClient(this, connectionCallbacks, onConnectionFailedListener);
+	    locationClient.connect();
         
 //        mPreferences = getSharedPreferences("Music", MODE_WORLD_READABLE | MODE_WORLD_WRITEABLE);
 //        mCardId = StorageInfo.getCardId(this);        
@@ -259,45 +261,6 @@ implements LocationListener
      */
     public int requestGPS()
     {
-////    	Looper looper = Looper.getMainLooper();
-////    	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, listener, looper);
-//		final long MIN_TIME = 900;
-//		final float MIN_METER = 1f;
-//		String providers = Settings.Secure.getString(
-//				getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-//		if( providers.indexOf("gps", 0) < 0 )
-//		{
-//			// GPSが許可されていないと思われる
-//			Log.v("initGPS", "GPS not allowed.");
-//			return 1;
-//		}
-//		
-//        if (mLocationManager != null ) {
-//        	// clearGPS();
-//            mLocationManager.requestLocationUpdates(
-//                LocationManager.GPS_PROVIDER,
-////                LocationManager.NETWORK_PROVIDER,
-//                MIN_TIME,
-//                MIN_METER,
-//                this);
-//            // 最後に取得してからMIN_TIME*8以上たっていたら、A-GPSの更新を促してみる
-//            if( lastGetLocationTime == 0 
-//            || MIN_TIME*1000 < getTimeInMillis() - lastGetLocationTime )
-//            {
-//            	// A-GPS情報の削除
-//            	// Bundleである項目だけを指定できるが、nullで全て削除
-//            	// ->どうも、やるとやばそう
-//            	//mLocationManager.sendExtraCommand("gps", "delete_aiding_data", null);
-//            	// これでA-GPS情報のダウンロードを促すらしい
-//            	//Bundle bundle = new Bundle();
-//            	//mLocationManager.sendExtraCommand("gps", "force_xtra_injection", null);
-//            	// NTPサーバから、現在時刻を更新してもらうのを促す？
-//            	//mLocationManager.sendExtraCommand("gps", "force_time_injection", null);
-//            	//lastGetLocationTime = getTimeInMillis();
-//            	Log.v("a-gps reset","a-gps reset occur" );
-//            }
-//        }
-//
 		if( locationClient != null )
 		{
 			if( false == locationClient.isConnected() )
@@ -308,64 +271,6 @@ implements LocationListener
 
     	return 0;
     }
-    
-            
-//            // Notification�N���X�̍쐬
-//            Notification status = new Notification();
-//            // 
-//            status.tickerText = ticket;
-//            // Notification�N���X�ɁA�r���[��ݒ�
-//            status.contentView = views;
-//            // Notification���풓������H
-//            //status.flags |= Notification.FLAG_ONGOING_EVENT;
-////            status.ledARGB = 0xffffff00;
-////            status.ledOnMS = 300;
-////            status.ledOffMS = 1000;
-//            // status.flags |= Notification.DEFAULT_LIGHTS;
-//                        
-//            // Notification�̃A�C�R����ݒ�
-//            status.icon = R.drawable.stat_notify_musicplayer;
-//            SharedPreferences prefs = getSharedPreferences(
-//                    MusicSettingsActivity.PREFERENCES_FILE, MODE_PRIVATE);            
-//            boolean bVib = prefs.getBoolean(MusicSettingsActivity.KEY_ENABLE_MEDIA_CHANGE_VIBRATE, false);
-//
-//            if( bVib )
-//            {
-//	            // �o�C�u����΍Đ����ł��邱�ƂɋC�Â��̂�
-////                status.flags |= Notification.DEFAULT_VIBRATE;
-////                status.vibrate = new long[]{250,50,750,10};
-//                Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-//                String sVib = prefs.getString(MusicSettingsActivity.KEY_VIBRATE_INTENSITY, "");
-//                //Log.e("Vib",sVib);
-//                long nVib = 0;
-//                if( sVib != null && sVib.length() > 0 )
-//                {
-//                	nVib = Long.parseLong(sVib);
-//                }
-//                vibrator.vibrate(nVib);
-//            }
-//            // �N���b�N���ɔ��s�����C���e���g�H���낤���H
-//            // �^�C�~���O���w�肵�Ĕ��s�ł���C���e���g
-//            // ����͑����ANotification���N���b�N���ꂽ�Ƃ�
-//            Intent clickIntent = new Intent();
-//            clickIntent.setClassName(
-//            		"okosama.app", "okosama.app.OkosamaMediaPlayerActivity");
-//            status.contentIntent = PendingIntent.getActivity(this, 0,
-//            		// TODO: Activity�ύX
-//            		clickIntent
-//                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
-//            // statusbar��Notification�\��
-//            startForeground(PLAYBACKSERVICE_STATUS, status);
-//            if (!mIsSupposedToBePlaying) {
-//            	// ����͂����炭�v���C���t���O�Ƃ��ė��p����Ă���
-//            	// �܂����ꂪ�����Ă��Ȃ����
-//            	// ���p���t���O�𗧂Ă�
-//                mIsSupposedToBePlaying = true;
-//                // �Đ���Ԃ̕ύX��ʒm����
-//                notifyChange(PLAYSTATE_CHANGED);
-//            }
-
-
     /*
      * By making this a static class with a WeakReference to the Service, we
      * ensure that the Service can be GCd even when the system process still
@@ -431,23 +336,12 @@ implements LocationListener
     
 	private final IBinder mBinder = new ServiceStub(this);
 
-//	void createLocationManager()
-//	{
-//		mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-//	}
-//	void clearLocationManager()
-//	{
-//		mLocationManager = null;
-//	}
 	void clearGPS()
 	{
 	    if (locationClient != null) {
 	    	locationClient.disconnect();
 	    }
 		
-//		if (mLocationManager != null) {
-//	        mLocationManager.removeUpdates(this);
-//	    }
 	}
 	void startLog()
 	{
@@ -461,6 +355,7 @@ implements LocationListener
 	}
 	void stopLog()
 	{
+		Log.v("stopLog","come");
 	    if(mTimer != null){
 	        mTimer.cancel();
 	        mTimer = null;
@@ -487,14 +382,6 @@ implements LocationListener
 			// NOTICE: この関数でほとんど全てのログを取っているようなもの
 			putLocationLog(location);
 		}
-//		Log.v("----------", "----------");
-//        Log.v("Latitude", String.valueOf(location.getLatitude()));
-//        Log.v("Longitude", String.valueOf(location.getLongitude()));
-//        Log.v("Accuracy", String.valueOf(location.getAccuracy()));
-//        Log.v("Altitude", String.valueOf(location.getAltitude()));
-//        Log.v("Time", String.valueOf(location.getTime()));
-//        Log.v("Speed", String.valueOf(location.getSpeed()));
-//        Log.v("Bearing", String.valueOf(location.getBearing()));
 		
         // Send intent to activity
         Intent activityNotifyIntent = new Intent();
@@ -503,16 +390,9 @@ implements LocationListener
         		MainActivity.LOCATION_CHANGE_NOTIFY);
         getBaseContext().sendBroadcast(activityNotifyIntent);
         
-        lastGetLocationTime = location.getTime();
+        //lastGetLocationTime = location.getTime();
         
 	}
-
-//	@Override
-//	public void onProviderDisabled(String provider) {
-//		Log.v("gps","onProviderDisabled");
-//		// NOTICE: GPSが切れたとき。ここに来るかどうか要確認＆来たら、メッセージ表示、ワークアウト終了も考慮
-//		// たぶん、必要ない？		
-//	}
 
 	  /**
 	   * Requests location updates. This is an ongoing request, thus the caller

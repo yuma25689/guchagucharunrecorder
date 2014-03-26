@@ -37,5 +37,6 @@ public class RunHistoryTableContract implements BaseColumns {
     public static final String LAP_FIXED_TIME = "LAP_FIXED_TIME";
     public static final String LAP_FIXED_SPEED = "LAP_FIXED_SPEED";
     public static final String GPX_FILE_PATH = "GPX_FILE_PATH";
+    public static final String GPX_FILE_PATH_FIXED = "GPX_FILE_PATH_FIXED";
     
 }

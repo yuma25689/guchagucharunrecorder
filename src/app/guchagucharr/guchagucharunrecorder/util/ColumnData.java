@@ -1,8 +1,10 @@
 package app.guchagucharr.guchagucharunrecorder.util;
 
+import android.content.Context;
 import app.guchagucharr.service.SQLiteContract;
 
 public class ColumnData {
+	Context ctx = null;
 	boolean hidden = false;
 	boolean editable = true;
 	String columnName;
@@ -11,28 +13,63 @@ public class ColumnData {
 	String dataType = SQLiteContract.NONE;
 	String text;
 	String hint;
-	public ColumnData(boolean hidden, boolean editable, String columnName, String labelBefore,
-			String labelAfter, String dataType, String text, String hint) {
+	public ColumnData(Context context, 
+			boolean hidden, 
+			boolean editable,
+			String columnName,
+			Integer labelBefore,
+			Integer labelAfter, 
+			String dataType, 
+			String text, 
+			Integer hint) {
 		super();
+		this.ctx = context;
 		this.hidden = hidden;
 		this.editable = editable;
 		this.columnName = columnName;
-		this.labelBefore = labelBefore;
-		this.labelAfter = labelAfter;
+		this.labelBefore = ctx.getString(labelBefore);
+		this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = hint;
+		this.hint = ctx.getString(hint);
 	}
-	public ColumnData(boolean editable, String columnName, String labelBefore,
-			String labelAfter, String dataType, String text, String hint) {
+	public ColumnData(Context context, boolean editable,
+			String columnName,
+			Integer labelBefore,
+			Integer labelAfter, 
+			String dataType, 
+			String text, 
+			Integer hint) {
+
 		super();
+		this.ctx = context;		
+		this.hidden = false;
 		this.editable = editable;
 		this.columnName = columnName;
-		this.labelBefore = labelBefore;
-		this.labelAfter = labelAfter;
+		this.labelBefore = ctx.getString(labelBefore);
+		this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = hint;
+		this.hint = ctx.getString(hint);
+	}
+	public ColumnData(Context context,
+			String columnName,
+			Integer labelBefore,
+			Integer labelAfter, 
+			String dataType, 
+			String text, 
+			Integer hint) {
+
+		super();
+		this.ctx = context;		
+		this.hidden = false;
+		this.editable = true;
+		this.columnName = columnName;		
+		this.labelBefore = ctx.getString(labelBefore);
+		this.labelAfter = ctx.getString(labelAfter);
+		this.dataType = dataType;
+		this.text = text;
+		this.hint = ctx.getString(hint);
 	}
 	/**
 	 * @return the hidden

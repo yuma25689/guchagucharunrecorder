@@ -110,6 +110,7 @@ public class RunLogger {
 			Log.v("unbindService","come" + entry.getKey().getClass());   
 		}
 		sConnectionMap.clear();
+		Log.w("stopService","mapclear");   
 		
 		ctx.stopService(new Intent(ctx, RunLoggerService.class));
 		serviceName = null;
