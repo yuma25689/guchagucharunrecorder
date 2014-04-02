@@ -745,6 +745,8 @@ implements IPageViewController
 			// launch activity for save
 			Intent intent = new Intent( this, EditActivity.class );
 			// TODO:編集データ識別子の設定
+			Bundle bundle = new Bundle();
+			bundle.putInt(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
 			// intent.set
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	        startActivity(intent);	    	

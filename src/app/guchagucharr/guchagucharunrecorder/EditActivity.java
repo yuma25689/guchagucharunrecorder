@@ -1,6 +1,7 @@
 package app.guchagucharr.guchagucharunrecorder;
 
 import android.app.Activity;
+import android.content.Intent;
 //import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -17,11 +18,18 @@ import android.view.ViewGroup;
 //import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 
 public class EditActivity extends Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
 {
+	public static final String KEY_CLMN_DATA_GEN = "KeyOfColumnDataGenerator";
+	public static final int EDIT_DATA_NONE = -1;
+	public static final int EDIT_DATA_MAIN_TABLE = 1;
+	public static final int EDIT_DATA_LAP_TABLE = 2;
+	private int iEditDataType = EDIT_DATA_LAP_TABLE;
+//	private IColumnDataGenerator dataGen = null;
 	
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	private ViewGroup componentContainer;
@@ -42,6 +50,24 @@ implements IEditViewController, OnClickListener, OnTouchListener
 
 		handler = new EditHandler(this,this);
         componentContainer = (ViewGroup) findViewById(R.id.page_content);
+        
+        Intent intent = getIntent();
+        if( intent == null )
+        {
+        	// TODO: 設定情報が取得できない時点でエラーなので、起動させたくない
+        	finish();
+        }
+        else
+        {
+        	// 設定情報の取得
+        	// 投げる側に、データジェネレータを設定してもらう
+        	iEditDataType = intent.getIntExtra(KEY_CLMN_DATA_GEN, EDIT_DATA_NONE);
+        }
+        if( iEditDataType == EDIT_DATA_NONE )
+        {
+        	// TODO: 設定情報が取得できない時点でエラーなので、起動させたくない
+        	finish();
+        }
 	}
 
 	@Override

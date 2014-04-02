@@ -18,7 +18,12 @@ package app.guchagucharr.service;
 
 //import android.app.Notification;
 //import android.app.PendingIntent;
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 //import android.location.LocationListener;
@@ -29,11 +34,16 @@ import android.os.IBinder;
 import android.os.RemoteException;
 //import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Timer;
@@ -55,6 +65,7 @@ import com.google.android.gms.location.LocationRequest;
 public class RunLoggerService extends Service 
 implements LocationListener
 {
+	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
 	private float requestLocationUpdatesDistance;
@@ -66,6 +77,7 @@ implements LocationListener
 
 	    @Override
 	    public void onConnected(Bundle bunlde) {
+	    	Log.w("onConnected","come");
 	      handler.post(new Runnable() {
 	        @Override
 	        public void run() {
@@ -87,11 +99,10 @@ implements LocationListener
           @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {}
       };
-
 	  
 	//private long lastGetLocationTime = 0;
-	private Handler handler;	
-	private static Timer mTimer = null;	
+	private Handler handler;
+	private static Timer mTimer = null;
 	private static UpdateTimeDisplayTask timerTask = null;
 	class UpdateTimeDisplayTask extends TimerTask
 	{
@@ -213,6 +224,7 @@ implements LocationListener
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.w("RunLoggerService","come");
 	    locationClient = new LocationClient(this, connectionCallbacks, onConnectionFailedListener);
 	    locationClient.connect();
         
@@ -225,10 +237,32 @@ implements LocationListener
 //        mWakeLock.setReferenceCounted(false);
         // createLocationManager();
     }
+    public static int NOTIF_ID = 100;
+    
+    @Override
+    public void onStart(Intent intent, int startID) {
+//		// Notificationの表示
+//    	Notification.Builder builder = new Notification.Builder(getApplicationContext());
+//    	builder.setTicker("ticker");
+//    	builder.setContentTitle("RunLoggerService");
+//    	builder.setContentText("位置情報ログ取得中");
+//    	builder.setSmallIcon(android.R.drawable.ic_dialog_info);
+//    	builder.setWhen(System.currentTimeMillis());
+//    	Notification notification = builder.build();
+//    	 
+//    	NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//    	manager.notify(NOTIF_ID, notification);    	
+   	
+    }
 
     @Override
     public void onDestroy() {
 //        mWakeLock.release();
+//		NotificationManager mNotificationManager =
+//				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//		mNotificationManager.cancel(NOTIF_ID);
+
+		Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();    	
         super.onDestroy();
     }
     
@@ -246,6 +280,7 @@ implements LocationListener
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //mServiceStartId = startId;
+  
         return START_STICKY;
     }
     
@@ -341,17 +376,18 @@ implements LocationListener
 	    if (locationClient != null) {
 	    	locationClient.disconnect();
 	    }
-		
 	}
+	
 	void startLog()
-	{
+	{		
 	    //if(mTimer == null){
         timerTask = new UpdateTimeDisplayTask();
         mTimer = new Timer(true);
         mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
         //clearGPS();
         requestGPS();
-	    //}		
+	    //}
+        //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
 	}
 	void stopLog()
 	{
@@ -361,6 +397,11 @@ implements LocationListener
 	        mTimer = null;
 	        timerTask = null;
 	    }
+	    // TODO: このメソッドのラッパーをRunLoggerに作り、そっちに移す
+		NotificationManager mNotificationManager =
+				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.cancel(NOTIF_ID);
+	    
 	}
 	@Override
 	public void onLocationChanged(Location location) {

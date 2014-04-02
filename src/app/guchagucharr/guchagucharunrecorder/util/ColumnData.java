@@ -13,7 +13,22 @@ public class ColumnData {
 	String dataType = SQLiteContract.NONE;
 	String text;
 	String hint;
-	public ColumnData(Context context, 
+	public static final int EDIT_METHDO_TEXT = 0;
+	public static final int EDIT_METHDO_REAL = 1;
+	public static final int EDIT_METHDO_INTEGER = 2;
+	public static final int EDIT_METHDO_DATETIME = 3;
+	public static final int EDIT_METHDO_TIME = 4;
+	int editMethod = EDIT_METHDO_TEXT;
+	public int getEditMethod()
+	{
+		return editMethod;
+	}
+	public void setEditMethod(int editMethod_)
+	{
+		editMethod = editMethod_;
+	}
+	public ColumnData(
+			Context context, 
 			boolean hidden, 
 			boolean editable,
 			String columnName,
@@ -70,6 +85,28 @@ public class ColumnData {
 		this.dataType = dataType;
 		this.text = text;
 		this.hint = ctx.getString(hint);
+	}
+	
+	public ColumnData(Context context,
+			String columnName,
+			Integer labelBefore,
+			Integer labelAfter, 
+			String dataType, 
+			String text, 
+			Integer hint,
+			int iEditMethod) {
+
+		super();
+		this.ctx = context;		
+		this.hidden = false;
+		this.editable = true;
+		this.columnName = columnName;		
+		this.labelBefore = ctx.getString(labelBefore);
+		this.labelAfter = ctx.getString(labelAfter);
+		this.dataType = dataType;
+		this.text = text;
+		this.hint = ctx.getString(hint);
+		this.editMethod = iEditMethod;
 	}
 	/**
 	 * @return the hidden
