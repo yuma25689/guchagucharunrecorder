@@ -29,7 +29,7 @@ public class RunHistoryContentProvider extends ContentProvider {
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
-    	private static int DB_VERSION = 5;
+    	private static int DB_VERSION = 7;
     	
         DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -71,7 +71,21 @@ public class RunHistoryContentProvider extends ContentProvider {
                         + RunHistoryTableContract.GPX_FILE_PATH_FIXED + " TEXT" 	// 2014/03/25 追加
                 		+ ");"
                    ;
-        		
+        	}
+        	else if( RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID == tblId )
+        	{
+        		return
+                		"CREATE TABLE IF NOT EXISTS " + tblName//RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
+                		+ " (" //+ BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                		+ RunHistoryTableContract.START_DATETIME + " INTEGER PRIMARY KEY,"                		
+                		+ RunHistoryTableContract.CURRENT_MODE + " INTEGER,"
+//                		+ RunHistoryTableContract.LAP_INDEX + " INTEGER,"
+//                        + RunHistoryTableContract.LAP_FIXED_DISTANCE + " REAL,"
+//                        + RunHistoryTableContract.LAP_FIXED_TIME + " INTEGER,"
+//                        + RunHistoryTableContract.LAP_FIXED_SPEED + " REAL,"
+                        + RunHistoryTableContract.GPX_FILE_DIR + " TEXT"
+                        + ");"
+                        ;
         	}
         	return null;
         }
@@ -82,6 +96,9 @@ public class RunHistoryContentProvider extends ContentProvider {
             		RunHistoryTableContract.HISTORY_TABLE_NAME) );
             db.execSQL( createTableCreateSQL(RunHistoryTableContract.HISTORY_LAP_TABLE_ID,
             		RunHistoryTableContract.HISTORY_LAP_TABLE_NAME));
+            // 一時テーブル。現状、1レコードしか保存されないものとする
+            db.execSQL( createTableCreateSQL(RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID,
+            		RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME));
         }
  
 //        @Override
@@ -107,9 +124,9 @@ public class RunHistoryContentProvider extends ContentProvider {
     	public void onUpgrade(SQLiteDatabase db,
     			int oldVersion, 
     			int newVersion) {
-    		
     		db.beginTransaction();
     		try {
+    			// NOTICE 一時テーブルの復旧は行わない
     			int tblId[] = {
     					RunHistoryTableContract.HISTORY_TABLE_ID,
     					RunHistoryTableContract.HISTORY_LAP_TABLE_ID 
@@ -267,6 +284,9 @@ public class RunHistoryContentProvider extends ContentProvider {
         mUriMatcher.addURI(RunHistoryTableContract.AUTHORITY, 
         		RunHistoryTableContract.HISTORY_ENDTRANSACTION, 
         		RunHistoryTableContract.HISTORY_ROLLBACK_ID);        
+        mUriMatcher.addURI(RunHistoryTableContract.AUTHORITY, 
+        		RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME, 
+        		RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID);
         return true;
     }
 	@Override
@@ -283,6 +303,10 @@ public class RunHistoryContentProvider extends ContentProvider {
 		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_LAP_TABLE_ID )
 		{
 			return db.delete(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME, selection, null);
+		}
+		else if( mUriMatcher.match(uri) == RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID )
+		{
+			return db.delete(RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME, selection, null);
 		}
 		return -1;
 	}
@@ -313,6 +337,11 @@ public class RunHistoryContentProvider extends ContentProvider {
 				break;
 			case RunHistoryTableContract.HISTORY_LAP_TABLE_ID:
 				lngRet = db.insert(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME, null, values);
+				returnUri = ContentUris.withAppendedId(uri,
+	                    lngRet);				
+				break;
+			case RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID:
+				lngRet = db.insert(RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME, null, values);
 				returnUri = ContentUris.withAppendedId(uri,
 	                    lngRet);				
 				break;
@@ -347,6 +376,10 @@ public class RunHistoryContentProvider extends ContentProvider {
 		else if( mUriMatcher.match(uri) == RunHistoryTableContract.HISTORY_LAP_TABLE_ID )
 		{
 			tbl_name = RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;
+		}
+		else if( mUriMatcher.match(uri) == RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID )
+		{
+			tbl_name = RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME;
 		}
 		
         SQLiteDatabase db = databaseHelper.getReadableDatabase();

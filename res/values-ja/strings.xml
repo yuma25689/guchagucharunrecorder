@@ -53,7 +53,7 @@
 	<string name="speed_label">[速度]</string>
     
 	<string name="gpx_share">GPXファイルを共有</string>
-	<string name="cant_start_workout_because_error">SDカードにファイルを作成するのを失敗したので、ワークアウトを開始できませんでした。</string>
+	<string name="cant_start_workout_because_error">エラーが発生し、ワークアウトを開始できませんでした。</string>
 
 	<string name="no_title"></string>	
 	

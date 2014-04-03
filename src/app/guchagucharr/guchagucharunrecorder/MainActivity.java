@@ -49,6 +49,7 @@ import app.guchagucharr.service.RunLogger;
 import app.guchagucharr.service.RunLoggerService;
 import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.RunLoggerService.eMode;
+import app.guchagucharr.service.TempolaryDataLoader;
 
 /**
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
@@ -516,13 +517,35 @@ implements
 		try {
 			if( RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
 			{
-				int iMode = RunLogger.getModeFromTmpFile(this);
-				if( iMode == eMode.MODE_MEASURING.ordinal() )
+				//　一時的に保存されているデータをロードする
+				TempolaryDataLoader loader = new TempolaryDataLoader();
+				if( 0 == loader.load(this)
+				&& loader.getData().isEmpty() == false )
 				{
-					// 内部モードは通常モードなのに、
-					// ファイルに格納されたモードが計測モード
-					// ファイルの方を正とみなし、復旧処理を行う
-					Toast.makeText(this, "recovery process come", Toast.LENGTH_LONG ).show();
+					TempolaryDataLoader.TempolaryData data = loader.getData().get(0);
+					int iMode = data.getCurrentMode();
+					if( iMode == eMode.MODE_MEASURING.ordinal() )
+					{
+						// 内部モードは通常モードなのに、
+						// 外部記憶に格納されたモードは計測モード
+						// TODO:外部記憶の方を正とみなし、復旧処理を行う
+						
+						// TODO: テスト用のToast
+						Toast.makeText(this, "recovery process come", Toast.LENGTH_LONG ).show();
+						RunLoggerService.clearRunLogStocker();
+						RunLoggerService.createLogStocker();
+						
+						// 時間を一時保存されていた時間をstartで復旧
+						if( 0 != RunLogger.recoveryLog(this, data ) )
+	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
+						{
+							RunLoggerService.clearRunLogStocker();
+							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							return -1;
+						}
+					
+						RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+					}
 				}
 			}
 //				// ノーマルモードなのに、GPXがある
@@ -1078,7 +1101,7 @@ implements
 					{
 						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 						// モードをファイルに書き込み
-						RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
+						// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 						// logging end
 						RunLogger.sService.stopLog();
 						clearGPS();
@@ -1140,7 +1163,7 @@ implements
 							// ログ取得開始に失敗したら、ログをクリアして戻る
 							RunLoggerService.clearRunLogStocker();
 							// モードをファイルに書き込み
-							RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);
+							// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);
 							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
 							return;
 						}
@@ -1189,7 +1212,7 @@ implements
 					{
 						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 						// モードをファイルに書き込み
-						RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
+						// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 						// logging end
 						RunLogger.sService.stopLog();
 						clearGPS();		            

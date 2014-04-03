@@ -111,7 +111,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	{
 		//lastMainLayout = rl;
 		// 勝手にこんなことしていいんでしょうか・・・。
-		//lastMainLayout.removeAllViews();		
+		//lastMainLayout.removeAllViews();
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 				mainData.size());

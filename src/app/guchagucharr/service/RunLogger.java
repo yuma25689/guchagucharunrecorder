@@ -29,7 +29,7 @@ import app.guchagucharr.service.RunLoggerService.eMode;
 
 
 public class RunLogger {
-	public static final String TEMP_MODE_FILE_NAME = "mode.tmp";
+	//public static final String TEMP_INFO_FILE_NAME = "mode.tmp";
 
 	public static ComponentName serviceName = null;
     public static IRunLoggerService sService = null;
@@ -162,8 +162,34 @@ public class RunLogger {
 		// モードを計測中に設定
 		sService.setMode( eMode.MODE_MEASURING.ordinal() );
 		// モードをファイルに書き込み
-		writeModeToTmpFile(activity,eMode.MODE_MEASURING);
+		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
 		// Notificationの表示
+		SetLoggingNotification(activity);		
+		return iRet;
+	}
+	public static int recoveryLog(Activity activity, TempolaryDataLoader.TempolaryData data) throws RemoteException
+	{
+		int iRet = 0;
+		
+		// 位置情報取得開始
+		if( false == RunLoggerService.getLogStocker().recovery(activity, data) )
+		{
+			// ログ取得開始に失敗したら、ログをクリアして戻る
+			return -1;
+		}
+		// サービスの方でも、ログ取得開始。ここは、復旧の時も同じで良いと思われる
+		sService.startLog();
+		// モードを計測中に設定
+		sService.setMode( eMode.MODE_MEASURING.ordinal() );
+		// モードをファイルに書き込み
+		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
+		// Notificationの表示
+		SetLoggingNotification(activity);
+		return iRet;
+	}
+	
+	static void SetLoggingNotification(Activity activity)
+	{
 //    	Notification.Builder builder = new Notification.Builder(activity);
 //    	builder.setTicker("ticker");
 //    	builder.setContentTitle("RunLoggerService");
@@ -177,13 +203,13 @@ public class RunLogger {
 				new Intent(activity, MainActivity.class), 0);
 		notification.setLatestEventInfo(activity.getApplicationContext(),
 				"RunLoggerService", "位置情報ログ取得中", contentIntent);
- 
-    	
+     	
     	NotificationManager manager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
     	manager.notify(RunLoggerService.NOTIF_ID, notification);    	
 		
-		return iRet;
 	}
+	
+	
 	/**
 	 * ファイルをストリームとして開く
 	 * ==>共通化できるなら、共通化を行う
@@ -201,76 +227,76 @@ public class RunLogger {
 		}
 		return bos;
     }
-	public static void writeModeToTmpFile(Activity activity, eMode mode)
-	{
-		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
-		// 一時ファイル名作成
-		String gpxFilePath = tmpDir + "/" + TEMP_MODE_FILE_NAME;
-		// ファイルの書き込みを始める
-		try
-		{
-			File modeFile = new File( gpxFilePath );
-			if( modeFile.exists() == false )
-			{
-				modeFile.createNewFile();
-			}
-            BufferedOutputStream bos = openFileStream(modeFile);
-            String sMode;
-            sMode = String.valueOf(mode.ordinal());
-            bos.write( sMode.getBytes() );
-            bos.close();
-		}
-		catch ( Exception e)
-		{
-			e.printStackTrace();
-		}
-		return;
-	}
-	public static int getModeFromTmpFile(Activity activity)
-	{
-        String sMode = "";	
-		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
-		// 一時ファイル名作成
-		String modefile = tmpDir + "/" + TEMP_MODE_FILE_NAME;
-		// ファイルの書き込みを始める
-		try
-		{
-			File modeFile = new File( modefile );
-			if( modeFile.exists() == false )
-			{
-				return -1;
-			}
-        	// 入力中の状態から復帰する
-			// onPauseの時、ファイルに保存されているはず。
-			FileReader fr = new FileReader(modefile);
-			//byte[] buffer = new char[fr.available()];
-			char[] buf = new char[30];
-			fr.read(buf);
-			fr.close();
-            if( buf[0] != 0)
-            {
-            	sMode = String.valueOf(buf[0]);
-            }
-		} catch( IOException ex ) {
-			ex.printStackTrace();
-			Log.e("ModeFileInput failed","");
-			return -1;
-		}        	
-		catch ( Exception e)
-		{
-			e.printStackTrace();
-			return -1;
-		}
-		if( sMode.isEmpty() == false )
-		{
-			return Integer.valueOf(sMode);
-		}
-		else
-		{
-			return -1;
-		}
-	}
+//	public static void writeModeToTmpFile(Activity activity, eMode mode)
+//	{
+//		// フォルダ取得
+//		File tmpDir = activity.getFilesDir();
+//		// 一時ファイル名作成
+//		String gpxFilePath = tmpDir + "/" + TEMP_MODE_FILE_NAME;
+//		// ファイルの書き込みを始める
+//		try
+//		{
+//			File modeFile = new File( gpxFilePath );
+//			if( modeFile.exists() == false )
+//			{
+//				modeFile.createNewFile();
+//			}
+//            BufferedOutputStream bos = openFileStream(modeFile);
+//            String sMode;
+//            sMode = String.valueOf(mode.ordinal());
+//            bos.write( sMode.getBytes() );
+//            bos.close();
+//		}
+//		catch ( Exception e)
+//		{
+//			e.printStackTrace();
+//		}
+//		return;
+//	}
+//	public static int getModeFromTmpFile(Activity activity)
+//	{
+//        String sMode = "";	
+//		// フォルダ取得
+//		File tmpDir = activity.getFilesDir();
+//		// 一時ファイル名作成
+//		String modefile = tmpDir + "/" + TEMP_MODE_FILE_NAME;
+//		// ファイルの書き込みを始める
+//		try
+//		{
+//			File modeFile = new File( modefile );
+//			if( modeFile.exists() == false )
+//			{
+//				return -1;
+//			}
+//        	// 入力中の状態から復帰する
+//			// onPauseの時、ファイルに保存されているはず。
+//			FileReader fr = new FileReader(modefile);
+//			//byte[] buffer = new char[fr.available()];
+//			char[] buf = new char[30];
+//			fr.read(buf);
+//			fr.close();
+//            if( buf[0] != 0)
+//            {
+//            	sMode = String.valueOf(buf[0]);
+//            }
+//		} catch( IOException ex ) {
+//			ex.printStackTrace();
+//			Log.e("ModeFileInput failed","");
+//			return -1;
+//		}        	
+//		catch ( Exception e)
+//		{
+//			e.printStackTrace();
+//			return -1;
+//		}
+//		if( sMode.isEmpty() == false )
+//		{
+//			return Integer.valueOf(sMode);
+//		}
+//		else
+//		{
+//			return -1;
+//		}
+//	}
 
 }

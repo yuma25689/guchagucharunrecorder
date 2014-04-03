@@ -9,8 +9,10 @@ public class RunHistoryTableContract implements BaseColumns {
 	public static final int HISTORY_TRANSACTION_ID = 3;
 	public static final int HISTORY_COMMIT_ID = 4;
 	public static final int HISTORY_ROLLBACK_ID = 5;
+	public static final int TEMPOLARY_INFO_TABLE_ID = 6;
 	public static final String HISTORY_TABLE_NAME = "tbl_history";
 	public static final String HISTORY_LAP_TABLE_NAME = "tbl_history_lap";
+	public static final String TEMPOLARY_INFO_TABLE_NAME = "tbl_tempolary_infomation";
 	public static final String HISTORY_TRANSACTION = "Transaction";
 	public static final String HISTORY_COMMIT = "Commit";
 	public static final String HISTORY_ENDTRANSACTION = "EndTransaction";
@@ -26,6 +28,7 @@ public class RunHistoryTableContract implements BaseColumns {
     public static final String START_DATETIME = "START_DATETIME";
     public static final String INSERT_DATETIME = "INSERT_DATETIME";
     public static final String NAME = "NAME";
+    public static final String CURRENT_MODE = "CURRENT_MODE";
     public static final String LAP_COUNT = "LAP_COUNT";
     public static final String PLACE_ID = "PLACE_ID";
     public static final String PARENT_ID = "PARENT_ID";
@@ -38,5 +41,6 @@ public class RunHistoryTableContract implements BaseColumns {
     public static final String LAP_FIXED_SPEED = "LAP_FIXED_SPEED";
     public static final String GPX_FILE_PATH = "GPX_FILE_PATH";
     public static final String GPX_FILE_PATH_FIXED = "GPX_FILE_PATH_FIXED";
+    public static final String GPX_FILE_DIR = "GPX_FILE_DIR";
     
 }

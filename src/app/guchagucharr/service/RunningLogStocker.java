@@ -16,10 +16,13 @@ import android.content.ContentValues;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.RemoteException;
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
+import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class RunningLogStocker {
 
@@ -149,11 +152,51 @@ public class RunningLogStocker {
 			}
 		}
     	Log.v("workOutDir created", dir);
+    	if( -1 == insertLogMetaInfo(activity,RunLoggerService.eMode.MODE_MEASURING.ordinal(),
+    			time,dir,this) )
+    	{
+    		Log.e("cant start because log start info insert failed","");
+    		return false;
+    	}
 		// GPX出力開始
 		gpxGen = new GPXGeneratorSync();
 		// ファイル作成
 		resetTmpGpxFile(activity);
 		
+		return true;
+	}
+	public boolean recovery(Activity activity, TempolaryDataLoader.TempolaryData data)
+	{
+		// 一度全て消して、外部記憶のデータから設定し直す
+		clear();
+		totalStartTime = data.getStartDateTime();
+
+		// TODO:最後の時刻のフォルダを検索
+		// ==>全てのラップデータをメモリに設定し直す
+		// lapData
+		// TODO:一時フォルダを検索
+		// ==>現在のラップデータをメモリに設定し直す
+
+		// TODO: 最初のラップの開始時刻を無理矢理設定
+		// currentLapData.setStartTime(time);
+		// そのワークアウトのフォルダを作成
+    	workOutDir = new File( data.getGpxDir() );
+    	if( false == workOutDir.exists() )
+		{
+    		// ここにくるのは、フォルダができていないということだが、できていなければおかしい
+			if( false == workOutDir.mkdirs() )
+			{
+				Log.e("workOutDir create error", data.getGpxDir());
+				return false;
+			}
+		}
+    	Log.v("workOutDir created or exists", data.getGpxDir());
+
+    	// TODO: 下記は、まったくできていない
+		// GPX出力開始
+		gpxGen = new GPXGeneratorSync();
+		// ファイル作成
+		resetTmpGpxFile(activity);
 		return true;
 	}
 	/**
@@ -234,26 +277,12 @@ public class RunningLogStocker {
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 		}
-//		if( MAX_LOCATION_LOG_CNT < iLocationDataCount )//vLocation.size() )
-//		{
-//			// TODO: 精度の低いものを消す？
-//			vLocation.remove(MAX_LOCATION_LOG_CNT/2);
-//		}
-		// NOTICE:
-		// Lapを各ロケーションに格納したかったが、Bundleはメモリを食いそうなので、
-		// 未使用のbearingに無理矢理lapを突っ込む
-//		Bundle b = new Bundle();
-//		b.putInt(KEY_LAP_INDEX, iLap);
-//		location.setExtras(b);
 		location.setBearing(iLap);
 		
-		// TODO:再起動時のリカバリを考えて、メモリに貯めないでファイルに直接行くべき
 		// ファイル出力
-		// TODO: 中断復帰時の挙動
 		if( gpxGen != null )
 		{
 			gpxGen.addLocationToCurrentGPXFile(location);
-			// vLocation.add(location);
 			currentLocation = location;
 			iLocationDataCount++;
 			prevLocation = new Location(location);
@@ -292,7 +321,7 @@ public class RunningLogStocker {
 		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
 		currentLapData.setGpxFilePath(strGpxFile);
 		lapData.put(iLap, currentLapData);
-		//currentLapData.clear();
+		deleteLogMetaInfo(activity);
 	}
 	
 	public ContentValues createContentValues(Activity activity, int tableID, 
@@ -312,7 +341,7 @@ public class RunningLogStocker {
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
 
 		}
-		else
+		else if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
 		{
 			ret = new ContentValues();
 			ret.put(RunHistoryTableContract.START_DATETIME, lapData.get(iExtra).getStartTime());
@@ -337,12 +366,146 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.GPX_FILE_PATH, lapData.get(iExtra).getGpxFilePath() );//strExtra[0] );
 			
 		}
+		else if( tableID == RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID)
+		{
+			ret = new ContentValues();
+			//try {
+				ret.put(RunHistoryTableContract.CURRENT_MODE, iExtra );//RunLogger.sService.getMode() );
+				ret.put(RunHistoryTableContract.START_DATETIME, insertTime );//lapData.get(0).getStartTime());
+	            if( strExtra != null)
+	            {
+	            	ret.put( RunHistoryTableContract.GPX_FILE_DIR, strExtra[0] );
+	            }
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				Log.e("Create Tempolary table value failed",e.getMessage());
+//			}
+			
+		}
 		
 		return ret;
 		
 	}
 	
-
+	public int insertLogMetaInfo(
+			Activity activity,
+			int iMode,
+			Long startTime,
+			String gpxFileDir,
+			RunningLogStocker log)
+	{
+		int insertCount = -1;
+		activity.getContentResolver().insert(
+				Uri.parse("content://" 
+				+ RunHistoryTableContract.AUTHORITY + "/" 
+				+ RunHistoryTableContract.HISTORY_TRANSACTION )
+				,null);
+        try {
+        	ContentValues values = null;
+        	String[] data = {gpxFileDir};
+        	values = log.createContentValues(
+        			activity,
+        			RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID
+        			, startTime, data, 0, iMode);
+        	if( values == null )
+        	{
+        		Toast.makeText(activity, "failed to save the running start data.", 
+        				Toast.LENGTH_LONG).show();
+                return -1;
+        	}
+        	Uri uriRet = activity.getContentResolver().insert(
+        					Uri.parse("content://" 
+        					+ RunHistoryTableContract.AUTHORITY + "/" 
+        					+ RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME ), values);
+            long id = Long.parseLong(uriRet.getPathSegments().get(1)); 
+        	if( -1 == id )
+        	{
+        		// TODO:Test用
+        		Toast.makeText(activity, "failed to save the runnning start data.", 
+        				Toast.LENGTH_LONG).show();
+        		
+            	int iRet = activity.getContentResolver().delete(
+    					Uri.parse("content://" 
+    					+ RunHistoryTableContract.AUTHORITY + "/" 
+    					+ RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME  ), null, null );
+            	
+    					//RunHistoryTableContract.PARENT_ID + "=" + item.getItemId(),null);
+            	if( iRet <= 0 )
+            	{
+            		// TODO:テスト用
+            		Toast.makeText(activity, "failed to delete the runnning start data.", 
+            				Toast.LENGTH_LONG).show();
+            		return -1;
+            	}
+        		
+            	// deleteをコミットさせる
+                // return -1;        		
+        	}
+        	else
+        	{
+        		insertCount++;
+        	}
+            //db.setTransactionSuccessful();
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_COMMIT )
+    				,null);
+        		
+        } finally {
+        	//db.endTransaction();
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_ENDTRANSACTION )
+    				,null);
+        	
+        }
+        return insertCount;
+	}
+	public boolean deleteLogMetaInfo(Activity activity)
+	{
+    	// トランザクションの考慮
+		activity.getContentResolver().insert(
+				Uri.parse("content://"
+				+ RunHistoryTableContract.AUTHORITY + "/"
+				+ RunHistoryTableContract.HISTORY_TRANSACTION )
+				,null);
+        try {
+        	
+        	// 全て削除で行きたいが、本当にwhere句を指定しないだけで行けるのか・・・
+        	// TODO:確認
+        	int iRet = activity.getContentResolver().delete(
+					Uri.parse("content://" 
+					+ RunHistoryTableContract.AUTHORITY + "/" 
+					+ RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME  ), null, null );
+        	
+					//RunHistoryTableContract.PARENT_ID + "=" + item.getItemId(),null);
+        	if( iRet <= 0 )
+        	{
+        		return false;
+        	}
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_COMMIT )
+    				,null);
+        } catch(Exception e){
+        	e.printStackTrace();
+        	Log.e("tempolary table delete failed!",e.getMessage());
+        	return false;
+        } finally {
+        	//db.endTransaction();
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_ENDTRANSACTION )
+    				,null);
+        	
+        }
+        return true;
+	}
 	public int insertRunHistoryLog(
 			Activity activity,
 			String logname,
