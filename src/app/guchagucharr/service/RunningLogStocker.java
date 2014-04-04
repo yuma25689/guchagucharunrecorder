@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
@@ -22,7 +24,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.FileUtil;
+// import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class RunningLogStocker {
 
@@ -64,7 +67,7 @@ public class RunningLogStocker {
 		long ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(iLap).getTotalTime();
+			ret += lapData.get(i).getTotalTime();
 		}
 		return ret;
 	}
@@ -88,14 +91,14 @@ public class RunningLogStocker {
 	}
 	public LapData getLastLapData()
 	{
-		return lapData.get(iLap);
+		return lapData.get(m_iLap);
 	}
 	public int getStockedLapCount()
 	{
 		return lapData.size();//+1;
 	}
 	
-	int iLap = 0;	// lap(from0)
+	int m_iLap = 0;	// lap(from0)
 	LapData currentLapData = new LapData();
 	
 	int iLocationDataCount = 0;
@@ -124,7 +127,7 @@ public class RunningLogStocker {
 	{
 		lapData.clear();
 		currentLapData.clear();
-		iLap = 0;		
+		m_iLap = 0;		
 	}
 	public RunningLogStocker()//long time)
 	{
@@ -165,6 +168,32 @@ public class RunningLogStocker {
 		
 		return true;
 	}
+	public int recoveryLogToMemoryFromGpx(String strGpxFolder,String strTmpGpxFilePath)
+	{
+		int iRet = 0;
+		
+		// GPXのフォルダを検索し、そこにあるGPXを全てメモリ展開する
+		ArrayList<String> files = FileUtil.searchFiles(strGpxFolder,GPXGeneratorSync.EXPORT_FILE_EXT);
+		// TODO:ソートで、ちゃんと昇順になっているかどうか調べること
+		Collections.sort(files);
+		m_iLap = 0;
+		for( String file : files )
+		{
+			// 頭を１周目として読み込む
+			GPXImporterSync importer = new GPXImporterSync(file,this);
+			//if( false == importer.importData() )
+			{
+				Log.e("GpxImportError","perhaps recovery");
+			}
+		}
+		
+		// 一時ファイルとして格納されているGPXがあれば、それをカレントとしてメモリ展開？
+		// ==>GPXフォルダの最新のものをカレントに展開しないといけないこともあるのだろうか？
+		// また、一時フォルダにあるGPXは、不完全な可能性がある。
+		
+		return iRet;
+	}
+	
 	public boolean recovery(Activity activity, TempolaryDataLoader.TempolaryData data)
 	{
 		// 一度全て消して、外部記憶のデータから設定し直す
@@ -176,6 +205,10 @@ public class RunningLogStocker {
 		// lapData
 		// TODO:一時フォルダを検索
 		// ==>現在のラップデータをメモリに設定し直す
+		recoveryLogToMemoryFromGpx(data.getGpxDir(),getTmpGpxFilePath(activity));
+		
+		// ->下記は復旧時にちゃんと時間が復旧されるのかのテスト用
+		this.currentLapData.setStartTime(totalStartTime);
 
 		// TODO: 最初のラップの開始時刻を無理矢理設定
 		// currentLapData.setStartTime(time);
@@ -192,11 +225,19 @@ public class RunningLogStocker {
 		}
     	Log.v("workOutDir created or exists", data.getGpxDir());
 
-    	// TODO: 下記は、まったくできていない
+    	File tmpGpx = new File( getTmpGpxFilePath(activity) );
 		// GPX出力開始
 		gpxGen = new GPXGeneratorSync();
-		// ファイル作成
-		resetTmpGpxFile(activity);
+    	if( tmpGpx.exists() == true )
+    	{
+    		// 一時フォルダのGPXファイルが既にあれば、それをリカバリ（そこから書き込み続行）する
+    		gpxGen.recoveryGPXFile(activity,getTmpGpxFilePath(activity));
+		}
+    	else
+    	{
+			// ファイル作成
+			resetTmpGpxFile(activity);
+    	}
 		return true;
 	}
 	/**
@@ -215,11 +256,11 @@ public class RunningLogStocker {
 			// コピー先ファイルの作成
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					activity.getString(R.string.time_for_id_format));
-			String strDateTime = sdfDateTime.format(startTime) + "_" + (iLap+1);
+			String strDateTime = sdfDateTime.format(startTime) + "_" + (m_iLap+1);
 			String outputFileName = strDateTime + GPXGeneratorSync.EXPORT_FILE_EXT;
 			String outputFilePath = workOutDir.getPath() + "/" + outputFileName;
 			
-			// コピー元ファイルの作成
+			// コピー元ファイルの取得
 			File tmpDir = activity.getFilesDir();			
 			String gpxTmpFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;			
 			File gpxTmpFile = new File( gpxTmpFilePath );
@@ -258,14 +299,24 @@ public class RunningLogStocker {
 			gpxFile.delete();
 		}		
 	}
-	private void resetTmpGpxFile(Activity activity)
+	public static String getTmpGpxFilePath(Activity activity)
 	{
 		// フォルダ取得
 		File tmpDir = activity.getFilesDir();
 		// 一時ファイル名作成
 		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
+		
+		return gpxFilePath;
+	}
+	
+	private void resetTmpGpxFile(Activity activity)
+	{
+//		// フォルダ取得
+//		File tmpDir = activity.getFilesDir();
+//		// 一時ファイル名作成
+//		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		// ファイルの書き込みを始める
-		gpxGen.startCreateGPXFile(activity, gpxFilePath);		
+		gpxGen.startCreateGPXFile(activity, getTmpGpxFilePath(activity));		
 	}
 	public void putLocationLog( Location location )
 	{
@@ -277,7 +328,7 @@ public class RunningLogStocker {
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 		}
-		location.setBearing(iLap);
+		location.setBearing(m_iLap);
 		
 		// ファイル出力
 		if( gpxGen != null )
@@ -287,6 +338,27 @@ public class RunningLogStocker {
 			iLocationDataCount++;
 			prevLocation = new Location(location);
 		}
+	}
+	public void putLocationLogNotAddFile( Location location )
+	{
+		int iLap = (int)location.getBearing();
+		if( m_iLap < iLap )
+		{
+			m_iLap = iLap;
+			nextLapNoFileProcess(iLap, location.getTime());
+		}
+		// location.setBearing(m_iLap);
+
+		if( 0 == iLocationDataCount ) // vLocation.isEmpty() )
+		{
+		}
+		else
+		{
+			currentLapData.increaseDistance(prevLocation.distanceTo(location));
+			currentLapData.addSpeedData(location.getSpeed());
+		}
+		
+		
 	}
 	public void nextLap(Activity activity, Long time)
 	{
@@ -298,8 +370,27 @@ public class RunningLogStocker {
 		resetTmpGpxFile(activity);
 
 		LapData saveLapData = new LapData(currentLapData);
+		lapData.put(m_iLap, saveLapData);
+		m_iLap++;
+		currentLapData.clear();
+		currentLapData.setStartTime(time);
+		
+		if( 0 < iLocationDataCount )//vLocation.size() )
+		{
+			prevLocation = new Location( currentLocation );//vLocation.lastElement() );
+			prevLocation.setTime(time);
+		}
+		else
+		{
+			prevLocation = null;
+		}
+	}
+	public void nextLapNoFileProcess(int iLap,Long time)
+	{
+		currentLapData.setStopTime(time);
+
+		LapData saveLapData = new LapData(currentLapData);
 		lapData.put(iLap, saveLapData);
-		iLap++;
 		currentLapData.clear();
 		currentLapData.setStartTime(time);
 		
@@ -320,7 +411,7 @@ public class RunningLogStocker {
 		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
 		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
 		currentLapData.setGpxFilePath(strGpxFile);
-		lapData.put(iLap, currentLapData);
+		lapData.put(m_iLap, currentLapData);
 		deleteLogMetaInfo(activity);
 	}
 	
@@ -351,7 +442,6 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_DISTANCE, lapData.get(iExtra).getDistance() );
             ret.put( RunHistoryTableContract.LAP_TIME, lapData.get(iExtra).getTotalTime() );
             ret.put( RunHistoryTableContract.LAP_SPEED, lapData.get(iExtra).getSpeed() );
-            // TODO: ������
             ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
@@ -474,13 +564,12 @@ public class RunningLogStocker {
 				,null);
         try {
         	
-        	// 全て削除で行きたいが、本当にwhere句を指定しないだけで行けるのか・・・
-        	// TODO:確認
+        	// where句を指定しない
+        	// 試してみたら、削除はされた模様
         	int iRet = activity.getContentResolver().delete(
 					Uri.parse("content://" 
 					+ RunHistoryTableContract.AUTHORITY + "/" 
 					+ RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME  ), null, null );
-        	
 					//RunHistoryTableContract.PARENT_ID + "=" + item.getItemId(),null);
         	if( iRet <= 0 )
         	{
@@ -498,7 +587,7 @@ public class RunningLogStocker {
         } finally {
         	//db.endTransaction();
     		activity.getContentResolver().insert(
-    				Uri.parse("content://" 
+    				Uri.parse("content://"
     				+ RunHistoryTableContract.AUTHORITY + "/" 
     				+ RunHistoryTableContract.HISTORY_ENDTRANSACTION )
     				,null);

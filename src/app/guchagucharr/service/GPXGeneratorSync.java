@@ -73,8 +73,8 @@ public class GPXGeneratorSync {
 	public static final String TAG_NAME_TIME = "time";
 	public static final String TAG_NAME_SPEED = "speed";
 	
-	public static final String ATTR_NAME_LATITUDE = "lat=";
-	public static final String ATTR_NAME_LONGITUDE = "lon=";
+//	public static final String ATTR_NAME_LATITUDE_EQUAL = "lat=";
+//	public static final String ATTR_NAME_LONGITUDE_EQUAL = "lon=";
 
 	public static final String ATTR_LAT_AND_LONGITUDE = " lat=\"%.15f\" lon=\"%.15f\"";
 	
@@ -134,21 +134,32 @@ public class GPXGeneratorSync {
             BufferedOutputStream bos = openGPXFileStream(gpxFile);
 
             openGPXFile( bos );
-			//_exporter = new Exporter( bos );
 			_exporter.startExport();
-//	        for( Location loc:vData )
-//	        {
-//	        	_exporter.exportLoc( loc );
-//				if( handler != null )
-//				{
-//					Message _msg = new Message();
-//					_msg.what = FileOutputProcessor.PROGRESS_VAL_INCL_MSG_ID;
-//					handler.sendMessage( _msg );
-//					//iProgressCnt++;
-//				}	        	
-//			}			
-//	        _exporter.endExport();
-//			_exporter.close();
+		}
+		catch ( Exception e)
+		{
+			return NG_ERROR_UNKNOWN;
+		}					
+		return RETURN_OK;
+	}
+	/**
+	 * start creating GPX file
+	 * @param activity
+	 * @param gpxFilePath
+	 * @return
+	 */
+	public int recoveryGPXFile(
+			Activity activity,
+			String gpxFilePath )
+			//int iLap ) ラップはLocationのBearingに無理矢理セットしてあるので、そこから取れる
+	{
+		// iCurrentOutputLap = iLap;
+		try
+		{
+			File gpxFile = new File( gpxFilePath );
+            BufferedOutputStream bos = openGPXFileStream(gpxFile);
+
+            openGPXFile( bos );
 		}
 		catch ( Exception e)
 		{

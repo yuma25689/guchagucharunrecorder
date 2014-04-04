@@ -535,8 +535,10 @@ implements
 						RunLoggerService.clearRunLogStocker();
 						RunLoggerService.createLogStocker();
 						
+						// => recovery関数内で
+						// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
 						// 時間を一時保存されていた時間をstartで復旧
-						if( 0 != RunLogger.recoveryLog(this, data ) )
+						if( 0 != RunLogger.recovery(this, data ) )
 	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
 						{
 							RunLoggerService.clearRunLogStocker();
@@ -544,7 +546,6 @@ implements
 							return -1;
 						}
 					
-						RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
 					}
 				}
 			}

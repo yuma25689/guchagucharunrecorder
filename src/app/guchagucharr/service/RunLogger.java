@@ -156,6 +156,9 @@ public class RunLogger {
 			// Toast.makeText(activity, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
 			return -1;
 		}
+		// Notificationの表示
+		Notification notif = SetLoggingNotification(activity);
+		RunLoggerService.setNotification(notif);
 		// サービスの方でも、ログ取得開始？
 		sService.startLog();
 		
@@ -163,11 +166,9 @@ public class RunLogger {
 		sService.setMode( eMode.MODE_MEASURING.ordinal() );
 		// モードをファイルに書き込み
 		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
-		// Notificationの表示
-		SetLoggingNotification(activity);		
 		return iRet;
 	}
-	public static int recoveryLog(Activity activity, TempolaryDataLoader.TempolaryData data) throws RemoteException
+	public static int recovery(Activity activity, TempolaryDataLoader.TempolaryData data) throws RemoteException
 	{
 		int iRet = 0;
 		
@@ -188,7 +189,7 @@ public class RunLogger {
 		return iRet;
 	}
 	
-	static void SetLoggingNotification(Activity activity)
+	static Notification SetLoggingNotification(Activity activity)
 	{
 //    	Notification.Builder builder = new Notification.Builder(activity);
 //    	builder.setTicker("ticker");
@@ -207,6 +208,7 @@ public class RunLogger {
     	NotificationManager manager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
     	manager.notify(RunLoggerService.NOTIF_ID, notification);    	
 		
+    	return notification;
 	}
 	
 	

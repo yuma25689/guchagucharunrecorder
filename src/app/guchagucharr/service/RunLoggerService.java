@@ -173,6 +173,11 @@ implements LocationListener
 	//static eMode mode2; 
 	private static eMode mode = eMode.MODE_NORMAL;
 
+	private static Notification notif = null;
+	public static void setNotification( Notification notif_ )
+	{
+		notif = notif_;
+	}
 	public eMode getMode()
 	{
 		return mode;
@@ -388,6 +393,9 @@ implements LocationListener
         requestGPS();
 	    //}
         //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
+        // TODO:サービスが落ちないように。あまりこれで大丈夫という感じもないが・・・
+        if( notif != null)
+        	startForeground(NOTIF_ID,notif);
 	}
 	void stopLog()
 	{
