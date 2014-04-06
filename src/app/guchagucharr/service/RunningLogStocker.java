@@ -171,37 +171,38 @@ public class RunningLogStocker {
 	public int recoveryLogToMemoryFromGpx(String strGpxFolder,String strTmpGpxFilePath)
 	{
 		int iRet = 0;
-		// 一時ファイルとして格納されているGPXがあれば、それをカレントとしてメモリ展開？
-		// ==>GPXフォルダの最新のものをカレントに展開しないといけないこともあるのだろうか？
-		// また、一時フォルダにあるGPXは、不完全な可能性がある。
-		boolean bCurrentExists = false;
-		if( strTmpGpxFilePath != null )
-		{
-			File fileTmpGpx = new File(strTmpGpxFilePath);
-			if( fileTmpGpx.exists() )
-			{
-				
-				
-				
-				
-				bCurrentExists = true;
-			}
-		}
 		// GPXのフォルダを検索し、そこにあるGPXを全てメモリ展開する
 		ArrayList<String> files = FileUtil.searchFiles(strGpxFolder,GPXGeneratorSync.EXPORT_FILE_EXT);
 		// TODO:ソートで、ちゃんと昇順になっているかどうか調べること
 		Collections.sort(files);
 		m_iLap = 0;
+		GPXImporterSync importer = null;
 		for( String file : files )
 		{
 			// 頭を１周目として読み込む
-			GPXImporterSync importer = new GPXImporterSync(file,this);
+			importer = new GPXImporterSync(file,this);
 			if( false == importer.importData() )
 			{
 				Log.e("GpxImportError","perhaps recovery");
 			}
 		}
 		
+		// 一時ファイルとして格納されているGPXがあれば、それをカレントとしてメモリ展開？
+		// ==>GPXフォルダの最新のものをカレントに展開しないといけないこともあるのだろうか？
+		// また、一時フォルダにあるGPXは、不完全な可能性がある。
+		if( strTmpGpxFilePath != null )
+		{
+			File fileTmpGpx = new File(strTmpGpxFilePath);
+			if( fileTmpGpx.exists() )
+			{
+				importer = new GPXImporterSync(strTmpGpxFilePath,this);
+				if( false == importer.importData() )
+				{
+					Log.e("GpxImportError","perhaps recovery");
+					return -1;
+				}
+			}
+		}
 		
 		return iRet;
 	}
@@ -212,17 +213,16 @@ public class RunningLogStocker {
 		clear();
 		totalStartTime = data.getStartDateTime();
 
-		// TODO:最後の時刻のフォルダを検索
-		// ==>全てのラップデータをメモリに設定し直す
+		// 一時フォルダのGPXファイルがあれば、それをカレントとしてリカバリ
+		String gpxTmp = createRecoveryTmpGpxFile(activity);
+
 		// lapData
-		// TODO:一時フォルダを検索
 		// ==>現在のラップデータをメモリに設定し直す
-		recoveryLogToMemoryFromGpx(data.getGpxDir(),getTmpGpxFilePath(activity));
+		recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
 		
 		// ->下記は復旧時にちゃんと時間が復旧されるのかのテスト用
-		this.currentLapData.setStartTime(totalStartTime);
+		// this.currentLapData.setStartTime(totalStartTime);
 
-		// TODO: 最初のラップの開始時刻を無理矢理設定
 		// currentLapData.setStartTime(time);
 		// そのワークアウトのフォルダを作成
     	workOutDir = new File( data.getGpxDir() );
@@ -371,13 +371,19 @@ public class RunningLogStocker {
 
 				// コピー後、さらにコピー先ファイルをXMLとして完成させる処理を行う
 				
-				if( )
+				int iRet = gpxGenTmp.checkCommitedGpxFile(outputFilePath);
+				if( iRet == 1 )
 				{
 					// まだ閉じられていないと思われる場合
 					// NOTICE: この方法では、確実に復旧できる訳ではないが、
 					// 大体の場合は復旧できるはず
 					gpxGenTmp.recoveryGPXFile(activity,outputFilePath);
 					gpxGenTmp.endCreateGPXFile();
+					ret = outputFilePath;
+				}
+				else if( iRet == 0 )
+				{
+					ret = outputFilePath;
 				}
 			}
 		}
@@ -432,8 +438,6 @@ public class RunningLogStocker {
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 		}
-		
-		
 	}
 	public void nextLap(Activity activity, Long time)
 	{

@@ -369,8 +369,9 @@ implements LocationListener
         //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
         // NOTICE:サービスが落ちないように、Foreground化する。
         // あまりこれで絶対大丈夫という感じもないが・・・テストした感じでは、落ちなくなった。
-        if( notif != null)
-        	startForeground(NOTIF_ID,notif);
+        // TODO: 復旧のテスト用にコメント化中 2014/04/06
+//        if( notif != null)
+//        	startForeground(NOTIF_ID,notif);
 	}
 	void stopLog()
 	{

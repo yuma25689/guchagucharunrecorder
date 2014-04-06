@@ -279,7 +279,6 @@ public class GPXImporterSync {
 		@Override
 		public void endDocument() throws SAXException
 		{
-			// TODO:集計、平均を取り、ここで１つのラップデータを復元できる？
 			super.endDocument();
 		}
 	}		
