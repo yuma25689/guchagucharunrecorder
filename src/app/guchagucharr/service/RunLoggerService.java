@@ -18,16 +18,13 @@ package app.guchagucharr.service;
 
 //import android.app.Notification;
 //import android.app.PendingIntent;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 //import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,14 +33,9 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
-import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Timer;
@@ -64,8 +56,7 @@ import com.google.android.gms.location.LocationRequest;
  */
 public class RunLoggerService extends Service 
 implements LocationListener
-{
-	
+{	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
 	private float requestLocationUpdatesDistance;
@@ -213,14 +204,8 @@ implements LocationListener
 	
     public RunLoggerService()//boolean enableLocationClient)
     {
+    	// メンバ変数の初期化
         handler = new Handler(); 
-		//if (enableLocationClient) {
-//		    locationClient = new LocationClient(ResourceAccessor.getInstance().getActivity(), connectionCallbacks, onConnectionFailedListener);
-//		    locationClient.connect();
-//		} else {
-//			locationClient = null;
-//		}
-        
     }
 
     /**
@@ -229,44 +214,30 @@ implements LocationListener
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.w("RunLoggerService","come");
+        // コンストラクタ
+        Log.w("RunLoggerService-onCreate","come");
+        // ロケーションクライアントの作成
+        // NOTICE:タイミング的には、サービスができた瞬間から計測開始という感じになるかもしれない
 	    locationClient = new LocationClient(this, connectionCallbacks, onConnectionFailedListener);
 	    locationClient.connect();
-        
-//        mPreferences = getSharedPreferences("Music", MODE_WORLD_READABLE | MODE_WORLD_WRITEABLE);
-//        mCardId = StorageInfo.getCardId(this);        
-        //registerExternalStorageListener();
-
-//        PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-//        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getName());
-//        mWakeLock.setReferenceCounted(false);
-        // createLocationManager();
     }
     public static int NOTIF_ID = 100;
     
     @Override
-    public void onStart(Intent intent, int startID) {
-//		// Notificationの表示
-//    	Notification.Builder builder = new Notification.Builder(getApplicationContext());
-//    	builder.setTicker("ticker");
-//    	builder.setContentTitle("RunLoggerService");
-//    	builder.setContentText("位置情報ログ取得中");
-//    	builder.setSmallIcon(android.R.drawable.ic_dialog_info);
-//    	builder.setWhen(System.currentTimeMillis());
-//    	Notification notification = builder.build();
-//    	 
-//    	NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//    	manager.notify(NOTIF_ID, notification);    	
-   	
+    public void onStart(Intent intent, int startID) 
+    {
+        Log.w("RunLoggerService-onStart","come");    	
+    	// 今のところ、特に何もしない
+    	// もしやるにしても、Notificationの表示くらいかもしれない
     }
 
     @Override
     public void onDestroy() {
+        Log.w("RunLoggerService-onDestroy","come");    	
 //        mWakeLock.release();
 //		NotificationManager mNotificationManager =
 //				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //		mNotificationManager.cancel(NOTIF_ID);
-
 		Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();    	
         super.onDestroy();
     }
@@ -285,13 +256,17 @@ implements LocationListener
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //mServiceStartId = startId;
-  
+        Log.w("RunLoggerService-onStartCommand","come");
+        // TODO:サービスが強制終了==>再起動と来た場合、ここで復旧するのもいいかもしれない
+        // ただし、どちらかというと、onLocationChangedで復旧した方がいいかも？
+        // (テストした感じサービス再起動が起こっても、メンバ変数が全てクリアされてしまうだけで、
+        // onLocationChangedは来ている)
         return START_STICKY;
     }
     
     @Override
     public boolean onUnbind(Intent intent) {
-        //mServiceInUse = false;
+        // mServiceInUse = false;
         // stopSelf(mServiceStartId);
         return true;
     }
@@ -308,7 +283,6 @@ implements LocationListener
 				locationClient.connect();
 			}
 		}
-
     	return 0;
     }
     /*
@@ -393,7 +367,8 @@ implements LocationListener
         requestGPS();
 	    //}
         //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
-        // TODO:サービスが落ちないように。あまりこれで大丈夫という感じもないが・・・
+        // NOTICE:サービスが落ちないように、Foreground化する。
+        // あまりこれで絶対大丈夫という感じもないが・・・テストした感じでは、落ちなくなった。
         if( notif != null)
         	startForeground(NOTIF_ID,notif);
 	}
@@ -415,7 +390,7 @@ implements LocationListener
 	public void onLocationChanged(Location location) {
 		Log.v("GPS","onLocationChanged");
 		// NOTICE: 受診毎に切断
-		// TODO:つなぐタイミング制御
+		// TODO:サービス再起動時の復旧処理を、ここに入れればうまく行きそうに感じる
 		// clearGPS();
 		if( false == isEmptyLogStocker() 
 				&& mode == eMode.MODE_MEASURING )
@@ -431,16 +406,13 @@ implements LocationListener
 			// NOTICE: この関数でほとんど全てのログを取っているようなもの
 			putLocationLog(location);
 		}
-		
         // Send intent to activity
         Intent activityNotifyIntent = new Intent();
         activityNotifyIntent.putExtra(MainActivity.LOCATION_DATA, location);
         activityNotifyIntent.setAction(
         		MainActivity.LOCATION_CHANGE_NOTIFY);
         getBaseContext().sendBroadcast(activityNotifyIntent);
-        
         //lastGetLocationTime = location.getTime();
-        
 	}
 
 	  /**
@@ -480,15 +452,4 @@ implements LocationListener
 	      }
 	    });
 	  }
-	
-//	@Override
-//	public void onProviderEnabled(String provider) {
-//		Log.v("gps","onProviderEnabled");
-//	}
-//
-//	@Override
-//	public void onStatusChanged(String provider, int status, Bundle extras) {
-//		// どうやら、宛てにならないようなので、廃止する		
-//		Log.v("gps","onStatusChanged");
-//	}
 }

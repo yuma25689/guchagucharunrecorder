@@ -171,7 +171,22 @@ public class RunningLogStocker {
 	public int recoveryLogToMemoryFromGpx(String strGpxFolder,String strTmpGpxFilePath)
 	{
 		int iRet = 0;
-		
+		// 一時ファイルとして格納されているGPXがあれば、それをカレントとしてメモリ展開？
+		// ==>GPXフォルダの最新のものをカレントに展開しないといけないこともあるのだろうか？
+		// また、一時フォルダにあるGPXは、不完全な可能性がある。
+		boolean bCurrentExists = false;
+		if( strTmpGpxFilePath != null )
+		{
+			File fileTmpGpx = new File(strTmpGpxFilePath);
+			if( fileTmpGpx.exists() )
+			{
+				
+				
+				
+				
+				bCurrentExists = true;
+			}
+		}
 		// GPXのフォルダを検索し、そこにあるGPXを全てメモリ展開する
 		ArrayList<String> files = FileUtil.searchFiles(strGpxFolder,GPXGeneratorSync.EXPORT_FILE_EXT);
 		// TODO:ソートで、ちゃんと昇順になっているかどうか調べること
@@ -181,15 +196,12 @@ public class RunningLogStocker {
 		{
 			// 頭を１周目として読み込む
 			GPXImporterSync importer = new GPXImporterSync(file,this);
-			//if( false == importer.importData() )
+			if( false == importer.importData() )
 			{
 				Log.e("GpxImportError","perhaps recovery");
 			}
 		}
 		
-		// 一時ファイルとして格納されているGPXがあれば、それをカレントとしてメモリ展開？
-		// ==>GPXフォルダの最新のものをカレントに展開しないといけないこともあるのだろうか？
-		// また、一時フォルダにあるGPXは、不完全な可能性がある。
 		
 		return iRet;
 	}
@@ -299,6 +311,19 @@ public class RunningLogStocker {
 			gpxFile.delete();
 		}		
 	}
+	private void clearRecoveryTmpGpxFile(Activity activity)
+	{
+		// フォルダ取得
+		File tmpDir = activity.getFilesDir();
+		// 一時ファイル名作成
+		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME + "2";
+		// ファイルがあったら消す
+		File gpxFile = new File( gpxFilePath );
+		if( gpxFile.exists() )
+		{
+			gpxFile.delete();
+		}		
+	}
 	public static String getTmpGpxFilePath(Activity activity)
 	{
 		// フォルダ取得
@@ -307,6 +332,56 @@ public class RunningLogStocker {
 		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		
 		return gpxFilePath;
+	}
+	/**
+	 * カレントのGPXファイルを、リカバリ用にタグを閉じて完成させたものをコピーして作成する 
+	 * @return null:失敗 ファイルパス:成功
+	 */
+	private String createRecoveryTmpGpxFile(Activity activity)
+	{
+		String ret = null;
+		GPXGeneratorSync gpxGenTmp = new GPXGeneratorSync();
+		{
+			// コピー元ファイルの取得
+			File tmpDir = activity.getFilesDir();			
+			String gpxTmpFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;			
+			File gpxTmpFile = new File( gpxTmpFilePath );
+			
+			if( gpxTmpFile.exists() )
+			{
+				// ファイルをコピーする
+				// コピー先ファイルの作成
+				String outputFilePath = tmpDir.getPath() 
+						+ "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME + "2";
+				File oFile = new File(outputFilePath);
+				try {
+					FileChannel iChannel = new FileInputStream(gpxTmpFile).getChannel();
+					FileChannel oChannel = new FileOutputStream(oFile).getChannel();
+					iChannel.transferTo(0, iChannel.size(), oChannel);
+					iChannel.close();
+					oChannel.close();
+					ret = outputFilePath;
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+					Log.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
+				} catch (IOException e) {
+					e.printStackTrace();
+					Log.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
+				}
+
+				// コピー後、さらにコピー先ファイルをXMLとして完成させる処理を行う
+				
+				if( )
+				{
+					// まだ閉じられていないと思われる場合
+					// NOTICE: この方法では、確実に復旧できる訳ではないが、
+					// 大体の場合は復旧できるはず
+					gpxGenTmp.recoveryGPXFile(activity,outputFilePath);
+					gpxGenTmp.endCreateGPXFile();
+				}
+			}
+		}
+		return ret;
 	}
 	
 	private void resetTmpGpxFile(Activity activity)

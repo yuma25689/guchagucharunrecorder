@@ -1,11 +1,14 @@
 package app.guchagucharr.service;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -89,7 +92,8 @@ public class GPXGeneratorSync {
     //BufferedOutputStream bos = null;
 	int iCurrentOutputLap = -1;
 
-    public GPXGeneratorSync()//Vector<Location> vData_, Handler hdr_ )//SparseArray<LapData> lapData_, Handler hdr_)
+    public GPXGeneratorSync()
+    //Vector<Location> vData_, Handler hdr_ )//SparseArray<LapData> lapData_, Handler hdr_)
 	{
     	clearCurrentBuf();	// 無意味だが、一応
 		// lapData = lapData_;
@@ -141,6 +145,83 @@ public class GPXGeneratorSync {
 			return NG_ERROR_UNKNOWN;
 		}					
 		return RETURN_OK;
+	}
+	/**
+	 * 指定されたGPXファイルが、コミット済のものかどうか
+	 * @param gpxFilePath
+	 * @return -1:エラー、ファイルが空、またはファイルが不正 0:コミット済 1:コミットされていない
+	 */
+	public static int checkCommitedGpxFile(String gpxFilePath)
+	{
+		final int CONFIRM_LINE_CNT = 3;		
+		ArrayList<String> buf = new ArrayList<String>();
+		// ファイルを開くが、ただ単に、ファイルの最後に書かれているのが、
+		// このアプリで吐かれたGPXの終了部分と一致するかどうかを調べる
+		try
+		{
+			File file = new File( gpxFilePath );
+			if( file.exists() == false )
+			{
+				return -1;
+			}
+			// 入力中の状態から復帰する
+			FileReader fr = new FileReader(file);
+			BufferedReader inBuffer = new BufferedReader(fr);
+			String line = null;
+			while ((line = inBuffer.readLine()) != null) 
+			{
+				// 行ごとにバッファに読み込みを行う
+				buf.add(line);
+				if( CONFIRM_LINE_CNT < buf.size() )
+				{
+					buf.remove(0);
+				}
+		    }
+			inBuffer.close();
+			fr.close();
+		} catch( IOException ex ) {
+			ex.printStackTrace();
+			Log.e("RecoveryFileInput failed","");
+			return -1;
+		}        	
+		catch ( Exception e)
+		{
+			e.printStackTrace();
+			Log.e("RecoveryFileInput failed","");
+			return -1;
+		}
+		
+		// 下記が、コミットされているGPXのラスト３行のはず？
+		final String[] sAnswer = {
+			TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+			,TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+			,GPX_END_TAG
+		};
+		// 読み込んだバッファから、確認を行う
+		boolean bBufOK = true;
+		int i=0;
+		for( String line : buf )
+		{
+			// コミットされているGPXのラスト３行のはずのテキストと、ファイルのラスト３行を一致確認する
+			// TODO: 実際にコミットされているGPXに書かれている文字列をデバッグ確認すること！
+			if( false == line.equals(sAnswer[i]) )
+			{
+				bBufOK = false;
+				break;
+			}
+		}
+		if( buf.isEmpty() || buf.size() < CONFIRM_LINE_CNT )
+		{
+			bBufOK = false;
+		}
+		if( bBufOK )
+		{
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
 	}
 	/**
 	 * start creating GPX file
@@ -300,17 +381,17 @@ public class GPXGeneratorSync {
 			_bos.write( stg.getBytes() );
 		}
 
-		public void endLap() throws IOException
-		{
-			// </trkseg></trk>
-			String out = TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
-					+ LINE_SEP					
-					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
-					+ LINE_SEP
-					;					
-			
-			_bos.write( out.getBytes() );
-		}
+//		public void endLap() throws IOException
+//		{
+//			// </trkseg></trk>
+//			String out = TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
+//					+ LINE_SEP					
+//					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
+//					+ LINE_SEP
+//					;					
+//			
+//			_bos.write( out.getBytes() );
+//		}
 
 		public void startLoc(Location loc) throws IOException
 		{

@@ -544,8 +544,7 @@ implements
 							RunLoggerService.clearRunLogStocker();
 							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
 							return -1;
-						}
-					
+						}		
 					}
 				}
 			}
