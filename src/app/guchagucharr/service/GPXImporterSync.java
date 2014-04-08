@@ -3,6 +3,11 @@ package app.guchagucharr.service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -94,15 +99,15 @@ public class GPXImporterSync {
 	{
 		Boolean bRet = true;
 		try {
-			
 			// ファイルからURIを生成
 			// TODO:確認
 			URI uri = new File( _path ).toURI();
+			// new File( _path ).toURL().toExternalForm();
 			SAXParserFactory spf = SAXParserFactory.newInstance();
             SAXParser sp = spf.newSAXParser(); 				
             XMLReader xmlReader = sp.getXMLReader();
             xmlReader.setContentHandler( new ImportSaxHandler() );
-			xmlReader.parse( uri.getPath() );
+			xmlReader.parse( uri.toURL().toExternalForm() );
 		} catch (SAXException e) {
 			Log.w("sax_error", e.getMessage());
 			// strErr = e.getMessage();
@@ -148,6 +153,10 @@ public class GPXImporterSync {
 			{
 				return ID_TAG_TRACK;
 			} 
+			else if( strLocal.equals( TAG_NAME_TRK_POINT ) )
+			{
+				return ID_TAG_TRK_POINT;
+			}
 			else if( strLocal.equals( TAG_NAME_NAME ) )
 			{
 				return ID_TAG_NAME;
@@ -189,6 +198,16 @@ public class GPXImporterSync {
 				String qName,
 				Attributes attributes) throws SAXException
 		{
+			// 名前の判定
+			lastElmTagId = chkLocalName( localName ); 
+			switch( lastElmTagId )
+			{
+			case ID_TAG_TRK_POINT:
+				// 現在位置データを初期化
+				// TODO:プロバイダを、なるべく元と同じものに
+				currentData = new Location(LOCATION_PROVIDER);
+				break;
+			}
 			// strCurrentName = "";
 			// 属性の判定
 			for(int i=0; i < attributes.getLength(); i++){
@@ -203,16 +222,6 @@ public class GPXImporterSync {
 		        	currentData.setLongitude(Double.parseDouble(attributes.getValue(i)));			        	
 		        }
 		    }
-			// 名前の判定
-			lastElmTagId = chkLocalName( localName ); 
-			switch( lastElmTagId )
-			{
-			case ID_TAG_TRK_POINT:
-				// 現在位置データを初期化
-				// TODO:プロバイダを、なるべく元と同じものに
-				currentData = new Location(LOCATION_PROVIDER);
-				break;
-			}
 			super.startElement(uri, localName, qName, attributes);
 		}
 		@Override
@@ -250,7 +259,7 @@ public class GPXImporterSync {
 				break;
 			case ID_TAG_NUMBER:
 				// ファイルに記述されたラップ番号の取得
-				int iLap = Integer.parseInt(sbCurrentVal.toString());
+				int iLap = Integer.parseInt(sbCurrentVal.toString().trim());
 				if( iLap != 1 && iCurrentOutputLap < iLap )
 				{
 					iCurrentOutputLap = iLap;
@@ -266,9 +275,23 @@ public class GPXImporterSync {
 				currentData.setSpeed(Float.parseFloat(sbCurrentVal.toString()));
 				break;
 			case ID_TAG_TIME:
-				// TODO:グリニッジ標準を元に戻す
-				// ==> 大事なので、必ずやること
-				// currentData.setTime(Float.parseFloat(sbCurrentVal.toString()));
+				// グリニッジ標準を元に戻す
+				SimpleDateFormat dateFormatGmt 
+				= //new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+					new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
+				dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+				try {
+					// TとZは変換できないようなので、変換前にTとZはスペースに戻す
+					String strGmt = sbCurrentVal.toString();
+					strGmt = strGmt.replace('T', ' ');
+					strGmt = strGmt.replace('Z', ' ');
+					strGmt = strGmt.trim();
+					Date date = dateFormatGmt.parse(strGmt);
+					currentData.setTime(date.getTime());
+				} catch (ParseException e) {
+					e.printStackTrace();
+					Log.e("cant parse gmt time from xml","recovery");
+				}				
 				break;
 			case ID_NONE:
 				break;

@@ -105,12 +105,12 @@ public class GPXGeneratorSync {
         fOut =  null;
     }
 
-    public BufferedOutputStream openGPXFileStream(File file)
+    public BufferedOutputStream openGPXFileStream(File file,boolean append)
     {
     	BufferedOutputStream bos = null;
         //FileOutputStream fOut;
 		try {
-			FileOutputStream fOut = new FileOutputStream(file);
+			FileOutputStream fOut = new FileOutputStream(file,append);
 	        bos = new BufferedOutputStream( fOut );    	
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -134,8 +134,9 @@ public class GPXGeneratorSync {
 		try
 		{
 			File gpxFile = new File( gpxFilePath );
+			// 新規作成
             gpxFile.createNewFile();
-            BufferedOutputStream bos = openGPXFileStream(gpxFile);
+            BufferedOutputStream bos = openGPXFileStream(gpxFile,false);
 
             openGPXFile( bos );
 			_exporter.startExport();
@@ -238,7 +239,8 @@ public class GPXGeneratorSync {
 		try
 		{
 			File gpxFile = new File( gpxFilePath );
-            BufferedOutputStream bos = openGPXFileStream(gpxFile);
+			// 続きから
+            BufferedOutputStream bos = openGPXFileStream(gpxFile,true);
 
             openGPXFile( bos );
 		}
@@ -450,6 +452,8 @@ public class GPXGeneratorSync {
 		public void endLoc() throws IOException
 		{			
 			//_bos.write( END_ROW.getBytes() );
+			// NOTICE:いちいちflushする？大丈夫かな？
+			_bos.flush();
 		}
 	}
 	

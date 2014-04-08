@@ -220,8 +220,8 @@ public class RunningLogStocker {
 		// ==>現在のラップデータをメモリに設定し直す
 		recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
 		
-		// ->下記は復旧時にちゃんと時間が復旧されるのかのテスト用
-		// this.currentLapData.setStartTime(totalStartTime);
+		// TODO:下記は微妙なのでちゃんと確認すること
+		currentLapData.setStartTime(totalStartTime);
 
 		// currentLapData.setStartTime(time);
 		// そのワークアウトのフォルダを作成
@@ -438,6 +438,9 @@ public class RunningLogStocker {
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 		}
+		currentLocation = location;		
+		iLocationDataCount++;
+		prevLocation = new Location(location);
 	}
 	public void nextLap(Activity activity, Long time)
 	{
