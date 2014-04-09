@@ -15,6 +15,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
@@ -203,23 +204,21 @@ public class RunningLogStocker {
 				}
 			}
 		}
-		
 		return iRet;
 	}
-	
-	public boolean recovery(Activity activity, TempolaryDataLoader.TempolaryData data)
+	public boolean recovery(Context ctx, TempolaryDataLoader.TempolaryData data)
 	{
 		// 一度全て消して、外部記憶のデータから設定し直す
 		clear();
 		totalStartTime = data.getStartDateTime();
 
 		// 一時フォルダのGPXファイルがあれば、それをカレントとしてリカバリ
-		String gpxTmp = createRecoveryTmpGpxFile(activity);
+		String gpxTmp = createRecoveryTmpGpxFile(ctx);
 
 		// lapData
 		// ==>現在のラップデータをメモリに設定し直す
 		recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
-		
+
 		// TODO:下記は微妙なのでちゃんと確認すること
 		currentLapData.setStartTime(totalStartTime);
 
@@ -237,18 +236,18 @@ public class RunningLogStocker {
 		}
     	Log.v("workOutDir created or exists", data.getGpxDir());
 
-    	File tmpGpx = new File( getTmpGpxFilePath(activity) );
+    	File tmpGpx = new File( getTmpGpxFilePath(ctx) );
 		// GPX出力開始
 		gpxGen = new GPXGeneratorSync();
     	if( tmpGpx.exists() == true )
     	{
     		// 一時フォルダのGPXファイルが既にあれば、それをリカバリ（そこから書き込み続行）する
-    		gpxGen.recoveryGPXFile(activity,getTmpGpxFilePath(activity));
+    		gpxGen.recoveryGPXFile(getTmpGpxFilePath(ctx));
 		}
     	else
     	{
 			// ファイル作成
-			resetTmpGpxFile(activity);
+			resetTmpGpxFile(ctx);
     	}
 		return true;
 	}
@@ -298,10 +297,10 @@ public class RunningLogStocker {
 		}
 		return ret;
 	}
-	private void clearTmpGpxFile(Activity activity)
+	private void clearTmpGpxFile(Context ctx)
 	{
 		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
+		File tmpDir = ctx.getFilesDir();
 		// 一時ファイル名作成
 		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		// ファイルがあったら消す
@@ -311,10 +310,10 @@ public class RunningLogStocker {
 			gpxFile.delete();
 		}		
 	}
-	private void clearRecoveryTmpGpxFile(Activity activity)
+	private void clearRecoveryTmpGpxFile(Context ctx)
 	{
 		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
+		File tmpDir = ctx.getFilesDir();
 		// 一時ファイル名作成
 		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME + "2";
 		// ファイルがあったら消す
@@ -324,10 +323,10 @@ public class RunningLogStocker {
 			gpxFile.delete();
 		}		
 	}
-	public static String getTmpGpxFilePath(Activity activity)
+	public static String getTmpGpxFilePath(Context ctx)
 	{
 		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
+		File tmpDir = ctx.getFilesDir();
 		// 一時ファイル名作成
 		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		
@@ -337,16 +336,15 @@ public class RunningLogStocker {
 	 * カレントのGPXファイルを、リカバリ用にタグを閉じて完成させたものをコピーして作成する 
 	 * @return null:失敗 ファイルパス:成功
 	 */
-	private String createRecoveryTmpGpxFile(Activity activity)
+	private String createRecoveryTmpGpxFile(Context ctx)
 	{
 		String ret = null;
 		GPXGeneratorSync gpxGenTmp = new GPXGeneratorSync();
 		{
 			// コピー元ファイルの取得
-			File tmpDir = activity.getFilesDir();			
+			File tmpDir = ctx.getFilesDir();
 			String gpxTmpFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;			
 			File gpxTmpFile = new File( gpxTmpFilePath );
-			
 			if( gpxTmpFile.exists() )
 			{
 				// ファイルをコピーする
@@ -377,7 +375,7 @@ public class RunningLogStocker {
 					// まだ閉じられていないと思われる場合
 					// NOTICE: この方法では、確実に復旧できる訳ではないが、
 					// 大体の場合は復旧できるはず
-					gpxGenTmp.recoveryGPXFile(activity,outputFilePath);
+					gpxGenTmp.recoveryGPXFile(outputFilePath);
 					gpxGenTmp.endCreateGPXFile();
 					ret = outputFilePath;
 				}
@@ -390,14 +388,14 @@ public class RunningLogStocker {
 		return ret;
 	}
 	
-	private void resetTmpGpxFile(Activity activity)
+	private void resetTmpGpxFile(Context ctx)
 	{
 //		// フォルダ取得
 //		File tmpDir = activity.getFilesDir();
 //		// 一時ファイル名作成
 //		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
 		// ファイルの書き込みを始める
-		gpxGen.startCreateGPXFile(activity, getTmpGpxFilePath(activity));		
+		gpxGen.startCreateGPXFile( getTmpGpxFilePath(ctx));
 	}
 	public void putLocationLog( Location location )
 	{

@@ -126,7 +126,7 @@ public class GPXGeneratorSync {
 	 * @return
 	 */
 	public int startCreateGPXFile(
-			Activity activity,
+			//Activity activity,
 			String gpxFilePath )
 			//int iLap ) ラップはLocationのBearingに無理矢理セットしてあるので、そこから取れる
 	{
@@ -231,7 +231,7 @@ public class GPXGeneratorSync {
 	 * @return
 	 */
 	public int recoveryGPXFile(
-			Activity activity,
+			//Activity activity,
 			String gpxFilePath )
 			//int iLap ) ラップはLocationのBearingに無理矢理セットしてあるので、そこから取れる
 	{
@@ -242,6 +242,9 @@ public class GPXGeneratorSync {
 			// 続きから
             BufferedOutputStream bos = openGPXFileStream(gpxFile,true);
 
+            // 少なくとも最初のラップ開始の表記はファイルに書かれているものとするので、
+            // 最初のラップの表記が書かれた直後から書けるように、iCurrentOutputLapを-1から0に更新しておく
+            iCurrentOutputLap = 0;
             openGPXFile( bos );
 		}
 		catch ( Exception e)

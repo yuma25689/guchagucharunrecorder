@@ -168,12 +168,11 @@ public class RunLogger {
 		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
 		return iRet;
 	}
-	public static int recovery(Activity activity, TempolaryDataLoader.TempolaryData data) throws RemoteException
+	public static int recovery(Context ctx, TempolaryDataLoader.TempolaryData data) throws RemoteException
 	{
 		int iRet = 0;
-		
 		// 位置情報取得開始
-		if( false == RunLoggerService.getLogStocker().recovery(activity, data) )
+		if( false == RunLoggerService.getLogStocker().recovery(ctx, data) )
 		{
 			// ログ取得開始に失敗したら、ログをクリアして戻る
 			return -1;
@@ -185,11 +184,11 @@ public class RunLogger {
 		// モードをファイルに書き込み
 		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
 		// Notificationの表示
-		SetLoggingNotification(activity);
+		SetLoggingNotification(ctx);
 		return iRet;
 	}
 	
-	static Notification SetLoggingNotification(Activity activity)
+	static Notification SetLoggingNotification(Context ctx)
 	{
 //    	Notification.Builder builder = new Notification.Builder(activity);
 //    	builder.setTicker("ticker");
@@ -200,12 +199,12 @@ public class RunLogger {
 //    	Notification notification = builder.build();
 		Notification notification = new Notification(android.R.drawable.ic_dialog_info,
 				"RunLoggerService", System.currentTimeMillis());
-		PendingIntent contentIntent = PendingIntent.getActivity(activity, 0,
-				new Intent(activity, MainActivity.class), 0);
-		notification.setLatestEventInfo(activity.getApplicationContext(),
+		PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,
+				new Intent(ctx, MainActivity.class), 0);
+		notification.setLatestEventInfo(ctx.getApplicationContext(),
 				"RunLoggerService", "位置情報ログ取得中", contentIntent);
      	
-    	NotificationManager manager = (NotificationManager) activity.getSystemService(Context.NOTIFICATION_SERVICE);
+    	NotificationManager manager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
     	manager.notify(RunLoggerService.NOTIF_ID, notification);    	
 		
     	return notification;

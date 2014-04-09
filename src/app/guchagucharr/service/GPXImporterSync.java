@@ -35,10 +35,7 @@ public class GPXImporterSync {
 //		{">","&gt;"},
 //		{"\"","&quot;"}
 //	};
-	
-	
 	// private Importer _importer = null;
-
 	/*
 	 * <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
@@ -51,10 +48,9 @@ public class GPXImporterSync {
 繝ｻ繝ｻ繝ｻ
 繝ｻ繝ｻ繝ｻ
 </trkseg></trk></gpx> 
-	 */
-	
+	 */	
 	public static final String LINE_SEP = System.getProperty("line.separator");
-		
+
 	public static final String TAG_NAME_TRACK = "trk";
 	public static final String TAG_NAME_NAME = "name";
 	public static final String TAG_NAME_NUMBER = "number";
@@ -138,15 +134,12 @@ public class GPXImporterSync {
 		//String strCurrentName;
 		//String strErr;
 		int lastElmTagId = ID_NONE;
-		// int lastElmNameId = ID_TAG_UNKNOWN;
-		
+		// int lastElmNameId = ID_TAG_UNKNOWN;		
 		// private static final int ID_TAG_UNKNOWN = -1;
 		private static final int ID_NONE = 0;
-
 		ImportSaxHandler()
 		{}
-		
-		
+
 		private int chkLocalName( String strLocal )
 		{				
 			if( strLocal.equals( TAG_NAME_TRACK ) )
@@ -181,7 +174,6 @@ public class GPXImporterSync {
 			{
 				return ID_TAG_SPEED;
 			}
-			
 			return ID_NONE;
 		}	
 		

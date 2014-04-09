@@ -3,6 +3,7 @@ package app.guchagucharr.service;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -20,7 +21,7 @@ public class TempolaryDataLoader {
 	{
 		dataArray.clear();
 	}
-	public int load(Activity activity)
+	public int load(Context context)
 	{
 		clear();
 		// ContentProvider検索
@@ -29,7 +30,7 @@ public class TempolaryDataLoader {
 			String tempTblUri = RunHistoryTableContract.CONTENT_URI_STRING 
 					+ "/" + RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME;
 			Log.v("uri",tempTblUri);			
-			Cursor cursor = activity.getContentResolver().query(
+			Cursor cursor = context.getContentResolver().query(
 					Uri.parse( tempTblUri ),
 				    null,//mProjection,
 				    null,//mSelectionClause,

@@ -193,7 +193,6 @@ implements
 
 	    // requestGPS();
 	}
-
 	@Override
 	public void requestGPS()
 	{
@@ -211,7 +210,6 @@ implements
 			Log.e("requestGPS",e.getMessage());
 		}
 	}
-	
 	void stopService() throws RemoteException
 	{
 		Log.w("stopService","come");
@@ -357,7 +355,6 @@ implements
 			// 中央ボタンを使用可能にする
 			btnCenter.setEnabled(true);
 		}
-		
 		// 画面側では、サービスにストックされている位置情報の表示のみを行う
 		updateLogDisplay( location.getSpeed() );
 		Log.v("----------", "----------");

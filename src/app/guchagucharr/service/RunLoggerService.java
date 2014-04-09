@@ -23,6 +23,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources.NotFoundException;
 import android.location.Location;
 //import android.location.LocationListener;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
+import app.guchagucharr.guchagucharunrecorder.R;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
@@ -59,8 +61,8 @@ implements LocationListener
 {	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
-	private float requestLocationUpdatesDistance;
-	private long requestLocationUpdatesTime;
+	private float requestLocationUpdatesDistance = 0.1f;
+	private long requestLocationUpdatesTime = 500;
 	private final ConnectionCallbacks connectionCallbacks = 
 		new ConnectionCallbacks() {
 	    @Override
@@ -227,8 +229,53 @@ implements LocationListener
     public void onStart(Intent intent, int startID) 
     {
         Log.w("RunLoggerService-onStart","come");    	
-    	// 今のところ、特に何もしない
-    	// もしやるにしても、Notificationの表示くらいかもしれない
+		if( false == isEmptyLogStocker() 
+				&& mode == eMode.MODE_NORMAL )
+		{
+			// 復旧処理対応
+			// ノーマルモードでここに来た場合
+			// テンポラリデータをロードし、テンポラリとモードが合っているかどうか調べる
+			TempolaryDataLoader loader = new TempolaryDataLoader();
+			if( 0 == loader.load(this)
+			&& loader.getData().isEmpty() == false )
+			{
+				TempolaryDataLoader.TempolaryData data = loader.getData().get(0);
+				int iMode = data.getCurrentMode();
+				if( iMode == eMode.MODE_MEASURING.ordinal() )
+				{
+					// 内部モードは通常モードなのに、
+					// 外部記憶に格納されたモードは計測モード
+					// 外部記憶の方を正とみなし、復旧処理を行う
+					// TODO: テスト用のToast
+					Toast.makeText(this, "recovery process come(service)", Toast.LENGTH_LONG ).show();
+					RunLoggerService.clearRunLogStocker();
+					RunLoggerService.createLogStocker();
+					// => recovery関数内で
+					// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+					// 時間を一時保存されていた時間をstartで復旧
+					try {
+						if( 0 != RunLogger.recovery(this, data ) )
+//							if( false == RunLoggerService.getLogStocker().start(this,time) )
+						{
+							RunLoggerService.clearRunLogStocker();
+							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							return;
+						}
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						RunLoggerService.clearRunLogStocker();
+						Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+						e.printStackTrace();
+					} catch (NotFoundException e) {
+						// TODO Auto-generated catch block
+						RunLoggerService.clearRunLogStocker();
+						Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+						e.printStackTrace();
+					}		
+				}
+			}
+		}
+        
     }
 
     @Override
@@ -393,6 +440,7 @@ implements LocationListener
 		// NOTICE: 受診毎に切断
 		// TODO:サービス再起動時の復旧処理を、ここに入れればうまく行きそうに感じる
 		// clearGPS();
+		
 		if( false == isEmptyLogStocker() 
 				&& mode == eMode.MODE_MEASURING )
 		{
@@ -424,18 +472,18 @@ implements LocationListener
 	   * @param minDistance the minimal distance
 	   * @param locationListener the location listener
 	   */
-	  public void requestLocationUpdates(
-	      final long minTime, final float minDistance, final LocationListener locationListener) {
-	    handler.post(new Runnable() {
-	        @Override
-	      public void run() {
-	        requestLocationUpdatesTime = minTime;
-	        requestLocationUpdatesDistance = minDistance;
-	        // requestLocationUpdates = locationListener;
-	        connectionCallbacks.onConnected(null);
-	      }
-	    });
-	  }
+//	  public void requestLocationUpdates(
+//	      final long minTime, final float minDistance, final LocationListener locationListener) {
+//	    handler.post(new Runnable() {
+//	        @Override
+//	      public void run() {
+//	        requestLocationUpdatesTime = minTime;
+//	        requestLocationUpdatesDistance = minDistance;
+//	        // requestLocationUpdates = locationListener;
+//	        connectionCallbacks.onConnected(null);
+//	      }
+//	    });
+//	  }
 
 	  /**
 	   * Removes location updates.
