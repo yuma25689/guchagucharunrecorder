@@ -172,7 +172,7 @@ public class RunLogger {
 	{
 		int iRet = 0;
 		// 位置情報取得開始
-		if( false == RunLoggerService.getLogStocker().recovery(ctx, data) )
+		if( false == RunLoggerService.getLogStocker().recovery(ctx, data, true) )
 		{
 			// ログ取得開始に失敗したら、ログをクリアして戻る
 			return -1;

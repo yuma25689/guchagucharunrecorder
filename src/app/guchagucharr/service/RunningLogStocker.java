@@ -206,11 +206,11 @@ public class RunningLogStocker {
 		}
 		return iRet;
 	}
-	public boolean recovery(Context ctx, TempolaryDataLoader.TempolaryData data)
+	public boolean recovery(Context ctx, TempolaryDataLoader.TempolaryData data, boolean bWorkOutStart)
 	{
 		// 一度全て消して、外部記憶のデータから設定し直す
 		clear();
-		totalStartTime = data.getStartDateTime();
+		// totalStartTime = data.getStartDateTime();
 
 		// 一時フォルダのGPXファイルがあれば、それをカレントとしてリカバリ
 		String gpxTmp = createRecoveryTmpGpxFile(ctx);
@@ -219,8 +219,15 @@ public class RunningLogStocker {
 		// ==>現在のラップデータをメモリに設定し直す
 		recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
 
-		// TODO:下記は微妙なのでちゃんと確認すること
-		currentLapData.setStartTime(totalStartTime);
+		if( 0 < lapData.size() )
+		{
+			totalStartTime = lapData.get(0).getStartTime();
+		}
+		else
+		{
+			totalStartTime = data.getStartDateTime();
+		}
+		//currentLapData.setStartTime(totalStartTime);
 
 		// currentLapData.setStartTime(time);
 		// そのワークアウトのフォルダを作成
@@ -236,18 +243,21 @@ public class RunningLogStocker {
 		}
     	Log.v("workOutDir created or exists", data.getGpxDir());
 
-    	File tmpGpx = new File( getTmpGpxFilePath(ctx) );
-		// GPX出力開始
-		gpxGen = new GPXGeneratorSync();
-    	if( tmpGpx.exists() == true )
+    	if( bWorkOutStart )
     	{
-    		// 一時フォルダのGPXファイルが既にあれば、それをリカバリ（そこから書き込み続行）する
-    		gpxGen.recoveryGPXFile(getTmpGpxFilePath(ctx));
-		}
-    	else
-    	{
-			// ファイル作成
-			resetTmpGpxFile(ctx);
+	    	File tmpGpx = new File( getTmpGpxFilePath(ctx) );
+			// GPX出力開始
+			gpxGen = new GPXGeneratorSync();
+	    	if( tmpGpx.exists() == true )
+	    	{
+	    		// 一時フォルダのGPXファイルが既にあれば、それをリカバリ（そこから書き込み続行）する
+	    		gpxGen.recoveryGPXFile(getTmpGpxFilePath(ctx));
+			}
+	    	else
+	    	{
+				// ファイル作成
+				resetTmpGpxFile(ctx);
+	    	}
     	}
 		return true;
 	}
@@ -418,23 +428,26 @@ public class RunningLogStocker {
 			prevLocation = new Location(location);
 		}
 	}
-	public void putLocationLogNotAddFile( Location location )
+	public void putLocationLogNotAddFile( Location location, String gpxpath )
 	{
 		int iLap = (int)location.getBearing();
 		if( m_iLap < iLap )
 		{
+			nextLapNoFileProcess(m_iLap, location.getTime(), gpxpath);
 			m_iLap = iLap;
-			nextLapNoFileProcess(iLap, location.getTime());
 		}
 		// location.setBearing(m_iLap);
 
 		if( 0 == iLocationDataCount ) // vLocation.isEmpty() )
 		{
+			currentLapData.setStartTime(location.getTime());
+			currentLapData.setGpxFilePath(gpxpath);
 		}
 		else
 		{
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
+			currentLapData.setStopTime(location.getTime());
 		}
 		currentLocation = location;		
 		iLocationDataCount++;
@@ -465,7 +478,7 @@ public class RunningLogStocker {
 			prevLocation = null;
 		}
 	}
-	public void nextLapNoFileProcess(int iLap,Long time)
+	public void nextLapNoFileProcess(int iLap,Long time,String path)
 	{
 		currentLapData.setStopTime(time);
 
@@ -473,6 +486,7 @@ public class RunningLogStocker {
 		lapData.put(iLap, saveLapData);
 		currentLapData.clear();
 		currentLapData.setStartTime(time);
+		currentLapData.setGpxFilePath(path);
 		
 		if( 0 < iLocationDataCount )//vLocation.size() )
 		{
@@ -484,13 +498,16 @@ public class RunningLogStocker {
 			prevLocation = null;
 		}
 	}
-	public void stop( Activity activity, long time )
+	public void stop( Activity activity, long time, boolean bRecoveryMode )
 	{		
 		totalStopTime = time;
 		currentLapData.setStopTime(time);
-		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
-		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
-		currentLapData.setGpxFilePath(strGpxFile);
+		if( false == bRecoveryMode )
+		{
+			// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
+			String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
+			currentLapData.setGpxFilePath(strGpxFile);
+		}
 		lapData.put(m_iLap, currentLapData);
 		deleteLogMetaInfo(activity);
 	}

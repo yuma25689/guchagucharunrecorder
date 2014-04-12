@@ -105,11 +105,11 @@ public class GPXImporterSync {
             xmlReader.setContentHandler( new ImportSaxHandler() );
 			xmlReader.parse( uri.toURL().toExternalForm() );
 		} catch (SAXException e) {
-			Log.w("sax_error", e.getMessage());
+			Log.w("sax_error =>" + _path, e.getMessage());
 			// strErr = e.getMessage();
 			bRet = false;
 		} catch (IOException e) {
-			Log.w("sax_parse_error", e.getMessage());
+			Log.w("sax_parse_error =>" + _path, e.getMessage());
 			//strErr = e.getMessage();
 			bRet = false;
 		} catch (ParserConfigurationException e) {
@@ -245,7 +245,7 @@ public class GPXImporterSync {
 //				{
 //					logStocker.nextLapNoFileProcess(iCurrentOutputLap-1,prevData.getTime());
 //				}
-				logStocker.putLocationLogNotAddFile(currentData);
+				logStocker.putLocationLogNotAddFile(currentData,_path);
 				prevData = new Location( currentData );
 				iLastOutputLap = iCurrentOutputLap;
 				break;

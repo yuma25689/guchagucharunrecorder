@@ -170,7 +170,12 @@ public class DisplayBlock extends RelativeLayout {
 		for( int i=0; i<lineCnt;++i )
 		{
 			textSize[i] = textSizeTmp;
-			if( i==lineCnt-1 )
+			
+			if( text == null )
+			{
+				textSplited[i] = null;
+			}
+			else if( i==lineCnt-1 )
 			{
 				textSplited[i] = text.substring(iStart);
 			}
@@ -236,6 +241,8 @@ public class DisplayBlock extends RelativeLayout {
 	float getMeasureTextWidth( float textSize, String text )
 	{
 		paintForMeasureText.setTextSize(textSize);
+		if( text == null )
+			return 0;
 		return paintForMeasureText.measureText(text);
 	}
 	

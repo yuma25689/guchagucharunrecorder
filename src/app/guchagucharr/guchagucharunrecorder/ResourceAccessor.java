@@ -22,6 +22,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
+import app.guchagucharr.service.RunHistoryLoader.ActivityData;
+import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public final class ResourceAccessor {
 	
@@ -42,6 +44,25 @@ public final class ResourceAccessor {
 	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();
 	
 	Activity activity;
+	// 2014/04/10 データ編集に利用するテンポラリデータを、ここに設定するものとする
+	ActivityData workOutDataTmp;
+	public void setWorkOutDataTmp(ActivityData data)
+	{
+		workOutDataTmp = data;
+	}
+	public ActivityData getWorkOutDataTmp()
+	{
+		return workOutDataTmp;
+	}
+	ActivityLapData lapDataTmp;
+	public void setLapDataTmp(ActivityLapData data)
+	{
+		lapDataTmp = data;
+	}
+	public ActivityLapData getLapDataTmp()
+	{
+		return lapDataTmp;
+	}
 	
 	public void setActivity(Activity activity) {
 		this.activity = activity;

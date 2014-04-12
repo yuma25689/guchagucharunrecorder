@@ -360,6 +360,7 @@ containing a value of this type.
          */
         public static final int auth_client_using_bad_version_title=0x7f060014;
         public static final int cant_get=0x7f060029;
+        public static final int cant_recovery_because_error=0x7f06004a;
         public static final int cant_start_workout_because_error=0x7f060049;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
@@ -436,8 +437,8 @@ containing a value of this type.
         public static final int datetime_display_format=0x7f060031;
         public static final int datetime_display_format2=0x7f060032;
         public static final int default_activity_name=0x7f060043;
-        public static final int description_cancel=0x7f06004c;
-        public static final int description_save=0x7f06004b;
+        public static final int description_cancel=0x7f06004d;
+        public static final int description_save=0x7f06004c;
         public static final int distance_label=0x7f060044;
         public static final int dummy_button=0x7f06001c;
         public static final int dummy_content=0x7f06001d;
@@ -447,37 +448,38 @@ containing a value of this type.
         /**  Do not translate. Duration format for duration < 1 hour 
          */
         public static final int durationformatshort=0x7f06001e;
+        public static final int edit_error_cant_launch=0x7f060066;
         public static final int gmt_date_time_for_gpx_format=0x7f060035;
         public static final int gpx_share=0x7f060048;
-        public static final int hint_gpxfilepath=0x7f060061;
-        public static final int hint_gpxfilepath_fixed=0x7f060062;
-        public static final int hint_insertdatetime=0x7f060059;
-        public static final int hint_lap_speed=0x7f06005d;
-        public static final int hint_lap_speed_fixed=0x7f060060;
-        public static final int hint_lap_time=0x7f06005c;
-        public static final int hint_lap_time_fixed=0x7f06005f;
-        public static final int hint_lapdistance=0x7f06005b;
-        public static final int hint_lapdistance_fixed=0x7f06005e;
-        public static final int hint_lapname=0x7f06005a;
-        public static final int hint_startdatetime=0x7f060058;
+        public static final int hint_gpxfilepath=0x7f060062;
+        public static final int hint_gpxfilepath_fixed=0x7f060063;
+        public static final int hint_insertdatetime=0x7f06005a;
+        public static final int hint_lap_speed=0x7f06005e;
+        public static final int hint_lap_speed_fixed=0x7f060061;
+        public static final int hint_lap_time=0x7f06005d;
+        public static final int hint_lap_time_fixed=0x7f060060;
+        public static final int hint_lapdistance=0x7f06005c;
+        public static final int hint_lapdistance_fixed=0x7f06005f;
+        public static final int hint_lapname=0x7f06005b;
+        public static final int hint_startdatetime=0x7f060059;
         public static final int hour=0x7f060026;
         public static final int killometer=0x7f060023;
         public static final int killoperhour=0x7f060028;
-        public static final int label_gpxfilepath=0x7f060056;
-        public static final int label_gpxfilepath_fixed=0x7f060057;
-        public static final int label_insert_date_time=0x7f06004e;
-        public static final int label_lap_distance=0x7f060050;
-        public static final int label_lap_distance_fixed=0x7f060053;
-        public static final int label_lap_speed=0x7f060052;
-        public static final int label_lap_speed_fixed=0x7f060055;
-        public static final int label_lap_time=0x7f060051;
-        public static final int label_lap_time_fixed=0x7f060054;
-        public static final int label_lapname=0x7f06004f;
+        public static final int label_gpxfilepath=0x7f060057;
+        public static final int label_gpxfilepath_fixed=0x7f060058;
+        public static final int label_insert_date_time=0x7f06004f;
+        public static final int label_lap_distance=0x7f060051;
+        public static final int label_lap_distance_fixed=0x7f060054;
+        public static final int label_lap_speed=0x7f060053;
+        public static final int label_lap_speed_fixed=0x7f060056;
+        public static final int label_lap_time=0x7f060052;
+        public static final int label_lap_time_fixed=0x7f060055;
+        public static final int label_lapname=0x7f060050;
         /**  for edit dialog 
          */
-        public static final int label_start_date_time=0x7f06004d;
-        public static final int label_unit_distance=0x7f060063;
-        public static final int label_unit_speed=0x7f060064;
+        public static final int label_start_date_time=0x7f06004e;
+        public static final int label_unit_distance=0x7f060064;
+        public static final int label_unit_speed=0x7f060065;
         /**  Location client code resources (prefix with location_client) 
          */
         public static final int location_client_powered_by_google=0x7f06001a;
@@ -489,7 +491,7 @@ containing a value of this type.
         public static final int meter=0x7f060022;
         public static final int meterpersecond=0x7f060027;
         public static final int minute=0x7f060025;
-        public static final int no_title=0x7f06004a;
+        public static final int no_title=0x7f06004b;
         public static final int second=0x7f060024;
         public static final int speed_label=0x7f060047;
         public static final int time_display_format=0x7f060034;

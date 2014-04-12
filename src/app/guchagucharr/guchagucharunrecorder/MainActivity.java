@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 //import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -525,7 +526,7 @@ implements
 					{
 						// 内部モードは通常モードなのに、
 						// 外部記憶に格納されたモードは計測モード
-						// TODO:外部記憶の方を正とみなし、復旧処理を行う
+						// TODO: 外部記憶の方を正とみなし、復旧処理を行う
 						
 						// TODO: テスト用のToast
 						Toast.makeText(this, "recovery process come", Toast.LENGTH_LONG ).show();
@@ -1104,7 +1105,7 @@ implements
 						clearGPS();
 			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
+						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(),false);//new Date().getTime());
 						
 						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 						txtTime.setVisibility(View.GONE);
@@ -1207,39 +1208,7 @@ implements
 					}
 					else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
 					{
-						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
-						// モードをファイルに書き込み
-						// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
-						// logging end
-						RunLogger.sService.stopLog();
-						clearGPS();		            
-			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis());//new Date().getTime());
-						
-						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
-						txtTime.setVisibility(View.GONE);
-						txtTimeOfLap.setVisibility(View.GONE);
-						txtDistance.setVisibility(View.GONE);
-						txtDistanceOfLap.setVisibility(View.GONE);
-						txtSpeed.setVisibility(View.GONE);
-						txtSpeed2.setVisibility(View.GONE);
-						txtLap.setVisibility(View.GONE);
-						btnCenter.setEnabled(false);
-						txtLocationCount.setVisibility(View.GONE);
-						btnLap.setVisibility(View.GONE);
-						btnCamera.setVisibility(View.GONE);
-						btnCancel.setVisibility(View.GONE);
-		
-						if( RunLoggerService.getLogStocker().getCurrentLocation() == null )
-						{
-							return;
-						}
-						// launch activity for save
-						Intent intent = new Intent( this, ResultActivity.class );
-						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
-				        startActivity(intent);				
-						
+						endWorkOutAndShowSaveDlg(false);
 //						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 //		//				txtDistance.setVisibility(View.VISIBLE);
 //		//				txtSpeed.setVisibility(View.VISIBLE);
@@ -1264,6 +1233,55 @@ implements
 		}
 	}
 
+	private void endWorkOutAndShowSaveDlg(boolean recoveryMode)
+	{
+		try {
+			RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
+			// モードをファイルに書き込み
+			// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
+			// logging end
+			RunLogger.sService.stopLog();
+			clearGPS();		            
+	        RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+	        RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+	        if( false == recoveryMode )
+	        {
+	        	RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(), recoveryMode);//new Date().getTime());
+	        }
+	        else
+	        {
+	        	RunLoggerService.getLogStocker().stop(this, RunLoggerService.getLogStocker().getCurrentLocation().getTime(), recoveryMode);	        	
+	        }
+			
+			btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
+			txtTime.setVisibility(View.GONE);
+			txtTimeOfLap.setVisibility(View.GONE);
+			txtDistance.setVisibility(View.GONE);
+			txtDistanceOfLap.setVisibility(View.GONE);
+			txtSpeed.setVisibility(View.GONE);
+			txtSpeed2.setVisibility(View.GONE);
+			txtLap.setVisibility(View.GONE);
+			btnCenter.setEnabled(false);
+			txtLocationCount.setVisibility(View.GONE);
+			btnLap.setVisibility(View.GONE);
+			btnCamera.setVisibility(View.GONE);
+			btnCancel.setVisibility(View.GONE);
+	
+			if( RunLoggerService.getLogStocker().getLocationDataCount() <= 0 )
+			{
+				return;
+			}
+			// launch activity for save
+			Intent intent = new Intent( this, ResultActivity.class );
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
+	        startActivity(intent);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.e("end work out","remoteexception");
+		}
+
+	}
 	@Override
 	public void clearGPS() {
 		// サービスのクリアGPS
@@ -1487,11 +1505,35 @@ implements
       public boolean onOptionsItemSelected(MenuItem item) {
         //Intent intent;
         switch (item.getItemId()) {
-          //case ID_MENU_RECOVERY:
-            //return true;
-          default:
-            return super.onOptionsItemSelected(item);
+          case R.id.id_menu_recovery:
+				//　テスト中
+        	  	// RunLoggerStockerにデータ復旧->save dialog launch
+				TempolaryDataLoader loader = new TempolaryDataLoader();
+        	  	TempolaryDataLoader.TempolaryData data = loader.new TempolaryData();
+				data.setGpxDir("/mnt/sdcard/app.guchagucharr.guchagucharunrecorder/20140412090140185");
+				RunLoggerService.clearRunLogStocker();
+				RunLoggerService.createLogStocker();
+				
+				// => recovery関数内で
+				// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+				// 時間を一時保存されていた時間をstartで復旧
+				try {
+					if( false == RunLoggerService.getLogStocker().recovery(this, data, false ) )
+	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
+					{
+						RunLoggerService.clearRunLogStocker();
+						Toast.makeText(this, R.string.cant_recovery_because_error, Toast.LENGTH_LONG).show();
+						break;
+					}
+				} catch (NotFoundException e) {
+					// TODO Auto-generated catch block
+					Log.e("recover","error notfoundexception");
+					e.printStackTrace();
+				}
+				endWorkOutAndShowSaveDlg(true);
+				return false;
         }
+        return super.onOptionsItemSelected(item);
       }
 	
 

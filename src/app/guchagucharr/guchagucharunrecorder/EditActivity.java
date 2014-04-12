@@ -18,17 +18,21 @@ import android.view.ViewGroup;
 //import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import app.guchagucharr.interfaces.IColumnDataGenerator;
+import android.widget.Toast;
 import app.guchagucharr.interfaces.IEditViewController;
+import app.guchagucharr.service.RunHistoryLoader.ActivityData;
+import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class EditActivity extends Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
 {
 	public static final String KEY_CLMN_DATA_GEN = "KeyOfColumnDataGenerator";
+	public static final String KEY_CLMN_DATA_INDEX = "KeyOfColumnDataIndex";
 	public static final int EDIT_DATA_NONE = -1;
 	public static final int EDIT_DATA_MAIN_TABLE = 1;
 	public static final int EDIT_DATA_LAP_TABLE = 2;
 	private int iEditDataType = EDIT_DATA_LAP_TABLE;
+	// private int iEditDataIndex = -1;
 //	private IColumnDataGenerator dataGen = null;
 	
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
@@ -62,10 +66,13 @@ implements IEditViewController, OnClickListener, OnTouchListener
         	// 設定情報の取得
         	// 投げる側に、データジェネレータを設定してもらう
         	iEditDataType = intent.getIntExtra(KEY_CLMN_DATA_GEN, EDIT_DATA_NONE);
+        	// iEditDataIndex = intent.getIntExtra(KEY_CLMN_DATA_INDEX, -1);
         }
-        if( iEditDataType == EDIT_DATA_NONE )
+        if( iEditDataType == EDIT_DATA_NONE ) 
+        //|| iEditDataIndex == -1 )
         {
         	// TODO: 設定情報が取得できない時点でエラーなので、起動させたくない
+        	Toast.makeText(this, R.string.edit_error_cant_launch, Toast.LENGTH_LONG).show();
         	finish();
         }
 	}
@@ -107,6 +114,24 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			);			
 		}
         
+		// TODO: 各コントロールの配置
+		if( iEditDataType == EDIT_DATA_NONE )
+        {
+			
+        }
+		else if( iEditDataType == EDIT_DATA_MAIN_TABLE )
+		{
+			// メインテーブル編集
+			// データの取得
+			ActivityData data = ResourceAccessor.getInstance().getWorkOutDataTmp();
+		}
+		else if( iEditDataType == EDIT_DATA_LAP_TABLE )
+		{
+			// ラップテーブル編集
+			// データの取得
+			ActivityLapData data = ResourceAccessor.getInstance().getLapDataTmp();
+			
+		}
         return 0;
 	}
 //	@Override

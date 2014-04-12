@@ -61,8 +61,8 @@ implements LocationListener
 {	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
-	private float requestLocationUpdatesDistance = 0.1f;
-	private long requestLocationUpdatesTime = 500;
+	private float requestLocationUpdatesDistance = 0.1f;//0.1f;
+	private long requestLocationUpdatesTime = 100;	// 最速で0.1s?
 	private final ConnectionCallbacks connectionCallbacks = 
 		new ConnectionCallbacks() {
 	    @Override
@@ -105,8 +105,7 @@ implements LocationListener
 	         // mHandler through UI Thread to queueing
 	    	 handler.post( new Runnable() {
 	             @Override
-	             public void run() {	 
-	    	 
+	             public void run() {
 	            	 // update now Time
 	            	 try {
 						if( RunLoggerService.getLogStocker() != null
@@ -228,54 +227,7 @@ implements LocationListener
     @Override
     public void onStart(Intent intent, int startID) 
     {
-        Log.w("RunLoggerService-onStart","come");    	
-		if( false == isEmptyLogStocker() 
-				&& mode == eMode.MODE_NORMAL )
-		{
-			// 復旧処理対応
-			// ノーマルモードでここに来た場合
-			// テンポラリデータをロードし、テンポラリとモードが合っているかどうか調べる
-			TempolaryDataLoader loader = new TempolaryDataLoader();
-			if( 0 == loader.load(this)
-			&& loader.getData().isEmpty() == false )
-			{
-				TempolaryDataLoader.TempolaryData data = loader.getData().get(0);
-				int iMode = data.getCurrentMode();
-				if( iMode == eMode.MODE_MEASURING.ordinal() )
-				{
-					// 内部モードは通常モードなのに、
-					// 外部記憶に格納されたモードは計測モード
-					// 外部記憶の方を正とみなし、復旧処理を行う
-					// TODO: テスト用のToast
-					Toast.makeText(this, "recovery process come(service)", Toast.LENGTH_LONG ).show();
-					RunLoggerService.clearRunLogStocker();
-					RunLoggerService.createLogStocker();
-					// => recovery関数内で
-					// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
-					// 時間を一時保存されていた時間をstartで復旧
-					try {
-						if( 0 != RunLogger.recovery(this, data ) )
-//							if( false == RunLoggerService.getLogStocker().start(this,time) )
-						{
-							RunLoggerService.clearRunLogStocker();
-							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
-							return;
-						}
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						RunLoggerService.clearRunLogStocker();
-						Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
-						e.printStackTrace();
-					} catch (NotFoundException e) {
-						// TODO Auto-generated catch block
-						RunLoggerService.clearRunLogStocker();
-						Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
-						e.printStackTrace();
-					}		
-				}
-			}
-		}
-        
+        Log.w("RunLoggerService-onStart","come");        
     }
 
     @Override
@@ -417,8 +369,8 @@ implements LocationListener
         // NOTICE:サービスが落ちないように、Foreground化する。
         // あまりこれで絶対大丈夫という感じもないが・・・テストした感じでは、落ちなくなった。
         // TODO: 復旧のテスト用にコメント化中 2014/04/06
-//        if( notif != null)
-//        	startForeground(NOTIF_ID,notif);
+        if( notif != null)
+        	startForeground(NOTIF_ID,notif);
 	}
 	void stopLog()
 	{
@@ -438,30 +390,77 @@ implements LocationListener
 	public void onLocationChanged(Location location) {
 		Log.v("GPS","onLocationChanged");
 		// NOTICE: 受診毎に切断
-		// TODO:サービス再起動時の復旧処理を、ここに入れればうまく行きそうに感じる
-		// clearGPS();
-		
-		if( false == isEmptyLogStocker() 
-				&& mode == eMode.MODE_MEASURING )
-		{
-			// TODO: 精度は、設定に
-			// 50m以上の誤差がある場合は、切り捨てる
-			if( 50 < location.getAccuracy() )
+		synchronized(mode) {
+			// TODO: これでロックできているかは、要確認
+			// サービス再起動時の復旧処理を、ここに入れればうまく行きそうに感じる
+			if( mode == eMode.MODE_NORMAL )
 			{
-				Log.v("get location data but not stock","because over 50 accuracy");
-				return;
+				// 復旧処理対応
+				// ノーマルモードでここに来た場合
+				// テンポラリデータをロードし、テンポラリとモードが合っているかどうか調べる
+				TempolaryDataLoader loader = new TempolaryDataLoader();
+				if( 0 == loader.load(this)
+				&& loader.getData().isEmpty() == false )
+				{
+					TempolaryDataLoader.TempolaryData data = loader.getData().get(0);
+					int iMode = data.getCurrentMode();
+					if( iMode == eMode.MODE_MEASURING.ordinal() )
+					{
+						// 内部モードは通常モードなのに、
+						// 外部記憶に格納されたモードは計測モード
+						// 外部記憶の方を正とみなし、復旧処理を行う
+						// TODO: テスト用のToast
+						Toast.makeText(this, "recovery process come(service)", Toast.LENGTH_LONG ).show();
+						RunLoggerService.clearRunLogStocker();
+						RunLoggerService.createLogStocker();
+						// => recovery関数内で
+						// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+						// 時間を一時保存されていた時間をstartで復旧
+						try {
+							if( 0 != RunLogger.recovery(this, data ) )
+	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
+							{
+								RunLoggerService.clearRunLogStocker();
+								Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+								return;
+							}
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							RunLoggerService.clearRunLogStocker();
+							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							e.printStackTrace();
+						} catch (NotFoundException e) {
+							// TODO Auto-generated catch block
+							RunLoggerService.clearRunLogStocker();
+							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							e.printStackTrace();
+						}		
+					}
+				}
 			}
-			Log.v("add","location info");
-			// NOTICE: この関数でほとんど全てのログを取っているようなもの
-			putLocationLog(location);
+			
+			if( false == isEmptyLogStocker() 
+					&& mode == eMode.MODE_MEASURING )
+			{
+				// TODO: 精度は、設定に
+				// 50m以上の誤差がある場合は、切り捨てる
+				if( 50 < location.getAccuracy() )
+				{
+					Log.v("get location data but not stock","because over 50 accuracy");
+					return;
+				}
+				Log.v("add","location info");
+				// NOTICE: この関数でほとんど全てのログを取っているようなもの
+				putLocationLog(location);
+			}
+	        // Send intent to activity
+	        Intent activityNotifyIntent = new Intent();
+	        activityNotifyIntent.putExtra(MainActivity.LOCATION_DATA, location);
+	        activityNotifyIntent.setAction(
+	        		MainActivity.LOCATION_CHANGE_NOTIFY);
+	        getBaseContext().sendBroadcast(activityNotifyIntent);
+	        //lastGetLocationTime = location.getTime();
 		}
-        // Send intent to activity
-        Intent activityNotifyIntent = new Intent();
-        activityNotifyIntent.putExtra(MainActivity.LOCATION_DATA, location);
-        activityNotifyIntent.setAction(
-        		MainActivity.LOCATION_CHANGE_NOTIFY);
-        getBaseContext().sendBroadcast(activityNotifyIntent);
-        //lastGetLocationTime = location.getTime();
 	}
 
 	  /**

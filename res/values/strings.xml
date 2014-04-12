@@ -59,8 +59,9 @@
 	<string name="speed_label">[speed]</string>
     
 	<string name="gpx_share">GPX file sharing</string>
-	<string name="cant_start_workout_because_error">Sorry\, you can\'t start work out because error occured.</string>
-	
+	<string name="cant_start_workout_because_error">Sorry\, failed to start work out because error occurred.</string>
+	<string name="cant_recovery_because_error">Sorry\, failed to the recovery preview work out result because error occurred.</string>
+		
 	<string name="no_title"></string>
 	
 	<string name="description_save">save the edit contents.</string>
@@ -90,8 +91,9 @@
 	<string name="hint_lap_speed_fixed">speed of the lap that input by you(higher priority)</string>
 	<string name="hint_gpxfilepath">path of the gpx file of the lap</string>
 	<string name="hint_gpxfilepath_fixed">path of the gpx file of the lap input by you(higher priority)</string>
-		
 	<string name="label_unit_distance">m</string>
 	<string name="label_unit_speed">km/h</string>
 	
+	<string name="edit_error_cant_launch">Sorry\, you can\'t edit data because error occurred.</string>
+		
 </resources>

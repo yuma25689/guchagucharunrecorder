@@ -444,7 +444,7 @@ implements IPageViewController
 			//imgDetailExists.setId(GPS_INDICATOR_ID);
 			imgDetailExists.setBackgroundResource( R.drawable.ind_detail_exist );
 			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.ind_detail_exist);
-			RelativeLayout.LayoutParams rlIndDetail 
+			RelativeLayout.LayoutParams rlIndDetail
 			= dispInfo.createLayoutParamForNoPosOnBk( 
 					bmpoptions.outWidth, bmpoptions.outHeight, true );
 			rlIndDetail.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
@@ -528,7 +528,7 @@ implements IPageViewController
 						this,
 						dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
 						dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
-						-1,
+						i,
 						dispInfo, title, text, 
 						// null,
 						lapData.getGpxFilePath(),	
@@ -744,10 +744,12 @@ implements IPageViewController
 	        // 編集メニュー
 			// launch activity for save
 			Intent intent = new Intent( this, EditActivity.class );
-			// TODO:編集データ識別子の設定
-			Bundle bundle = new Bundle();
-			bundle.putInt(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
+			// データをそのままどこかに格納する？
+			// TODO: その場合、LapDataから、テーブル用のデータに変換してから設定する
 			// intent.set
+			intent.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
+			// TODO:編集データ識別子の設定 向こう側で取得できれば何でもいいが、案外悩みどころ
+			intent.putExtra(EditActivity.KEY_CLMN_DATA_INDEX, item.getItemId());
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 	        startActivity(intent);	    	
 	    	return true;

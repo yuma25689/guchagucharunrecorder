@@ -59,5 +59,7 @@
 	
 	<string name="description_save">編集内容を保存</string>
 	<string name="description_cancel">編集をキャンセル</string>
-		
+
+	<string name="edit_error_cant_launch">すみませんが、エラーが発生したため、編集できません。</string>
+				
 </resources>
