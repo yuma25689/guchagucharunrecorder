@@ -37,6 +37,8 @@ import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.service.RunLoggerService;
 
 public class ResultActivity extends Activity 
@@ -456,7 +458,7 @@ implements IPageViewController
 			rl.addView(imgDetailExists);
 			
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-					getString(R.string.datetime_display_format));			
+					getString(R.string.datetime_display_format));
 			editName.setText( getString( R.string.default_activity_name ) ); 
 					//sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
 					//+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
@@ -749,9 +751,13 @@ implements IPageViewController
 			// intent.set
 			intent.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
 			// TODO:編集データ識別子の設定 向こう側で取得できれば何でもいいが、案外悩みどころ
-			intent.putExtra(EditActivity.KEY_CLMN_DATA_INDEX, item.getItemId());
+			// intent.putExtra(EditActivity.KEY_CLMN_DATA_INDEX, item.getItemId());
+			ActivityLapData lapData4Edit = new ActivityLapData();
+			LapData lapData = RunLoggerService.getLogStocker().getLapData(item.getItemId());
+			lapData4Edit.valueOf( lapData );
+			ResourceAccessor.getInstance().setLapDataTmp(lapData4Edit);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	        startActivity(intent);	    	
+	        startActivity(intent);
 	    	return true;
 	    default:
 	        return super.onContextItemSelected(item);

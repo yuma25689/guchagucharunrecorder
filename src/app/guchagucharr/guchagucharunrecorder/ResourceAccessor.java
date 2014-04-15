@@ -22,8 +22,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
-import app.guchagucharr.service.RunHistoryLoader.ActivityData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 
 public final class ResourceAccessor {
 	

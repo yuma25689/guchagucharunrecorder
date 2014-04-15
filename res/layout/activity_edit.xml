@@ -1,6 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:baselineAligned="false"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -8,8 +9,8 @@
     <!-- android:background="@drawable/main_background" -->
 	<ScrollView 
 	   android:layout_weight="1"
-	   android:layout_width="0dip"
-	   android:layout_height="match_parent" >
+	   android:layout_width="match_parent"
+	   android:layout_height="0dip" >
 		<RelativeLayout
 		    android:id="@+id/page_content"
 	    android:layout_width="match_parent"

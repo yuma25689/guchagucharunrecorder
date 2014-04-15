@@ -2,12 +2,11 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import android.app.Activity;
 import android.provider.BaseColumns;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
-import app.guchagucharr.service.RunHistoryLoader.ActivityData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 import app.guchagucharr.service.RunHistoryTableContract;
-import app.guchagucharr.service.RunningLogStocker;
 import app.guchagucharr.service.SQLiteContract;
 
 public class LapColumnDataGenerator implements IColumnDataGenerator {

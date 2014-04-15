@@ -433,6 +433,7 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f060013;
+        public static final int date_button_caption=0x7f060067;
         public static final int date_display_format=0x7f060033;
         public static final int datetime_display_format=0x7f060031;
         public static final int datetime_display_format2=0x7f060032;

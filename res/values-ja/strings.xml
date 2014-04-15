@@ -61,5 +61,6 @@
 	<string name="description_cancel">編集をキャンセル</string>
 
 	<string name="edit_error_cant_launch">すみませんが、エラーが発生したため、編集できません。</string>
-				
+	<string name="date_button_caption">編集</string>
+					
 </resources>

@@ -7,12 +7,12 @@ public class ColumnData {
 	Context ctx = null;
 	boolean hidden = false;
 	boolean editable = true;
-	String columnName;
-	String labelBefore;
-	String labelAfter;
+	String columnName = null;
+	String labelBefore = null;
+	String labelAfter = null;
 	String dataType = SQLiteContract.NONE;
-	String text;
-	String hint;
+	String text = null;
+	String hint = null;
 	public static final int EDIT_METHDO_TEXT = 0;
 	public static final int EDIT_METHDO_REAL = 1;
 	public static final int EDIT_METHDO_INTEGER = 2;
@@ -42,11 +42,14 @@ public class ColumnData {
 		this.hidden = hidden;
 		this.editable = editable;
 		this.columnName = columnName;
-		this.labelBefore = ctx.getString(labelBefore);
-		this.labelAfter = ctx.getString(labelAfter);
+		if( labelBefore != null )
+			this.labelBefore = ctx.getString(labelBefore);
+		if( labelAfter != null )
+			this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = ctx.getString(hint);
+		if( hint != null )
+			this.hint = ctx.getString(hint);
 	}
 	public ColumnData(Context context, boolean editable,
 			String columnName,
@@ -61,11 +64,14 @@ public class ColumnData {
 		this.hidden = false;
 		this.editable = editable;
 		this.columnName = columnName;
-		this.labelBefore = ctx.getString(labelBefore);
-		this.labelAfter = ctx.getString(labelAfter);
+		if( labelBefore != null )
+			this.labelBefore = ctx.getString(labelBefore);
+		if( labelAfter != null )
+			this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = ctx.getString(hint);
+		if( hint != null )
+			this.hint = ctx.getString(hint);
 	}
 	public ColumnData(Context context,
 			String columnName,
@@ -80,11 +86,14 @@ public class ColumnData {
 		this.hidden = false;
 		this.editable = true;
 		this.columnName = columnName;		
-		this.labelBefore = ctx.getString(labelBefore);
-		this.labelAfter = ctx.getString(labelAfter);
+		if( labelBefore != null )
+			this.labelBefore = ctx.getString(labelBefore);
+		if( labelAfter != null )
+			this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = ctx.getString(hint);
+		if( hint != null )
+			this.hint = ctx.getString(hint);
 	}
 	
 	public ColumnData(Context context,
@@ -100,12 +109,15 @@ public class ColumnData {
 		this.ctx = context;		
 		this.hidden = false;
 		this.editable = true;
-		this.columnName = columnName;		
-		this.labelBefore = ctx.getString(labelBefore);
-		this.labelAfter = ctx.getString(labelAfter);
+		this.columnName = columnName;
+		if( labelBefore != null )
+			this.labelBefore = ctx.getString(labelBefore);
+		if( labelAfter != null )
+			this.labelAfter = ctx.getString(labelAfter);
 		this.dataType = dataType;
 		this.text = text;
-		this.hint = ctx.getString(hint);
+		if( hint != null )
+			this.hint = ctx.getString(hint);
 		this.editMethod = iEditMethod;
 	}
 	/**
@@ -191,6 +203,18 @@ public class ColumnData {
 	 */
 	public void setColumnName(String columnName) {
 		this.columnName = columnName;
+	}
+	/**
+	 * @return the editable
+	 */
+	public boolean isEditable() {
+		return editable;
+	}
+	/**
+	 * @param editable the editable to set
+	 */
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 	
 }

@@ -34,8 +34,8 @@ import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
 //import android.provider.BaseColumns;
-import app.guchagucharr.service.RunHistoryLoader.ActivityData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 
 public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
 	static final int CONTEXT_MENU_DETAIL_ID = 0;

@@ -1,10 +1,9 @@
 package app.guchagucharr.interfaces;
 
 import android.app.Activity;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityData;
-import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
-import app.guchagucharr.service.RunningLogStocker;
 
 public interface IColumnDataGenerator {
 	/**
