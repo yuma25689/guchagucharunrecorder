@@ -33,6 +33,7 @@ import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
+import app.guchagucharr.service.RunLoggerService;
 //import android.provider.BaseColumns;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
@@ -41,6 +42,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	static final int CONTEXT_MENU_DETAIL_ID = 0;
 	static final int CONTEXT_MENU_DELETE_ID = 1;
 	static final int CONTEXT_MENU_SHARE_ID = 2;
+	static final int CONTEXT_MENU_EDIT_ID = 3;
 	
 	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
@@ -128,7 +130,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			double distanceTotal = 0;
 			double speedTotal = 0;
 			long timeTotal = 0;
-			Vector<ActivityLapData> lapDatas = loader.getHistoryLapData(data.getId());
+			Vector<ActivityLapData> lapDatas = loader.getHistoryLapDatas(data.getId());
 			for( ActivityLapData lapData: lapDatas )
 			{
 				distanceTotal += lapData.getDistance();
@@ -298,7 +300,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		//RelativeLayout rl2 = (RelativeLayout) rlBase.findViewById(R.id.page_content2);
 		// NOTICE: とりあえず、下段のビューは廃止
 		//rl2.setVisibility(View.GONE);
-		Vector<ActivityLapData> lapData = loader.getHistoryLapData(selectedActivityData.getId());
+		Vector<ActivityLapData> lapData = loader.getHistoryLapDatas(selectedActivityData.getId());
 		if( lapData == null || lapData.size() == 0 )
 		{
 			return;
@@ -474,20 +476,44 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	}
 	 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-	 
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) 
+	{ 
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	 
 	    //コンテキストメニューの設定
 	    DisplayBlock block = (DisplayBlock) v;
 	    menu.setHeaderTitle(block.getTitle()[0]);
-	    // menu.setHeaderView
-	    //menu.setHeaderIcon
-	    //Menu.add(int groupId, int itemId, int order, CharSequence title)
-	    menu.add(CONTEXT_MENU_DETAIL_ID, (int)block.getRecordId(), 0, R.string.menu_detail);
-	    menu.add(CONTEXT_MENU_SHARE_ID, (int)block.getRecordId(), 0, R.string.menu_share);
-	    menu.add(CONTEXT_MENU_DELETE_ID, (int)block.getRecordId(), 0, R.string.menu_delete);
 	    
+		if( v instanceof DisplayBlock )
+		{
+			DisplayBlock dispBlock = (DisplayBlock)v;
+			
+			if(dispBlock.getData() == null )
+			{
+			}
+			else
+			{
+				// dataの種別で処理を分ける
+				if( dispBlock.getData() instanceof ActivityData )
+				{
+				    menu.add(CONTEXT_MENU_DETAIL_ID, (int)block.getRecordId(), 0,
+				    		R.string.menu_detail);
+				    menu.add(CONTEXT_MENU_SHARE_ID, (int)block.getRecordId(), 0,
+				    		R.string.menu_share);
+				    menu.add(CONTEXT_MENU_DELETE_ID, (int)block.getRecordId(), 0,
+				    		R.string.menu_delete);					
+				}
+				else if( dispBlock.getData() instanceof ActivityLapData )
+				{
+				    menu.add(CONTEXT_MENU_EDIT_ID, selectedActivityData.getId(),
+				    		(int)block.getRecordId(), R.string.menu_edit);
+				    menu.add(CONTEXT_MENU_SHARE_ID, selectedActivityData.getId(),
+				    		(int)block.getRecordId(), R.string.menu_share);
+				    menu.add(CONTEXT_MENU_DELETE_ID, selectedActivityData.getId(),
+				    		(int)block.getRecordId(), R.string.menu_delete);					
+				}
+			}
+		}
 	}
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
@@ -522,7 +548,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        String text = new String();
 	        double distanceTotal = 0;
 	        long timeTotal = 0;
-			Vector<ActivityLapData> lapDatas = loader.getHistoryLapData(item.getItemId());
+			Vector<ActivityLapData> lapDatas = loader.getHistoryLapDatas(item.getItemId());
 			for( ActivityLapData lapData: lapDatas )
 			{
 				distanceTotal += lapData.getDistance();
@@ -565,7 +591,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        try {
 	        	// 全てのGPXファイルを削除？
 	        	String gpxFile = null;
-	        	for( ActivityLapData data : loader.getHistoryLapData(item.getItemId()) )
+	        	for( ActivityLapData data : loader.getHistoryLapDatas(item.getItemId()) )
 	        	{
         			gpxFile = data.getGpxFilePath();
     	        	if( gpxFile != null )
@@ -625,6 +651,19 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			adapter.notifyDataSetChanged();
 	    	
 	        return true;
+	    case CONTEXT_MENU_EDIT_ID:
+	        // 編集メニュー
+			// launch activity for save
+			Intent intentEdit = new Intent( this, EditActivity.class );
+			// データをそのままどこかに格納する？
+			intentEdit.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
+			// ActivityLapData lapData4Edit = new ActivityLapData();
+			ActivityLapData lapData4Edit 
+				= loader.getHistoryLapData(item.getItemId(),item.getOrder());//= RunLoggerService.getLogStocker().getLapData(item.getItemId());
+			ResourceAccessor.getInstance().setLapDataTmp(lapData4Edit);
+			intentEdit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        startActivity(intentEdit);	    	
+	    	return true;
 	    default:
 	        return super.onContextItemSelected(item);
 	    }

@@ -252,7 +252,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
 					{
 						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-								getString(R.string.datetime_display_format));
+								getString(R.string.time_display_format));
 						edt.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
 						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
 								|EditorInfo.TYPE_DATETIME_VARIATION_TIME);

@@ -45,8 +45,21 @@ public class RunHistoryLoader {
 	/**
 	 * @return the historyLapData
 	 */
-	public Vector<ActivityLapData> getHistoryLapData(int parentId) {
+	public Vector<ActivityLapData> getHistoryLapDatas(int parentId) {
 		return historyLapData.get(parentId);
+	}
+	/**
+	 * @return the historyLapData
+	 */
+	public ActivityLapData getHistoryLapData(int parentId, int recordId) {
+		for( ActivityLapData data : historyLapData.get(parentId) )
+		{
+			if( data.getId() == recordId )
+			{
+				return data;
+			}
+		}
+		return null;
 	}
 	public void clear()
 	{
