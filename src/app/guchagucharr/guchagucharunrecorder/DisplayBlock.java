@@ -320,7 +320,7 @@ public class DisplayBlock extends RelativeLayout {
 		paintForMeasureText = new Paint();
 		
 		// このビューは、RelativeLayoutに置くものとする
-		RelativeLayout.LayoutParams lpThis = null; 
+		RelativeLayout.LayoutParams lpThis = null;
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 		{
 			width = parentWidth - BLOCK_MARGIN * 2;

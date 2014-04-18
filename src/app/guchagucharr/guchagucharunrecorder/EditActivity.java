@@ -264,7 +264,22 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			else
 			{
 				TextView lblText = new TextView(this);
-				lblText.setText( clmn.getText());
+				if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
+				{
+					SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+							getString(R.string.datetime_display_format));
+					lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+				}
+				else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
+				{
+					SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+							getString(R.string.time_display_format));
+					lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+				}
+				else
+				{
+					lblText.setText( clmn.getText());
+				}
 				lblText.setLayoutParams(llForContent);
 				lblText.setBackgroundColor(Color.DKGRAY);
 				lblText.setTextColor(Color.WHITE);

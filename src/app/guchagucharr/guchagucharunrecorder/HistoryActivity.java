@@ -379,6 +379,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					gpxFilePath,
 					sizeType, 
 					eShapeType.SHAPE_HORIZONTAL);
+			dispBlock.setData(data);
+			
 			if( dispInfo.isPortrait() )
 			{
 				if( iPanelCount == 0 )
