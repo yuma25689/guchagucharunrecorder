@@ -96,4 +96,6 @@
 	
 	<string name="edit_error_cant_launch">Sorry\, you can\'t edit data because error occurred.</string>
 	<string name="date_button_caption">edit</string>
+	
+	<string name="INPUTDLG_TITLE_TIME">input datetime</string>
 </resources>

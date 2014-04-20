@@ -133,7 +133,9 @@ public class RunHistoryLoader {
 				Vector<ActivityLapData> vLapData = new Vector<ActivityLapData>();
 				
 				cursorChild.moveToFirst();
-				int idIndex = cursorChild.getColumnIndexOrThrow(BaseColumns._ID);			
+				int idIndex = cursorChild.getColumnIndexOrThrow(BaseColumns._ID);				
+				int startDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME);			
+				int insertDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME);			
 				int parentIdIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.PARENT_ID);			
 				int lapIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_INDEX);
 				int lapDistanceIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_DISTANCE);
@@ -148,9 +150,12 @@ public class RunHistoryLoader {
 				int lapFixedSpeedIndex = cursorChild.getColumnIndexOrThrow(
 						RunHistoryTableContract.LAP_FIXED_SPEED);
 				int gpxIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
+				int gpxFixedIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 				do {
 					ActivityLapData dataLap = new ActivityLapData();
 					dataLap.setId( cursorChild.getLong( idIndex ) );
+					dataLap.setStartDateTime( cursorChild.getLong( startDateTimeIndex ) );
+					dataLap.setInsertDateTime( cursorChild.getLong( insertDateTimeIndex ) );
 					dataLap.setParentId( cursorChild.getInt( parentIdIndex ) );
 					dataLap.setLapIndex( cursorChild.getLong( lapIndex ) );
 					dataLap.setDistance( cursorChild.getDouble( lapDistanceIndex ) );
@@ -161,6 +166,7 @@ public class RunHistoryLoader {
 					dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
 					dataLap.setName( cursorChild.getString( lapNameIndex ));
 					dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
+					dataLap.setGpxFixedFilePath( cursorChild.getString( gpxIndex ) );				
 					
 					if( vLapData.isEmpty() == false
 					&& dataLap.getParentId() != vLapData.lastElement().getParentId() )

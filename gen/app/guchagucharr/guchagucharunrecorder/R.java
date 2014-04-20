@@ -279,34 +279,38 @@ containing a value of this type.
         public static final int seekbar_full=0x7f020055;
         public static final int selector_camera_button_image=0x7f020056;
         public static final int selector_cancel_button_image=0x7f020057;
-        public static final int selector_gps_button_image=0x7f020058;
-        public static final int selector_history_button_image=0x7f020059;
-        public static final int selector_mainitem_panel_image=0x7f02005a;
-        public static final int selector_next_button_image=0x7f02005b;
-        public static final int selector_route_button_image=0x7f02005c;
-        public static final int selector_runstart_button_image=0x7f02005d;
-        public static final int selector_runstop_button_image=0x7f02005e;
-        public static final int selector_save_button_image=0x7f02005f;
-        public static final int selector_save_mini_button_image=0x7f020060;
-        public static final int selector_seekbar_image=0x7f020061;
+        public static final int selector_edit_button_image=0x7f020058;
+        public static final int selector_gps_button_image=0x7f020059;
+        public static final int selector_history_button_image=0x7f02005a;
+        public static final int selector_mainitem_panel_image=0x7f02005b;
+        public static final int selector_next_button_image=0x7f02005c;
+        public static final int selector_route_button_image=0x7f02005d;
+        public static final int selector_runstart_button_image=0x7f02005e;
+        public static final int selector_runstop_button_image=0x7f02005f;
+        public static final int selector_save_button_image=0x7f020060;
+        public static final int selector_save_mini_button_image=0x7f020061;
+        public static final int selector_seekbar_image=0x7f020062;
     }
     public static final class id {
-        public static final int dummy_button=0x7f05000c;
-        public static final int edit_cancelbutton=0x7f050008;
-        public static final int edit_savebutton=0x7f050007;
-        public static final int edit_toolbar=0x7f050006;
-        public static final int fullscreen_content_controls=0x7f05000b;
+        public static final int TEXT_VIEW_LINKED=0x7f050005;
+        public static final int date_picker=0x7f05000e;
+        public static final int dummy_button=0x7f05000d;
+        public static final int edit_cancelbutton=0x7f050009;
+        public static final int edit_savebutton=0x7f050008;
+        public static final int edit_toolbar=0x7f050007;
+        public static final int fullscreen_content_controls=0x7f05000c;
         public static final int hybrid=0x7f050004;
-        public static final int id_menu_recovery=0x7f05000f;
-        public static final int layout_top=0x7f05000d;
-        public static final int main_content=0x7f050009;
+        public static final int id_menu_recovery=0x7f050012;
+        public static final int layout_top=0x7f050010;
+        public static final int main_content=0x7f05000a;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
-        public static final int page_content=0x7f050005;
-        public static final int page_content1=0x7f05000e;
+        public static final int page_content=0x7f050006;
+        public static final int page_content1=0x7f050011;
         public static final int satellite=0x7f050002;
         public static final int terrain=0x7f050003;
-        public static final int viewpager1=0x7f05000a;
+        public static final int time_picker=0x7f05000f;
+        public static final int viewpager1=0x7f05000b;
     }
     public static final class integer {
         public static final int google_play_services_version=0x7f070000;
@@ -316,11 +320,12 @@ containing a value of this type.
         public static final int activity_main=0x7f030001;
         public static final int activity_viewpager=0x7f030002;
         public static final int activity_viewpager_only=0x7f030003;
-        public static final int history_sub_page=0x7f030004;
-        public static final int page_history_sub_vscrollable=0x7f030005;
-        public static final int page_hscrollable=0x7f030006;
-        public static final int page_vscrollable=0x7f030007;
-        public static final int result_page=0x7f030008;
+        public static final int dt_picker=0x7f030004;
+        public static final int history_sub_page=0x7f030005;
+        public static final int page_history_sub_vscrollable=0x7f030006;
+        public static final int page_hscrollable=0x7f030007;
+        public static final int page_vscrollable=0x7f030008;
+        public static final int result_page=0x7f030009;
     }
     public static final class menu {
         public static final int main_menu=0x7f090000;
@@ -333,6 +338,7 @@ containing a value of this type.
         public static final int GPS_ON=0x7f060020;
         public static final int GPX_EXISTS=0x7f06003c;
         public static final int GPX_LOSE=0x7f06003d;
+        public static final int INPUTDLG_TITLE_TIME=0x7f060068;
         public static final int LAP_COUNT_LABEL=0x7f06003e;
         public static final int LAP_LABEL=0x7f06003f;
         public static final int MSG_EXPORT_PROGRESS=0x7f06002b;

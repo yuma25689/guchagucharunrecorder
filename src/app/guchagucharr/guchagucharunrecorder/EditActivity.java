@@ -1,10 +1,18 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
+//import android.content.res.ColorStateList;
 import android.graphics.Color;
 //import android.graphics.Bitmap;
 import android.graphics.Path;
@@ -23,11 +31,13 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.DatePicker;
 //import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
@@ -37,8 +47,10 @@ public class EditActivity extends Activity
 implements IEditViewController, OnClickListener, OnTouchListener
 {
 	// タグのID
-	private static final int TEXT_VIEW_LINKED = 1;
-	
+	// --> write in tags.xml
+	//private static final int TEXT_VIEW_LINKED = 1000;
+	Calendar mInputDate = null;
+	TextView mLastInputDateTimeLabel = null;
 	
 	public static final String KEY_CLMN_DATA_GEN = "KeyOfColumnDataGenerator";
 	// データは、ResourceAccessorから取得するものとするので、データのインデックスは不要
@@ -207,32 +219,57 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			// contents
 			if( clmn.isEditable() )
 			{
-//				// TODO: 日付型等の対応
-//				if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
-//				{
-//					// 日時型の場合
-//					if( clmn.getText() != null && 0 < clmn.getText().length() )
-//					{
-//						TextView lblText = new TextView(this);
-//						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-//								getString(R.string.datetime_display_format));
-//						lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
-//						lblText.setLayoutParams(llForContent);
-//						lblText.setBackgroundColor(Color.DKGRAY);
-//						lblText.setTextColor(Color.WHITE);
-//						ll.addView(lblText);
-//
-//						Button btnDate = new Button(this);
-//						// OnClickListenerでどの項目か識別できるように、タグを設定
-//						btnDate.setTag(clmn.getColumnName());
-//						btnDate.setTag(TEXT_VIEW_LINKED, lblText);
-//						//btnDate.setText(R.string.date_button_caption);
-//						btnDate.setOnClickListener(this);
-//						
-//						ll.addView(btnDate);
-//					}
-//				}
-//				else
+				if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
+				{
+					// 日時型の場合
+					if( clmn.getText() != null && 0 < clmn.getText().length() )
+					{
+						TextView lblText = new TextView(this);
+						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+								getString(R.string.datetime_display_format));
+						lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+						lblText.setLayoutParams(llForContent);
+						lblText.setBackgroundColor(Color.DKGRAY);
+						lblText.setTextColor(Color.WHITE);
+						ll.addView(lblText);
+
+						Button btnDate = new Button(this);
+						btnDate.setBackgroundResource(R.drawable.selector_edit_button_image);
+						// OnClickListenerでどの項目か識別できるように、タグを設定
+						btnDate.setTag(clmn);
+						btnDate.setTag(R.id.TEXT_VIEW_LINKED, lblText);
+						//btnDate.setText(R.string.date_button_caption);
+						btnDate.setOnClickListener(this);
+						ll.addView(btnDate);
+					}
+				}
+				// 時間型
+				else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
+				{
+					// 時間型の場合
+					if( clmn.getText() != null && 0 < clmn.getText().length() )
+					{
+						TextView lblText = new TextView(this);
+						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+								getString(R.string.time_display_format));
+						lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+						lblText.setLayoutParams(llForContent);
+						lblText.setBackgroundColor(Color.DKGRAY);
+						lblText.setTextColor(Color.WHITE);
+						ll.addView(lblText);
+
+						Button btnDate = new Button(this);
+						// OnClickListenerでどの項目か識別できるように、タグを設定
+						btnDate.setTag(clmn);
+						btnDate.setTag(R.id.TEXT_VIEW_LINKED, lblText);
+						btnDate.setBackgroundResource(R.drawable.selector_edit_button_image);						
+						//btnDate.setText(R.string.date_button_caption);
+						btnDate.setOnClickListener(this);
+						
+						ll.addView(btnDate);
+					}
+				}
+				else
 				{
 					EditText edt = new EditText(this);
 					if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_INTEGER 
@@ -241,22 +278,22 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						edt.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
 						edt.setText( clmn.getText());
 					}
-					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
-					{
-						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-								getString(R.string.datetime_display_format));
-						edt.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
-						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
-								|EditorInfo.TYPE_DATETIME_VARIATION_NORMAL);
-					}
-					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
-					{
-						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-								getString(R.string.time_display_format));
-						edt.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
-						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
-								|EditorInfo.TYPE_DATETIME_VARIATION_TIME);
-					}
+//					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
+//					{
+//						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+//								getString(R.string.datetime_display_format));
+//						edt.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+//						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
+//								|EditorInfo.TYPE_DATETIME_VARIATION_NORMAL);
+//					}
+//					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
+//					{
+//						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+//								getString(R.string.time_display_format));
+//						edt.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+//						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
+//								|EditorInfo.TYPE_DATETIME_VARIATION_TIME);
+//					}
 					edt.setLayoutParams(llForContent);				
 					ll.addView(edt);
 				}
@@ -268,7 +305,14 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				{
 					SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 							getString(R.string.datetime_display_format));
-					lblText.setText( sdfDateTime.format(Long.parseLong(clmn.getText())) );
+//					SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
+//					dateFormatGmt.setTimeZone(TimeZone.getTimeZone("GMT"));					
+					try {
+						lblText.setText( sdfDateTime.format(sdfDateTime.parse(clmn.getText()) ));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
 				{
@@ -324,7 +368,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			{
 				v.setEnabled(false);
 			}
-		
 			if( v == btnSave )
 			{
 				// TODO: 保存処理を行う
@@ -334,6 +377,110 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				// 保存せずに終了する
 				// TODO: 確認ダイアログ
 				finish();
+			}
+			else
+			{
+				// 日付ボタンかもしれない
+				// 判定
+				if( v.getTag() != null && v.getTag() instanceof ColumnData )
+				{
+					ColumnData clmn = (ColumnData) v.getTag();
+					if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
+					{
+						// 日時型のボタンが押されたはず
+						mLastInputDateTimeLabel = (TextView)v.getTag(R.id.TEXT_VIEW_LINKED);
+						View viewDlg = getLayoutInflater().inflate(R.layout.dt_picker, null);
+						Calendar tmpDate = Calendar.getInstance();
+
+						if( clmn.getText() != null )
+						{
+							tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
+						}
+						final DatePicker DPicker = (DatePicker)viewDlg.findViewById( R.id.date_picker );
+						DPicker.init(
+							tmpDate.get(Calendar.YEAR)+1900,
+							tmpDate.get(Calendar.MONTH),
+							tmpDate.get(Calendar.DAY_OF_MONTH),
+							null);
+						final TimePicker TPicker = (TimePicker)viewDlg.findViewById( R.id.time_picker );
+						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
+						TPicker.setCurrentMinute( 0 );//mDate.getMinutes() );
+		
+				    	new AlertDialog.Builder(this)
+						.setTitle(getString(R.string.INPUTDLG_TITLE_TIME))
+						.setView(viewDlg)
+						.setPositiveButton( android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface arg0, int arg1) 
+								{
+									if( mLastInputDateTimeLabel != null )
+									{
+										mInputDate = Calendar.getInstance();
+										mInputDate.set( DPicker.getYear()-1900 
+												,DPicker.getMonth()
+												,DPicker.getDayOfMonth()
+												,TPicker.getCurrentHour()
+												,TPicker.getCurrentMinute()
+												,0	// TODO: 秒数の入力
+										);
+										long lngDT = mInputDate.getTimeInMillis();
+										
+										// TODO: 元のデータに設定するかどうか
+										// String.valueOf(lngDT
+										
+										// TextViewに設定する
+										SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+												getString(R.string.datetime_display_format));
+										mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
+
+									}
+								};			
+							}
+						)
+						.setNegativeButton( android.R.string.cancel,
+								new DialogInterface.OnClickListener() {
+									public void onClick(
+											DialogInterface dlg,
+											int which )
+									{}
+								}
+						)
+						.create()
+						.show();
+						
+					}
+					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_TIME )
+					{
+						// 時間型のボタンが押されたはず
+						mLastInputDateTimeLabel = (TextView)v.getTag(R.id.TEXT_VIEW_LINKED);						
+						Calendar tmpDate = Calendar.getInstance();
+						if( clmn.getText() != null )
+						{
+							tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
+						}
+						final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+				            new TimePickerDialog.OnTimeSetListener() {
+				                @Override
+				                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+				                	// TODO: 設定
+									mInputDate = Calendar.getInstance();
+									mInputDate.set( 0 
+											,0
+											,0
+											,hourOfDay
+											,minute
+											,0	// TODO: 秒数の入力
+									);
+									long lngDT = mInputDate.getTimeInMillis();
+									// TextViewに設定する
+									SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+											getString(R.string.datetime_display_format));
+									mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
+				                }
+				            }, tmpDate.get(Calendar.HOUR), tmpDate.get(Calendar.MINUTE), true);
+				        timePickerDialog.show();					
+					}
+				}
 			}
 		} finally {
 			if( v != null )

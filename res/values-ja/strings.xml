@@ -63,4 +63,5 @@
 	<string name="edit_error_cant_launch">すみませんが、エラーが発生したため、編集できません。</string>
 	<string name="date_button_caption">編集</string>
 					
+	<string name="INPUTDLG_TITLE_TIME">日時を入力</string>
 </resources>

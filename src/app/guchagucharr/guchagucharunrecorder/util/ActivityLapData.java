@@ -18,6 +18,7 @@ public class ActivityLapData {
 //		fixedSpeed = 0;
 		name = dataSrc.getName();
 		gpxFilePath = dataSrc.getGpxFilePath();
+		// gpxFixedFilePath = dataSrc.getGpxFixedFilePath();
 		
 	}
 	
@@ -35,6 +36,7 @@ public class ActivityLapData {
 	double fixedSpeed = 0;
 	String name;
 	String gpxFilePath;
+	String gpxFixedFilePath;
 	/**
 	 * @return the id
 	 */
@@ -190,6 +192,18 @@ public class ActivityLapData {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+	/**
+	 * @return the gpxFixedFilePath
+	 */
+	public String getGpxFixedFilePath() {
+		return gpxFixedFilePath;
+	}
+	/**
+	 * @param gpxFixedFilePath the gpxFixedFilePath to set
+	 */
+	public void setGpxFixedFilePath(String gpxFixedFilePath) {
+		this.gpxFixedFilePath = gpxFixedFilePath;
 	}
 	
 };
