@@ -98,4 +98,5 @@
 	<string name="date_button_caption">edit</string>
 	
 	<string name="INPUTDLG_TITLE_TIME">input datetime</string>
+	<string name="data_updated">data updated.</string>
 </resources>

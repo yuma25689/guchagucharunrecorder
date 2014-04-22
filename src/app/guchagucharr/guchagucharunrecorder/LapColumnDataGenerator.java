@@ -88,7 +88,7 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 				R.string.label_gpxfilepath, null,
 				SQLiteContract.TEXT, data.getGpxFilePath(),
 				R.string.hint_gpxfilepath ),		
-		new ColumnData( activity, RunHistoryTableContract.GPX_FILE_PATH, 
+		new ColumnData( activity, RunHistoryTableContract.GPX_FILE_PATH_FIXED, 
 				R.string.label_gpxfilepath_fixed, null,
 				SQLiteContract.TEXT, data.getGpxFilePath(),
 				R.string.hint_gpxfilepath_fixed ),				

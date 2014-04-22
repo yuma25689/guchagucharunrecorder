@@ -13,6 +13,7 @@ public class ColumnData {
 	String dataType = SQLiteContract.NONE;
 	String text = null;
 	String hint = null;
+	int itemValueControlID = -1;
 	public static final int EDIT_METHDO_TEXT = 0;
 	public static final int EDIT_METHDO_REAL = 1;
 	public static final int EDIT_METHDO_INTEGER = 2;
@@ -215,6 +216,18 @@ public class ColumnData {
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
+	}
+	/**
+	 * @return the itemValueControlID
+	 */
+	public int getItemValueControlID() {
+		return itemValueControlID;
+	}
+	/**
+	 * @param itemValueControlID the itemValueControlID to set
+	 */
+	public void setItemValueControlID(int itemValueControlID) {
+		this.itemValueControlID = itemValueControlID;
 	}
 	
 }

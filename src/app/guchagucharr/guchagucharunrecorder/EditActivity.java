@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 //import android.content.res.ColorStateList;
@@ -18,10 +19,12 @@ import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.net.Uri;
 //import android.graphics.drawable.BitmapDrawable;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,9 +42,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
+import app.guchagucharr.service.RunHistoryTableContract;
+import app.guchagucharr.service.RunningLogStocker;
 
 public class EditActivity extends Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
@@ -51,6 +57,10 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	//private static final int TEXT_VIEW_LINKED = 1000;
 	Calendar mInputDate = null;
 	TextView mLastInputDateTimeLabel = null;
+	
+	// 項目のID
+	static final int VALUE_INPUT_CONTROL_ID = 100;
+	int iValueInputControlID = VALUE_INPUT_CONTROL_ID;
 	
 	public static final String KEY_CLMN_DATA_GEN = "KeyOfColumnDataGenerator";
 	// データは、ResourceAccessorから取得するものとするので、データのインデックスは不要
@@ -90,7 +100,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 		handler = new EditHandler(this,this);
         componentContainer = (RelativeLayout) findViewById(R.id.page_content);
         componentContainer.setBackgroundColor(Color.GREEN);
-        
+
         Intent intent = getIntent();
         if( intent == null )
         {
@@ -133,12 +143,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	{
         super.onPause();	
 	}
-//	@Override
-//	protected void onPostCreate(Bundle savedInstanceState) {
-//		super.onPostCreate(savedInstanceState);
-//
-//	}
-
 	int init()
 	{
 		if( dispInfo.isPortrait() )
@@ -206,7 +210,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				TextView lblBefore = new TextView(this);
 				lblBefore.setText( clmn.getLabelBefore());
 				
-				lblBefore.setLayoutParams(llForLabel);				
+				lblBefore.setLayoutParams(llForLabel);			
 				// TODO: 背景色、文字色、フォントサイズ等の設定
 				lblBefore.setPadding(LABEL_PADDING_HORZ, LABEL_PADDING_HORZ, 
 						LABEL_PADDING_HORZ, LABEL_PADDING_HORZ);
@@ -217,6 +221,8 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				ll.addView(lblBefore);
 			}
 			// contents
+			iValueInputControlID++;
+			clmn.setItemValueControlID(iValueInputControlID);
 			if( clmn.isEditable() )
 			{
 				if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
@@ -231,6 +237,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						lblText.setLayoutParams(llForContent);
 						lblText.setBackgroundColor(Color.DKGRAY);
 						lblText.setTextColor(Color.WHITE);
+						lblText.setId(iValueInputControlID);
 						ll.addView(lblText);
 
 						Button btnDate = new Button(this);
@@ -256,6 +263,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						lblText.setLayoutParams(llForContent);
 						lblText.setBackgroundColor(Color.DKGRAY);
 						lblText.setTextColor(Color.WHITE);
+						lblText.setId(iValueInputControlID);						
 						ll.addView(lblText);
 
 						Button btnDate = new Button(this);
@@ -294,6 +302,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 //						edt.setInputType(EditorInfo.TYPE_CLASS_DATETIME
 //								|EditorInfo.TYPE_DATETIME_VARIATION_TIME);
 //					}
+					edt.setId(iValueInputControlID);					
 					edt.setLayoutParams(llForContent);				
 					ll.addView(edt);
 				}
@@ -327,6 +336,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				lblText.setLayoutParams(llForContent);
 				lblText.setBackgroundColor(Color.DKGRAY);
 				lblText.setTextColor(Color.WHITE);
+				lblText.setId(iValueInputControlID);						
 				
 				ll.addView(lblText);				
 			}
@@ -345,7 +355,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				// TODO: 背景色、文字色、フォントサイズ等の設定
 				ll.addView(lblAfter);
 			}
-			
 			
 			llContent.addView(ll);
 		}
@@ -371,6 +380,11 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			if( v == btnSave )
 			{
 				// TODO: 保存処理を行う
+				updateData(this);
+        		Toast.makeText(this, R.string.data_updated, 
+        				Toast.LENGTH_LONG).show();
+        		finish();
+
 			}
 			else if( v == btnCancel )
 			{
@@ -568,7 +582,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				{
 					bCancelBtnEnableRegionTouched = false;
 				}
- 
 	        	// onTouchを返さないと、他の制御がおかしくなりそうなので、onTouchは返した後、
 	        	// pressイベントで無理矢理制御する
 		        //return true;
@@ -576,4 +589,203 @@ implements IEditViewController, OnClickListener, OnTouchListener
 		}
 		return false;
 	}
+	public void controlToData(ColumnData[] clmns)
+	{
+		if( clmns != null )
+		{
+			ActivityLapData lapData = ResourceAccessor.getInstance().getLapDataTmp();
+			for( int i=0; i < clmns.length; i++ )
+			{
+				String strValue = null;
+				if( clmns[i].getItemValueControlID() != -1 )
+				{
+					// 項目値の設定されたコントロールがある場合
+					// そこから値を取得する
+					View v = componentContainer.findViewById(clmns[i].getItemValueControlID());
+					if( v != null )
+					{
+						if( v instanceof TextView )
+						{
+							TextView txt = (TextView) v;
+							if( txt.getText() != null )
+							{
+								strValue = txt.getText().toString();
+							}
+						}
+					}
+				}
+				else
+				{
+					strValue = clmns[i].getText();
+				}
+				if( strValue == null )
+				{
+					continue;
+				}
+//				else if( clmns[i].isEditable() == false || clmns[i].isHidden() )
+//				{
+//					
+//				}
+				SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+						getString(R.string.datetime_display_format));
+				SimpleDateFormat sdfTime = new SimpleDateFormat(
+						getString(R.string.time_display_format));
+	
+				try {
+					if( clmns[i].getColumnName() == RunHistoryTableContract.START_DATETIME )
+					{
+						lapData.setStartDateTime(sdfDateTime.parse(strValue).getTime());
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.INSERT_DATETIME )
+					{
+						lapData.setInsertDateTime(sdfDateTime.parse(strValue).getTime());
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.PARENT_ID )
+					{
+						lapData.setParentId(Integer.parseInt(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_INDEX )
+					{
+						lapData.setLapIndex(Integer.parseInt(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_DISTANCE )
+					{
+						lapData.setDistance(Double.parseDouble(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_TIME )
+					{
+						// TODO: これはきっとおかしい
+						lapData.setTime(sdfTime.parse(strValue).getTime());
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_SPEED )
+					{
+						lapData.setSpeed(Double.parseDouble(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_FIXED_DISTANCE )
+					{
+						lapData.setDistance(Double.parseDouble(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_FIXED_TIME )
+					{
+						// TODO: これはきっとおかしい
+						lapData.setTime(sdfTime.parse(strValue).getTime());
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.LAP_FIXED_SPEED )
+					{
+						lapData.setSpeed(Double.parseDouble(strValue));
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.NAME )
+					{
+						lapData.setName(strValue);
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.GPX_FILE_PATH )
+					{
+						lapData.setGpxFilePath(strValue);
+					}
+					else if( clmns[i].getColumnName() == RunHistoryTableContract.GPX_FILE_PATH_FIXED )
+					{
+						lapData.setGpxFixedFilePath(strValue);
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+					Log.e("parse error", "get lap data from edit");
+				}
+				// lapDataを再設定
+				ResourceAccessor.getInstance().setLapDataTmp(lapData);
+			}
+		}
+		return;
+	}
+	
+	public ContentValues createContentValues(Activity activity, int tableID)
+	{
+		ContentValues ret = null;
+//		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
+//		{
+//			ret = new ContentValues();
+//			ret.put(RunHistoryTableContract.START_DATETIME, totalStartTime);
+//			ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime);
+//			ret.put(RunHistoryTableContract.NAME, strExtra[0]);
+//			ret.put(RunHistoryTableContract.LAP_COUNT, getStockedLapCount() );
+//            //ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
+//			// TODO: place id under construction
+//			ret.put(RunHistoryTableContract.PLACE_ID, -1);
+//		}
+//		else 
+		if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
+		{
+			ActivityLapData lapData = ResourceAccessor.getInstance().getLapDataTmp();
+			ret = new ContentValues();
+			ret.put(RunHistoryTableContract.START_DATETIME, lapData.getStartDateTime());
+    		ret.put(RunHistoryTableContract.INSERT_DATETIME, lapData.getInsertDateTime() );
+    		ret.put( RunHistoryTableContract.PARENT_ID, lapData.getParentId() );
+    		ret.put( RunHistoryTableContract.LAP_INDEX, lapData.getLapIndex() );
+            ret.put( RunHistoryTableContract.LAP_DISTANCE, lapData.getDistance() );
+            ret.put( RunHistoryTableContract.LAP_TIME, lapData.getTime() );
+            ret.put( RunHistoryTableContract.LAP_SPEED, lapData.getSpeed() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, lapData.getFixedDistance() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_TIME, lapData.getFixedTime() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, lapData.getFixedSpeed() );
+            ret.put( RunHistoryTableContract.NAME, lapData.getName() );
+            ret.put( RunHistoryTableContract.GPX_FILE_PATH, lapData.getGpxFilePath() );
+            ret.put( RunHistoryTableContract.GPX_FILE_PATH_FIXED, lapData.getGpxFixedFilePath() );
+		}
+		
+		return ret;
+		
+	}
+	public int updateData(
+			Activity activity )
+	{
+		int tableID = RunHistoryTableContract.HISTORY_TABLE_ID;
+		String tableName = RunHistoryTableContract.HISTORY_TABLE_NAME;
+        if( iEditDataType == EDIT_DATA_LAP_TABLE )
+        {
+    		tableID = RunHistoryTableContract.HISTORY_LAP_TABLE_ID;
+    		tableName = RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;        	
+        }
+
+		int iCount = -1;
+		activity.getContentResolver().insert(
+				Uri.parse("content://" 
+				+ RunHistoryTableContract.AUTHORITY + "/" 
+				+ RunHistoryTableContract.HISTORY_TRANSACTION )
+				,null);
+        try {
+        	ContentValues values = null;
+        	values = createContentValues(
+        			activity, tableID );
+        			//RunHistoryTableContract.HISTORY_LAP_TABLE_ID);
+        	if( values == null )
+        	{
+        		Toast.makeText(activity, "failed to update data.", 
+        				Toast.LENGTH_LONG).show();
+                return -1;
+        	}
+        	iCount = 
+        	activity.getContentResolver().update(
+        					Uri.parse("content://" 
+        					+ RunHistoryTableContract.AUTHORITY + "/"
+        					+ tableName
+        					//+ RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
+        					), values, null, null);
+            //db.setTransactionSuccessful();
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_COMMIT )
+    				,null);
+        		
+        } finally {
+        	//db.endTransaction();
+    		activity.getContentResolver().insert(
+    				Uri.parse("content://" 
+    				+ RunHistoryTableContract.AUTHORITY + "/" 
+    				+ RunHistoryTableContract.HISTORY_ENDTRANSACTION )
+    				,null);
+        	
+        }
+        return iCount;
+	}
+	
 }

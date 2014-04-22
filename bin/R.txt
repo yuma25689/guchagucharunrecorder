@@ -209,6 +209,7 @@ int string common_google_play_services_update_text 0x7f060008
 int string common_google_play_services_update_title 0x7f060007
 int string common_signin_button_text 0x7f060012
 int string common_signin_button_text_long 0x7f060013
+int string data_updated 0x7f060069
 int string date_button_caption 0x7f060067
 int string date_display_format 0x7f060033
 int string datetime_display_format 0x7f060031

@@ -16,7 +16,6 @@ public class RunHistoryLoader {
 	
 	ArrayList<ActivityData> historyData = new ArrayList<ActivityData>(); 
 	SparseArray<Vector<ActivityLapData>> historyLapData = new SparseArray<Vector<ActivityLapData>>(); 
-	
 	/**
 	 * @return the historyData
 	 */
@@ -166,7 +165,7 @@ public class RunHistoryLoader {
 					dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
 					dataLap.setName( cursorChild.getString( lapNameIndex ));
 					dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
-					dataLap.setGpxFixedFilePath( cursorChild.getString( gpxIndex ) );				
+					dataLap.setGpxFixedFilePath( cursorChild.getString( gpxFixedIndex ) );				
 					
 					if( vLapData.isEmpty() == false
 					&& dataLap.getParentId() != vLapData.lastElement().getParentId() )

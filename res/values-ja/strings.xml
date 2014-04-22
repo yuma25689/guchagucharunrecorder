@@ -64,4 +64,5 @@
 	<string name="date_button_caption">編集</string>
 					
 	<string name="INPUTDLG_TITLE_TIME">日時を入力</string>
+	<string name="data_updated">データは更新されました。</string>
 </resources>
