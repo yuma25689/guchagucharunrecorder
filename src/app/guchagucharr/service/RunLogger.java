@@ -24,7 +24,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
-import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.service.RunLoggerService.eMode;
 
 

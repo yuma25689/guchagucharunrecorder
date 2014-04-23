@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import app.guchagucharr.guchagucharunrecorder.R;
 
 public class RouteButton extends ImageButton {
 
