@@ -49,6 +49,14 @@
             android:focusableInTouchMode="true"
             />
 
+        <!-- hour -->
+        <app.guchagucharr.guchagucharunrecorder.util.NumberPicker
+            android:id="@+id/second"
+            android:layout_width="70dip"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            />
     </LinearLayout>
 
     <!-- AM / PM -->

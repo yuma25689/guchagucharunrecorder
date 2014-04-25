@@ -11914,7 +11914,7 @@ containing a value of this type.
         public static final int alternative=0x7f0501be;
         public static final int always=0x7f050142;
         public static final int alwaysScroll=0x7f050175;
-        public static final int amPm=0x7f050224;
+        public static final int amPm=0x7f050225;
         public static final int animation=0x7f050155;
         public static final int anyRtl=0x7f05014d;
         public static final int atThumb=0x7f050010;
@@ -12006,7 +12006,7 @@ containing a value of this type.
         public static final int horizontal=0x7f050059;
         public static final int hour=0x7f050222;
         public static final int hybrid=0x7f050004;
-        public static final int id_menu_recovery=0x7f050225;
+        public static final int id_menu_recovery=0x7f050226;
         public static final int ifContentScrolls=0x7f050143;
         public static final int ifRoom=0x7f0501bf;
         public static final int increment=0x7f05021e;
@@ -12109,6 +12109,7 @@ containing a value of this type.
         public static final int screenSize=0x7f0501f9;
         public static final int scrim=0x7f0501d7;
         public static final int scrolling=0x7f050156;
+        public static final int second=0x7f050224;
         public static final int secondary=0x7f0501bd;
         public static final int sensor=0x7f0501e9;
         public static final int sensorLandscape=0x7f0501eb;

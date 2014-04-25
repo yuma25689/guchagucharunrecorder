@@ -94,7 +94,7 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
     protected int mPrevious;
     private OnChangedListener mListener;
     private Formatter mFormatter;
-    private long mSpeed = 300;
+    private long mSpeed = 100;
 
     private boolean mIncrement;
     private boolean mDecrement;
@@ -225,8 +225,8 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         }
         mPrevious = mCurrent;
         mCurrent = current;
-        notifyChange();
         updateView();
+        notifyChange();
     }
 
     protected void notifyChange() {
@@ -266,9 +266,9 @@ public class NumberPicker extends LinearLayout implements OnClickListener,
         /* When focus is lost check that the text field
          * has valid values.
          */
-//        if (!hasFocus) {
-//            validateInput(v);
-//        }
+        if (!hasFocus) {
+            validateInput(v);
+        }
     }
 
     private void validateInput(View v) {

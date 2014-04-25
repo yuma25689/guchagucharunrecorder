@@ -88,7 +88,7 @@ public class MyTimePicker1 extends FrameLayout {
 
     private final NumberPicker mSecondSpinner;
 
-    private final NumberPicker mAmPmSpinner;
+    //private final NumberPicker mAmPmSpinner;
 
     private final EditText mHourSpinnerInput;
 
@@ -96,7 +96,7 @@ public class MyTimePicker1 extends FrameLayout {
 
     private final EditText mSecondSpinnerInput;
 
-    private final EditText mAmPmSpinnerInput;
+    //private final EditText mAmPmSpinnerInput;
 
 //    private final TextView mDivider;
 //    private final TextView mDividerSecond;
@@ -151,30 +151,29 @@ public class MyTimePicker1 extends FrameLayout {
         int[] attrTimePicker = R.styleable.TimePicker;
         TypedArray attributesArray = context.obtainStyledAttributes(
                 attrs,
-                // 本当にこれでいいのだろうか・・・
                 attrTimePicker,
                 //R.styleable.TimePicker
                 defStyle, 0);
         int layoutResourceId = attributesArray.getResourceId(
         		R.styleable.TimePicker_internalLayout, 
         		R.layout.time_picker );
-        		//Resources.getSystem().getIdentifier("timePickerStyle", "layout", "android"));
         attributesArray.recycle();
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(layoutResourceId, this, true);
         ViewGroup topLayout = (ViewGroup)v; 
-
-        // ネットで参照した
-        // platform_frameworks_base / core / res / res / layout / time_picker_holo.xml
-        // では、これでNumberPickerの親のLinearLayoutが取れるはず
-//        LinearLayout topLayout = 
-//        		(LinearLayout) findViewById(Resources.getSystem().getIdentifier(R.id.timePickerLayout);//"timePickerLayout","id",null));
         
-        LinearLayout parentLayout = (LinearLayout) ((LinearLayout) topLayout.getChildAt(0)).getChildAt(0);
+        //LinearLayout parentLayout = (LinearLayout) ((LinearLayout) topLayout.getChildAt(0));
+//        if( parentLayout.getChildAt(0) != null
+//        && parentLayout.getChildAt(0) instanceof LinearLayout )
+//        {
+//        	parentLayout = (LinearLayout) parentLayout.getChildAt(0);
+//        }
         // hour
-        mHourSpinner = (NumberPicker) parentLayout.findViewById(R.id.hour);//Resources.getSystem().getIdentifier("hour","id",null));//R.id.hour);
+        mHourSpinner = (NumberPicker) topLayout.findViewById(R.id.hour);//Resources.getSystem().getIdentifier("hour","id",null));//R.id.hour);
+        // 親を再度設定し直す
+        //parentLayout = (LinearLayout) mHourSpinner.getParent();
         mHourSpinner.setOnChangeListener(new NumberPicker.OnChangedListener() {
             public void onChanged(NumberPicker spinner, int oldVal, int newVal) {
                 updateInputState();
@@ -199,7 +198,7 @@ public class MyTimePicker1 extends FrameLayout {
 //        }
 
         // minute
-        mMinuteSpinner = (NumberPicker) parentLayout.findViewById(
+        mMinuteSpinner = (NumberPicker) topLayout.findViewById(
         		//Resources.getSystem().getIdentifier("minute", "id", null) );
         		R.id.minute);
         mMinuteSpinner.setRange(0,59);
@@ -247,9 +246,12 @@ public class MyTimePicker1 extends FrameLayout {
 //        }
 //        parentLayout.addView(mDividerSecond);
 
-        mSecondSpinner = new NumberPicker( mContext );
+        mSecondSpinner = (NumberPicker) topLayout.findViewById(
+        		//Resources.getSystem().getIdentifier("minute", "id", null) );
+        		R.id.second); 
+        		//new NumberPicker( mContext );
         mSecondSpinner.setRange(0,59);
-        mSecondSpinner.setLayoutParams( mMinuteSpinner.getLayoutParams() );
+        //mSecondSpinner.setLayoutParams( mMinuteSpinner.getLayoutParams() );
 //        mSecondSpinner.setMinValue(0);
 //        mSecondSpinner.setMaxValue(59);
 //        mSecondSpinner.setOnLongPressUpdateInterval(100);
@@ -269,7 +271,7 @@ public class MyTimePicker1 extends FrameLayout {
                 onTimeChanged();
             }
         });
-        parentLayout.addView(mSecondSpinner);
+        //topLayout.addView(mSecondSpinner);
         
         mSecondSpinnerInput = (EditText) mSecondSpinner.findViewById(
         		//Resources.getSystem().getIdentifier("numberpicker_input", "id", null )
@@ -286,40 +288,40 @@ public class MyTimePicker1 extends FrameLayout {
 //        		Resources.getSystem().getIdentifier("amPm", "id", null)
 //        		);
         		R.id.amPm);
-        if (amPmView instanceof Button) {
-            mAmPmSpinner = null;
-            mAmPmSpinnerInput = null;
-            mAmPmButton = (Button) amPmView;
-            mAmPmButton.setOnClickListener(new OnClickListener() {
-                public void onClick(View button) {
-                    button.requestFocus();
-                    mIsAm = !mIsAm;
-                    updateAmPmControl();
-                    onTimeChanged();
-                }
-            });
-        } else {
-            mAmPmButton = null;
-            mAmPmSpinner = (NumberPicker) amPmView;
-            mAmPmSpinner.setRange(0,1);
-//            mAmPmSpinner.setMinValue(0);
-//            mAmPmSpinner.setMaxValue(1);
-            //mAmPmSpinner.setDisplayedValues(mAmPmStrings);
-            mAmPmSpinner.setOnChangeListener(new NumberPicker.OnChangedListener() {
-                public void onChanged(NumberPicker picker, int oldVal, int newVal) {
-                    updateInputState();
-                    picker.requestFocus();
-                    mIsAm = !mIsAm;
-                    updateAmPmControl();
-                    onTimeChanged();
-                }
-            });
-            mAmPmSpinnerInput = (EditText) mAmPmSpinner.findViewById(
-//            		Resources.getSystem().getIdentifier("numberpicker_input", "id", null)
-//            		);
-            		R.id.numberpicker_input);
-            mAmPmSpinnerInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        }
+//        if (amPmView instanceof Button) {
+//            mAmPmSpinner = null;
+//            mAmPmSpinnerInput = null;
+        mAmPmButton = (Button) amPmView;
+        mAmPmButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View button) {
+                button.requestFocus();
+                mIsAm = !mIsAm;
+                updateAmPmControl();
+                onTimeChanged();
+            }
+        });
+//        } else {
+//            mAmPmButton = null;
+//            mAmPmSpinner = (NumberPicker) amPmView;
+//            mAmPmSpinner.setRange(0,1);
+////            mAmPmSpinner.setMinValue(0);
+////            mAmPmSpinner.setMaxValue(1);
+//            //mAmPmSpinner.setDisplayedValues(mAmPmStrings);
+//            mAmPmSpinner.setOnChangeListener(new NumberPicker.OnChangedListener() {
+//                public void onChanged(NumberPicker picker, int oldVal, int newVal) {
+//                    updateInputState();
+//                    picker.requestFocus();
+//                    mIsAm = !mIsAm;
+//                    updateAmPmControl();
+//                    onTimeChanged();
+//                }
+//            });
+//            mAmPmSpinnerInput = (EditText) mAmPmSpinner.findViewById(
+////            		Resources.getSystem().getIdentifier("numberpicker_input", "id", null)
+////            		);
+//            		R.id.numberpicker_input);
+//            mAmPmSpinnerInput.setImeOptions(EditorInfo.IME_ACTION_DONE);
+//        }
 
         // update controls to initial state
         updateHourControl();
@@ -356,11 +358,11 @@ public class MyTimePicker1 extends FrameLayout {
 //            mDivider.setEnabled(enabled);
 //        }
         mHourSpinner.setEnabled(enabled);
-        if (mAmPmSpinner != null) {
-            mAmPmSpinner.setEnabled(enabled);
-        } else {
-            mAmPmButton.setEnabled(enabled);
-        }
+//        if (mAmPmSpinner != null) {
+//            mAmPmSpinner.setEnabled(enabled);
+//        } else {
+        mAmPmButton.setEnabled(enabled);
+        //}
         mIsEnabled = enabled;
     }
 
@@ -625,20 +627,20 @@ public class MyTimePicker1 extends FrameLayout {
 
     private void updateAmPmControl() {
         if (is24HourView()) {
-            if (mAmPmSpinner != null) {
-                mAmPmSpinner.setVisibility(View.GONE);
-            } else {
-                mAmPmButton.setVisibility(View.GONE);
-            }
+//            if (mAmPmSpinner != null) {
+//                mAmPmSpinner.setVisibility(View.GONE);
+//            } else {
+              mAmPmButton.setVisibility(View.GONE);
+//            }
         } else {
             int index = mIsAm ? Calendar.AM : Calendar.PM;
-            if (mAmPmSpinner != null) {
-                mAmPmSpinner.setCurrent(index);
-                mAmPmSpinner.setVisibility(View.VISIBLE);
-            } else {
-                mAmPmButton.setText(mAmPmStrings[index]);
-                mAmPmButton.setVisibility(View.VISIBLE);
-            }
+//            if (mAmPmSpinner != null) {
+//                mAmPmSpinner.setCurrent(index);
+//                mAmPmSpinner.setVisibility(View.VISIBLE);
+//            } else {
+            mAmPmButton.setText(mAmPmStrings[index]);
+            mAmPmButton.setVisibility(View.VISIBLE);
+//            }
         }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
     }
@@ -674,18 +676,18 @@ public class MyTimePicker1 extends FrameLayout {
         		//Resources.getSystem().getIdentifier("time_picker_decrement_minute_button", "string", null ) );        		
                 R.string.time_picker_decrement_hour_button);
         // AM/PM
-        if (mAmPmSpinner != null) {
-            trySetContentDescription(mAmPmSpinner,
-            		//Resources.getSystem().getIdentifier("increment", "id", null ),
-            		R.id.increment,
-            		//Resources.getSystem().getIdentifier("time_picker_increment_set_pm_button", "string", null ) );            		
-                    R.string.time_picker_increment_set_pm_button);
-            trySetContentDescription(mAmPmSpinner,
-            		//Resources.getSystem().getIdentifier("decrement", "id", null ),            		
-            		R.id.decrement,
-            		//Resources.getSystem().getIdentifier("time_picker_decrement_set_am_button", "string", null ) );            		
-                    R.string.time_picker_decrement_set_am_button);
-        }
+//        if (mAmPmSpinner != null) {
+//            trySetContentDescription(mAmPmSpinner,
+//            		//Resources.getSystem().getIdentifier("increment", "id", null ),
+//            		R.id.increment,
+//            		//Resources.getSystem().getIdentifier("time_picker_increment_set_pm_button", "string", null ) );            		
+//                    R.string.time_picker_increment_set_pm_button);
+//            trySetContentDescription(mAmPmSpinner,
+//            		//Resources.getSystem().getIdentifier("decrement", "id", null ),            		
+//            		R.id.decrement,
+//            		//Resources.getSystem().getIdentifier("time_picker_decrement_set_am_button", "string", null ) );            		
+//                    R.string.time_picker_decrement_set_am_button);
+//        }
     }
 
     private void trySetContentDescription(View root, int viewId, int contDescResId) {
@@ -701,7 +703,8 @@ public class MyTimePicker1 extends FrameLayout {
         // changed the value via the IME and there is a next input the IME will
         // be shown, otherwise the user chose another means of changing the
         // value and having the IME up makes no sense.
-        InputMethodManager inputMethodManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager 
+        = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         //InputMethodManager.peekInstance();
         if (inputMethodManager != null) {
             if (inputMethodManager.isActive(mHourSpinnerInput)) {
@@ -710,10 +713,14 @@ public class MyTimePicker1 extends FrameLayout {
             } else if (inputMethodManager.isActive(mMinuteSpinnerInput)) {
                 mMinuteSpinnerInput.clearFocus();
                 inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
-            } else if (inputMethodManager.isActive(mAmPmSpinnerInput)) {
-                mAmPmSpinnerInput.clearFocus();
+            } else if (inputMethodManager.isActive(mSecondSpinnerInput)) {
+            	mSecondSpinnerInput.clearFocus();
                 inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
-            }
+            } 
+//            else if (inputMethodManager.isActive(mAmPmSpinnerInput)) {
+//                mAmPmSpinnerInput.clearFocus();
+//                inputMethodManager.hideSoftInputFromWindow(getWindowToken(), 0);
+//            }
         }
     }
     /**
