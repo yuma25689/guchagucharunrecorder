@@ -19,7 +19,7 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ImageButton android:id="@+id/increment"
+    <app.guchagucharr.guchagucharunrecorder.util.NumberPickerButton android:id="@+id/increment"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_numberpicker_up_btn"
@@ -35,7 +35,7 @@
         android:singleLine="true"
         android:background="@drawable/selector_numberpicker_input" />
 
-    <ImageButton android:id="@+id/decrement"
+    <app.guchagucharr.guchagucharunrecorder.util.NumberPickerButton android:id="@+id/decrement"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_numberpicker_down_btn"

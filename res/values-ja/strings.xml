@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-
+    <string name="number_picker_increment_button" msgid="2412072272832284313">"進めます"</string>
+    <string name="number_picker_decrement_button" msgid="476050778386779067">"戻します"</string>
+    <string name="number_picker_increment_scroll_mode" msgid="3073101067441638428">"<xliff:g id="VALUE">%s</xliff:g>回タップして押し続けます。"</string>
+    <string name="number_picker_increment_scroll_action" msgid="9101473045891835490">"上にスライドで進み、下にスライドで戻ります。"</string>
+    <string name="time_picker_increment_minute_button" msgid="8865885114028614321">"1分進めます"</string>
+    <string name="time_picker_decrement_minute_button" msgid="6246834937080684791">"1分戻します"</string>
+    <string name="time_picker_increment_hour_button" msgid="3652056055810223139">"1時間進めます"</string>
+    <string name="time_picker_decrement_hour_button" msgid="1377479863429214792">"1時間戻します"</string>
+    <string name="time_picker_increment_set_pm_button" msgid="4147590696151230863">"午後に設定"</string>
+    <string name="time_picker_decrement_set_am_button" msgid="8302140353539486752">"午前に設定"</string>
+    
     <string name="app_name">ぐちゃぐちゃランニングレコーダ</string>
     <string name="dummy_button">ダミーボタン</string>
     <string name="dummy_content">ダミー\nコンテンツ</string>

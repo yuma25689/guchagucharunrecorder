@@ -9,6 +9,20 @@
     <string name="number_picker_increment_scroll_mode"><xliff:g id="value" example="3">%s</xliff:g> touch and hold.</string>
     <!-- Description of the scrolling action in NumberPicker. [CHAR LIMIT=NONE] -->
     <string name="number_picker_increment_scroll_action">Slide up to increase and down to decrease.</string>
+    <!-- TimePicker - accessibility support -->
+    <!-- Description of the button to increase the TimePicker's minute value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_increment_minute_button">Increase minute</string>
+    <!-- Description of the button to decrease the TimePicker's minute value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_decrement_minute_button">Decrease minute</string>
+    <!-- Description of the button to increase the TimePicker's hour value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_increment_hour_button">Increase hour</string>
+    <!-- Description of the button to decrease the TimePicker's hour value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_decrement_hour_button">Decrease hour</string>
+    <!-- Description of the button to increase the TimePicker's set PM value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_increment_set_pm_button">Set PM</string>
+    <!-- Description of the button to decrease the TimePicker's set AM value. [CHAR LIMIT=NONE] -->
+    <string name="time_picker_decrement_set_am_button">Set AM</string>
+
     
     
     

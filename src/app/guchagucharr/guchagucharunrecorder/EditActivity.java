@@ -4,12 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.TimePickerDialog;
+//import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,10 +38,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
+//import android.widget.TimePicker;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
+import app.guchagucharr.guchagucharunrecorder.util.MyTimePicker1;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 import app.guchagucharr.service.RunHistoryTableContract;
@@ -416,9 +415,10 @@ implements IEditViewController, OnClickListener, OnTouchListener
 							tmpDate.get(Calendar.MONTH),
 							tmpDate.get(Calendar.DAY_OF_MONTH),
 							null);
-						final TimePicker TPicker = (TimePicker)viewDlg.findViewById( R.id.time_picker );
+						final MyTimePicker1 TPicker = (MyTimePicker1)viewDlg.findViewById( R.id.time_picker );
 						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
-						TPicker.setCurrentMinute( 0 );//mDate.getMinutes() );
+						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
+						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
 		
 				    	new AlertDialog.Builder(this)
 						.setTitle(getString(R.string.INPUTDLG_TITLE_TIME))
@@ -472,27 +472,77 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						{
 							tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
 						}
-						final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-				            new TimePickerDialog.OnTimeSetListener() {
-				                @Override
-				                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				                	// TODO: 設定
-									mInputDate = Calendar.getInstance();
-									mInputDate.set( 0 
-											,0
-											,0
-											,hourOfDay
-											,minute
-											,0	// TODO: 秒数の入力
-									);
-									long lngDT = mInputDate.getTimeInMillis();
-									// TextViewに設定する
-									SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-											getString(R.string.datetime_display_format));
-									mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
-				                }
-				            }, tmpDate.get(Calendar.HOUR), tmpDate.get(Calendar.MINUTE), true);
-				        timePickerDialog.show();					
+						View viewDlg = getLayoutInflater().inflate(R.layout.t_picker, null);
+
+						final MyTimePicker1 TPicker = (MyTimePicker1)viewDlg.findViewById( R.id.time_picker );
+						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
+						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
+						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
+		
+				    	new AlertDialog.Builder(this)
+						.setTitle(getString(R.string.INPUTDLG_TITLE_TIME))
+						.setView(viewDlg)
+						.setPositiveButton( android.R.string.ok,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface arg0, int arg1) 
+								{
+									if( mLastInputDateTimeLabel != null )
+									{
+										mInputDate = Calendar.getInstance();
+										mInputDate.set( 1900 
+												,0
+												,0
+												,TPicker.getCurrentHour()
+												,TPicker.getCurrentMinute()
+												,0	// TODO: 秒数の入力
+										);
+										long lngDT = mInputDate.getTimeInMillis();
+										
+										// TODO: 元のデータに設定するかどうか
+										// String.valueOf(lngDT
+										
+										// TextViewに設定する
+										SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+												getString(R.string.time_display_format));
+										mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
+
+									}
+								};			
+							}
+						)
+						.setNegativeButton( android.R.string.cancel,
+								new DialogInterface.OnClickListener() {
+									public void onClick(
+											DialogInterface dlg,
+											int which )
+									{}
+								}
+						)
+						.create()
+						.show();
+						
+//						final TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+//				            new TimePickerDialog.OnTimeSetListener() {
+//				                @Override
+//				                public void onTimeSet(MyTimePicker1 view, int hourOfDay, int minute) {
+//				                	// TODO: 設定
+//									mInputDate = Calendar.getInstance();
+//									mInputDate.set( 0 
+//											,0
+//											,0
+//											,hourOfDay
+//											,minute
+//											,0	// TODO: 秒数の入力
+//									);
+//									long lngDT = mInputDate.getTimeInMillis();
+//									// TextViewに設定する
+//									SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+//											getString(R.string.datetime_display_format));
+//									mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
+//				                }
+//				            }, tmpDate.get(Calendar.HOUR), tmpDate.get(Calendar.MINUTE), true);
+//				        timePickerDialog.show();					
+//					}
 					}
 				}
 			}

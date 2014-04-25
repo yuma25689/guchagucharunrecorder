@@ -29,6 +29,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import app.guchagucharr.guchagucharunrecorder.MessageDef;
+import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.service.RunLogger;
 import app.guchagucharr.service.RunLoggerService;
 

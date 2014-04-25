@@ -24,6 +24,7 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.guchagucharunrecorder.util.FileUtil;
 // import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 

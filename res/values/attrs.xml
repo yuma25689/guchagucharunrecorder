@@ -3740,7 +3740,7 @@
         <attr name="dateTextAppearance" format="reference" />
     </declare-styleable>
 
-    <declare-styleable name="NumberPicker">
+    <declare-styleable name="NumberPicker_new">
         <!-- @hide Color for the solid color background if such for optimized rendering. -->
         <attr name="solidColor" format="color|reference" />
         <!-- @hide The divider for making the selection area. -->

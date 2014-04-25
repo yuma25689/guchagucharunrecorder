@@ -31,7 +31,7 @@
         android:layoutDirection="ltr">
 
         <!-- hour -->
-        <NumberPicker
+        <app.guchagucharr.guchagucharunrecorder.util.NumberPicker
             android:id="@+id/hour"
             android:layout_width="70dip"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             />
 
         <!-- minute -->
-        <NumberPicker
+        <app.guchagucharr.guchagucharunrecorder.util.NumberPicker
             android:id="@+id/minute"
             android:layout_width="70dip"
             android:layout_height="wrap_content"
