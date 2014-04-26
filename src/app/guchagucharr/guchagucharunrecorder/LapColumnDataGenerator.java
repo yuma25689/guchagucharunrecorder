@@ -75,7 +75,7 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 				SQLiteContract.INTEGER, String.valueOf(
 						data.getTime())
 						, R.string.hint_lap_time_fixed
-						, ColumnData.EDIT_METHDO_DATETIME
+						, ColumnData.EDIT_METHDO_TIME
 				),
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_SPEED,
 				// TODO:単位は設定によって切替

@@ -96,6 +96,10 @@ please see styles_device_defaults.xml.
     <style name="Widget.TimePicker">
         <item name="internalLayout">@layout/time_picker</item>
     </style>
-
+    
+    <style name="Widget.DatePicker">
+        <item name="internalLayout">@layout/date_picker</item>
+    </style>
+    
 
 </resources>

@@ -58,7 +58,7 @@ import java.util.Locale;
  * guide.
  * </p>
  */
-public class MyTimePicker1 extends FrameLayout {
+public class MyTimePicker extends FrameLayout {
 
     private static final boolean DEFAULT_ENABLED_STATE = true;
 
@@ -69,11 +69,10 @@ public class MyTimePicker1 extends FrameLayout {
      * the code.
      */
     private static final OnTimeChangedListener NO_OP_CHANGE_LISTENER = new OnTimeChangedListener() {
-        public void onTimeChanged(MyTimePicker1 view, int hourOfDay, int minute, int second) {
+        public void onTimeChanged(MyTimePicker view, int hourOfDay, int minute, int second) {
         }
     };
 
-    // private 
     private Context mContext;
     
     // state
@@ -128,18 +127,18 @@ public class MyTimePicker1 extends FrameLayout {
          * @param hourOfDay The current hour.
          * @param minute The current minute.
          */
-        void onTimeChanged(MyTimePicker1 view, int hourOfDay, int minute, int second);
+        void onTimeChanged(MyTimePicker view, int hourOfDay, int minute, int second);
     }
 
-    public MyTimePicker1(Context context) {
+    public MyTimePicker(Context context) {
         this(context, null);
     }
 
-    public MyTimePicker1(Context context, AttributeSet attrs) {
+    public MyTimePicker(Context context, AttributeSet attrs) {
     	this(context, attrs, R.attr.timePickerStyle);
     }
 
-    public MyTimePicker1(Context context, AttributeSet attrs, int defStyle) {
+    public MyTimePicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         mContext = context;
@@ -602,13 +601,13 @@ public class MyTimePicker1 extends FrameLayout {
     @Override
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
-        event.setClassName(MyTimePicker1.class.getName());
+        event.setClassName(MyTimePicker.class.getName());
     }
 
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(MyTimePicker1.class.getName());
+        info.setClassName(MyTimePicker.class.getName());
     }
 
     private void updateHourControl() {

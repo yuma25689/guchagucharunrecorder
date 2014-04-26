@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.Button;
-import android.widget.DatePicker;
+//import android.widget.DatePicker;
 //import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -42,7 +42,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
-import app.guchagucharr.guchagucharunrecorder.util.MyTimePicker1;
+import app.guchagucharr.guchagucharunrecorder.util.MyDatePicker;
+import app.guchagucharr.guchagucharunrecorder.util.MyTimePicker;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 import app.guchagucharr.service.RunHistoryTableContract;
@@ -409,19 +410,19 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						{
 							tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
 						}
-						final DatePicker DPicker = (DatePicker)viewDlg.findViewById( R.id.date_picker );
+						final MyDatePicker DPicker = (MyDatePicker)viewDlg.findViewById( R.id.date_picker );
 						DPicker.init(
-							tmpDate.get(Calendar.YEAR)+1900,
+							tmpDate.get(Calendar.YEAR),
 							tmpDate.get(Calendar.MONTH),
 							tmpDate.get(Calendar.DAY_OF_MONTH),
 							null);
-						final MyTimePicker1 TPicker = (MyTimePicker1)viewDlg.findViewById( R.id.time_picker );
+						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
 						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
 						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
 						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
 		
 				    	new AlertDialog.Builder(this)
-						.setTitle(getString(R.string.INPUTDLG_TITLE_TIME))
+						.setTitle(getString(R.string.INPUTDLG_TITLE_DATETIME))
 						.setView(viewDlg)
 						.setPositiveButton( android.R.string.ok,
 							new DialogInterface.OnClickListener() {
@@ -430,12 +431,12 @@ implements IEditViewController, OnClickListener, OnTouchListener
 									if( mLastInputDateTimeLabel != null )
 									{
 										mInputDate = Calendar.getInstance();
-										mInputDate.set( DPicker.getYear()-1900 
+										mInputDate.set( DPicker.getYear() 
 												,DPicker.getMonth()
 												,DPicker.getDayOfMonth()
 												,TPicker.getCurrentHour()
 												,TPicker.getCurrentMinute()
-												,0	// TODO: 秒数の入力
+												,TPicker.getCurrentSecond()
 										);
 										long lngDT = mInputDate.getTimeInMillis();
 										
@@ -446,6 +447,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 										SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 												getString(R.string.datetime_display_format));
 										mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
+										// TODO:clmnのTextも更新必要
 
 									}
 								};			
@@ -474,7 +476,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						}
 						View viewDlg = getLayoutInflater().inflate(R.layout.t_picker, null);
 
-						final MyTimePicker1 TPicker = (MyTimePicker1)viewDlg.findViewById( R.id.time_picker );
+						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
 						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
 						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
 						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
@@ -489,12 +491,12 @@ implements IEditViewController, OnClickListener, OnTouchListener
 									if( mLastInputDateTimeLabel != null )
 									{
 										mInputDate = Calendar.getInstance();
-										mInputDate.set( 1900 
+										mInputDate.set( 0 
 												,0
 												,0
 												,TPicker.getCurrentHour()
 												,TPicker.getCurrentMinute()
-												,0	// TODO: 秒数の入力
+												,TPicker.getCurrentSecond()
 										);
 										long lngDT = mInputDate.getTimeInMillis();
 										

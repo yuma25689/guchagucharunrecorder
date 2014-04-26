@@ -5,8 +5,8 @@
   android:layout_height="wrap_content"
   android:orientation="vertical"
   >
- 	<app.guchagucharr.guchagucharunrecorder.util.MyTimePicker1 android:id="@+id/time_picker"
+ 	<app.guchagucharr.guchagucharunrecorder.util.MyTimePicker android:id="@+id/time_picker"
   		android:layout_width="wrap_content"
   		android:layout_height="wrap_content">
-  	</app.guchagucharr.guchagucharunrecorder.util.MyTimePicker1>
+  	</app.guchagucharr.guchagucharunrecorder.util.MyTimePicker>
 </LinearLayout>

@@ -10,6 +10,12 @@
     <string name="time_picker_decrement_hour_button" msgid="1377479863429214792">"1時間戻します"</string>
     <string name="time_picker_increment_set_pm_button" msgid="4147590696151230863">"午後に設定"</string>
     <string name="time_picker_decrement_set_am_button" msgid="8302140353539486752">"午前に設定"</string>
+    <string name="date_picker_increment_month_button" msgid="5369998479067934110">"1か月進めます"</string>
+    <string name="date_picker_decrement_month_button" msgid="1832698995541726019">"1か月戻します"</string>
+    <string name="date_picker_increment_day_button" msgid="7130465412308173903">"1日進めます"</string>
+    <string name="date_picker_decrement_day_button" msgid="4131881521818750031">"1日戻します"</string>
+    <string name="date_picker_increment_year_button" msgid="6318697384310808899">"1年進めます"</string>
+    <string name="date_picker_decrement_year_button" msgid="4482021813491121717">"1年戻します"</string>
     
     <string name="app_name">ぐちゃぐちゃランニングレコーダ</string>
     <string name="dummy_button">ダミーボタン</string>
@@ -73,6 +79,7 @@
 	<string name="edit_error_cant_launch">すみませんが、エラーが発生したため、編集できません。</string>
 	<string name="date_button_caption">編集</string>
 					
-	<string name="INPUTDLG_TITLE_TIME">日時を入力</string>
-	<string name="data_updated">データは更新されました。</string>
+	<string name="INPUTDLG_TITLE_DATETIME">日時を入力</string>
+	<string name="INPUTDLG_TITLE_TIME">時間を入力</string>
+		<string name="data_updated">データは更新されました。</string>
 </resources>

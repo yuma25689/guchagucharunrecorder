@@ -602,6 +602,9 @@
         <!-- NumberPicker style. -->
         <attr name="numberPickerStyle" format="reference" />
 
+        <!-- The CalendarView style. -->
+        <attr name="calendarViewStyle" format="reference" />
+        
         <!-- The TimePicker style. -->
         <attr name="timePickerStyle" format="reference" />
 
