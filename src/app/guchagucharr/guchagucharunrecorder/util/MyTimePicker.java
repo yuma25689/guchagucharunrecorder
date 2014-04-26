@@ -106,7 +106,11 @@ public class MyTimePicker extends FrameLayout {
     // accommodates these two cases to be backwards compatible.
     private final Button mAmPmButton;
 
-    private final String[] mAmPmStrings;
+    // private final String[] mAmPmStrings;
+    private final int[] mAmPmBackgroundImage = {
+        	R.drawable.selector_am_button_image,
+        	R.drawable.selector_pm_button_image
+    };
 
     private boolean mIsEnabled = DEFAULT_ENABLED_STATE;
 
@@ -280,8 +284,10 @@ public class MyTimePicker extends FrameLayout {
         
         
         /* Get the localized am/pm strings and use them in the spinner */
-        mAmPmStrings = new DateFormatSymbols().getAmPmStrings();
+        //mAmPmStrings = new DateFormatSymbols().getAmPmStrings();
 
+        //mAmPmBackgroundImage = 
+        
         // am/pm
         View amPmView = findViewById(
 //        		Resources.getSystem().getIdentifier("amPm", "id", null)
@@ -574,41 +580,41 @@ public class MyTimePicker extends FrameLayout {
         return mHourSpinner.getBaseline();
     }
 
-    @Override
-    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
-        onPopulateAccessibilityEvent(event);
-        return true;
-    }
+//    @Override
+//    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+//        onPopulateAccessibilityEvent(event);
+//        return true;
+//    }
 
-    @Override
-    public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
-        super.onPopulateAccessibilityEvent(event);
+//    @Override
+//    public void onPopulateAccessibilityEvent(AccessibilityEvent event) {
+//        super.onPopulateAccessibilityEvent(event);
+//
+//        int flags = DateUtils.FORMAT_SHOW_TIME;
+//        if (mIs24HourView) {
+//            flags |= DateUtils.FORMAT_24HOUR;
+//        } else {
+//            flags |= DateUtils.FORMAT_12HOUR;
+//        }
+//        mTempCalendar.set(Calendar.HOUR_OF_DAY, getCurrentHour());
+//        mTempCalendar.set(Calendar.MINUTE, getCurrentMinute());
+//        mTempCalendar.set(Calendar.SECOND, getCurrentSecond());
+//        String selectedDateUtterance = DateUtils.formatDateTime(mContext,
+//                mTempCalendar.getTimeInMillis(), flags);
+//        event.getText().add(selectedDateUtterance);
+//    }
 
-        int flags = DateUtils.FORMAT_SHOW_TIME;
-        if (mIs24HourView) {
-            flags |= DateUtils.FORMAT_24HOUR;
-        } else {
-            flags |= DateUtils.FORMAT_12HOUR;
-        }
-        mTempCalendar.set(Calendar.HOUR_OF_DAY, getCurrentHour());
-        mTempCalendar.set(Calendar.MINUTE, getCurrentMinute());
-        mTempCalendar.set(Calendar.SECOND, getCurrentSecond());
-        String selectedDateUtterance = DateUtils.formatDateTime(mContext,
-                mTempCalendar.getTimeInMillis(), flags);
-        event.getText().add(selectedDateUtterance);
-    }
-
-    @Override
-    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
-        super.onInitializeAccessibilityEvent(event);
-        event.setClassName(MyTimePicker.class.getName());
-    }
-
-    @Override
-    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(MyTimePicker.class.getName());
-    }
+//    @Override
+//    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
+//        super.onInitializeAccessibilityEvent(event);
+//        event.setClassName(MyTimePicker.class.getName());
+//    }
+//
+//    @Override
+//    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+//        super.onInitializeAccessibilityNodeInfo(info);
+//        info.setClassName(MyTimePicker.class.getName());
+//    }
 
     private void updateHourControl() {
         if (is24HourView()) {
@@ -637,7 +643,7 @@ public class MyTimePicker extends FrameLayout {
 //                mAmPmSpinner.setCurrent(index);
 //                mAmPmSpinner.setVisibility(View.VISIBLE);
 //            } else {
-            mAmPmButton.setText(mAmPmStrings[index]);
+            mAmPmButton.setBackgroundResource(mAmPmBackgroundImage[index]);
             mAmPmButton.setVisibility(View.VISIBLE);
 //            }
         }

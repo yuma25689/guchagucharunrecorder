@@ -417,7 +417,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 							tmpDate.get(Calendar.DAY_OF_MONTH),
 							null);
 						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
-						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
+						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR_OF_DAY) );
 						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
 						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
 		
@@ -477,7 +477,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						View viewDlg = getLayoutInflater().inflate(R.layout.t_picker, null);
 
 						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
-						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR) );
+						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR_OF_DAY) );
 						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
 						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
 		
