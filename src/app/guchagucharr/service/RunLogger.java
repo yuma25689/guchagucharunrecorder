@@ -19,10 +19,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Parcel;
+//import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
+//import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.service.RunLoggerService.eMode;
 
@@ -131,7 +131,16 @@ public class RunLogger {
 	public static void stopService(Context ctx) {
 		for( Entry<Context,ServiceBinder> entry : sConnectionMap.entrySet() )
 		{
-			entry.getKey().unbindService(entry.getValue());
+			try
+			{
+				entry.getKey().unbindService(entry.getValue());
+			}
+			catch ( IllegalArgumentException ex )
+			{
+				// 登録されていないサービスに対してUnbindの場合等にここにくるはず
+				// その場合は、エラーにはせずにスルーする
+				Log.e("unbindService - error", ex.getMessage() );
+			}
 			Log.v("unbindService","come" + entry.getKey().getClass());   
 		}
 		sConnectionMap.clear();

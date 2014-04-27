@@ -60,7 +60,7 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_SPEED,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_speed, R.string.label_unit_speed,
-				SQLiteContract.REAL, String.valueOf(data.getSpeed())
+				SQLiteContract.REAL, String.valueOf(data.getDistance() / data.getTime() )//data.getSpeed())
 				, R.string.hint_lap_speed ),
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_DISTANCE,
 				// TODO:単位は設定によって切替
@@ -77,12 +77,13 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 						, R.string.hint_lap_time_fixed
 						, ColumnData.EDIT_METHDO_TIME
 				),
-		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_SPEED,
-				// TODO:単位は設定によって切替
-				R.string.label_lap_speed_fixed, R.string.label_unit_speed,
-				SQLiteContract.REAL, String.valueOf(data.getSpeed())
-				, R.string.hint_lap_speed_fixed 
-				, ColumnData.EDIT_METHDO_REAL				
+				// TODO:速度は入力不可に
+		new ColumnData( activity, true, false, RunHistoryTableContract.LAP_FIXED_SPEED,
+				null, null,
+				//R.string.label_lap_speed_fixed, R.string.label_unit_speed,
+				SQLiteContract.REAL, null, null //String.valueOf(data.getSpeed())
+				//, R.string.hint_lap_speed_fixed 
+				//, ColumnData.EDIT_METHDO_REAL				
 				),
 		new ColumnData( activity, false, RunHistoryTableContract.GPX_FILE_PATH, 
 				R.string.label_gpxfilepath, null,

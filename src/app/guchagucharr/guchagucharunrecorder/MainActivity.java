@@ -1510,7 +1510,7 @@ implements
         	  	// RunLoggerStockerにデータ復旧->save dialog launch
 				TempolaryDataLoader loader = new TempolaryDataLoader();
         	  	TempolaryDataLoader.TempolaryData data = loader.new TempolaryData();
-				data.setGpxDir("/mnt/sdcard/app.guchagucharr.guchagucharunrecorder/20140412090140185");
+				data.setGpxDir("/mnt/sdcard/app.guchagucharr.guchagucharunrecorder/20140427091934124");
 				RunLoggerService.clearRunLogStocker();
 				RunLoggerService.createLogStocker();
 				

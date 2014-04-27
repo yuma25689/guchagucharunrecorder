@@ -4,14 +4,11 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
 //import java.util.Date;
 import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
