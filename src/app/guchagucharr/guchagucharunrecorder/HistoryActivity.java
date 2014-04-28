@@ -36,10 +36,17 @@ import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 
 public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
+	// MainData用
 	static final int CONTEXT_MENU_DETAIL_ID = 0;
 	static final int CONTEXT_MENU_DELETE_ID = 1;
 	static final int CONTEXT_MENU_SHARE_ID = 2;
 	static final int CONTEXT_MENU_EDIT_ID = 3;
+	// LapData用
+	static final int CONTEXT_MENU_LAP_BASE_ID = 10;
+	//static final int CONTEXT_MENU_LAP_DETAIL_ID = CONTEXT_MENU_DETAIL_ID + CONTEXT_MENU_LAP_BASE_ID;
+	static final int CONTEXT_MENU_LAP_DELETE_ID = CONTEXT_MENU_DELETE_ID + CONTEXT_MENU_LAP_BASE_ID;
+	static final int CONTEXT_MENU_LAP_SHARE_ID = CONTEXT_MENU_SHARE_ID + CONTEXT_MENU_LAP_BASE_ID;
+	static final int CONTEXT_MENU_LAP_EDIT_ID = CONTEXT_MENU_EDIT_ID + CONTEXT_MENU_LAP_BASE_ID;
 	
 	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
@@ -497,6 +504,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				{
 				    menu.add(CONTEXT_MENU_DETAIL_ID, (int)block.getRecordId(), 0,
 				    		R.string.menu_detail);
+				    menu.add(CONTEXT_MENU_EDIT_ID, (int)block.getRecordId(),
+				    		0, R.string.menu_edit);
 				    menu.add(CONTEXT_MENU_SHARE_ID, (int)block.getRecordId(), 0,
 				    		R.string.menu_share);
 				    menu.add(CONTEXT_MENU_DELETE_ID, (int)block.getRecordId(), 0,
@@ -504,11 +513,11 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				}
 				else if( dispBlock.getData() instanceof ActivityLapData )
 				{
-				    menu.add(CONTEXT_MENU_EDIT_ID, selectedActivityData.getId(),
+				    menu.add(CONTEXT_MENU_LAP_EDIT_ID, selectedActivityData.getId(),
 				    		(int)block.getRecordId(), R.string.menu_edit);
-				    menu.add(CONTEXT_MENU_SHARE_ID, selectedActivityData.getId(),
+				    menu.add(CONTEXT_MENU_LAP_SHARE_ID, selectedActivityData.getId(),
 				    		(int)block.getRecordId(), R.string.menu_share);
-				    menu.add(CONTEXT_MENU_DELETE_ID, selectedActivityData.getId(),
+				    menu.add(CONTEXT_MENU_LAP_DELETE_ID, selectedActivityData.getId(),
 				    		(int)block.getRecordId(), R.string.menu_delete);					
 				}
 			}
@@ -516,11 +525,15 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	}
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		Intent intentEdit = null;
 	    switch (item.getGroupId()) {
+	    // =============================
+	    // MainData用
+	    // =============================
 	    case CONTEXT_MENU_DETAIL_ID:
 	        // 詳細メニュー
 	    	// 今のところ、最上位のデータを想定
-	    	selectedActivityData = (ActivityData) loader.getHistoryData(item.getGroupId());
+	    	selectedActivityData = (ActivityData) loader.getHistoryData(item.getItemId());
 			// TODO:ページが1ページしかない場合、ページの拡張を行う
 			if( adapter.getCount() == 1 )
 			{
@@ -653,7 +666,22 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	    case CONTEXT_MENU_EDIT_ID:
 	        // 編集メニュー
 			// launch activity for save
-			Intent intentEdit = new Intent( this, EditActivity.class );
+			intentEdit = new Intent( this, EditActivity.class );
+			intentEdit.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_MAIN_TABLE);
+			ActivityData data4Edit 
+				= loader.getHistoryData(item.getItemId());//= RunLoggerService.getLogStocker().getLapData(item.getItemId());
+			ResourceAccessor.getInstance().setWorkOutDataTmp(data4Edit);
+			intentEdit.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        startActivity(intentEdit);	    	
+	    	return true;
+	    // =============================
+	    // LapData用
+	    // =============================	        
+	    case CONTEXT_MENU_LAP_EDIT_ID:
+	        // 編集メニュー
+			// launch activity for save
+	    	// TODO: DETAILかどうか判別
+			intentEdit = new Intent( this, EditActivity.class );
 			// データをそのままどこかに格納する？
 			intentEdit.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
 			// ActivityLapData lapData4Edit = new ActivityLapData();

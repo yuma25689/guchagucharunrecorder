@@ -15,6 +15,9 @@
  */
 package app.guchagucharr.guchagucharunrecorder.util;
 
+import android.content.Context;
+import app.guchagucharr.guchagucharunrecorder.R;
+
 /**
  * Unit conversion constants.
  * 
@@ -99,4 +102,26 @@ public class UnitConversions {
 
   // multiplication factor to convert degrees to radians
   public static final double DEG_TO_RAD = Math.PI / 180.0;
+  
+  public static long getHourFromMilliSec( long millisec )
+  {
+	  return (long) ((long)((long)( millisec * MS_TO_S ) * S_TO_MIN) * MIN_TO_HR);
+  }
+  public static long getMinuteFromMilliSec( long millisec )
+  {
+	  return ((long)((long)( millisec * MS_TO_S ) * S_TO_MIN) );
+  }
+  public static long getSecondFromMilliSec( long millisec )
+  {
+	  return ((long)( millisec * MS_TO_S ) );
+  }
+  public static String getWorkoutTimeString( Context ctx, long millisec )
+  {
+	  String strFmt = ctx.getString(R.string.workouttime_display_format);
+	  return String.format(strFmt, 
+		  getHourFromMilliSec(millisec),
+		  getMinuteFromMilliSec(millisec) - (getHourFromMilliSec(millisec) * 60),
+		  getSecondFromMilliSec(millisec) - (getMinuteFromMilliSec(millisec) * 60)
+		);
+  }
 }

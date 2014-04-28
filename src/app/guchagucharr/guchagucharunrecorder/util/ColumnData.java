@@ -1,6 +1,10 @@
 package app.guchagucharr.guchagucharunrecorder.util;
 
+import java.text.SimpleDateFormat;
+
 import android.content.Context;
+import app.guchagucharr.guchagucharunrecorder.R;
+import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.SQLiteContract;
 
 public class ColumnData {
@@ -19,6 +23,8 @@ public class ColumnData {
 	public static final int EDIT_METHDO_INTEGER = 2;
 	public static final int EDIT_METHDO_DATETIME = 3;
 	public static final int EDIT_METHDO_TIME = 4;
+	public static final int EDIT_METHDO_DISTANCE = 5;
+	public static final int EDIT_METHDO_SPEED = 6;
 	int editMethod = EDIT_METHDO_TEXT;
 	public int getEditMethod()
 	{
@@ -58,7 +64,8 @@ public class ColumnData {
 			Integer labelAfter, 
 			String dataType, 
 			String text, 
-			Integer hint) {
+			Integer hint
+		) {
 
 		super();
 		this.ctx = context;		
@@ -73,6 +80,31 @@ public class ColumnData {
 		this.text = text;
 		if( hint != null )
 			this.hint = ctx.getString(hint);
+	}
+	
+	public ColumnData(Context context, boolean editable,
+			String columnName,
+			Integer labelBefore,
+			Integer labelAfter, 
+			String dataType, 
+			String text, 
+			Integer hint,
+			int iEditMethod) {
+
+		super();
+		this.ctx = context;		
+		this.hidden = false;
+		this.editable = editable;
+		this.columnName = columnName;
+		if( labelBefore != null )
+			this.labelBefore = ctx.getString(labelBefore);
+		if( labelAfter != null )
+			this.labelAfter = ctx.getString(labelAfter);
+		this.dataType = dataType;
+		this.text = text;
+		if( hint != null )
+			this.hint = ctx.getString(hint);
+		this.editMethod = iEditMethod;
 	}
 	public ColumnData(Context context,
 			String columnName,
@@ -230,4 +262,28 @@ public class ColumnData {
 		this.itemValueControlID = itemValueControlID;
 	}
 	
+	public static String getFormatText( Context ctx,int iEditMethod, String text )
+	{
+		if( iEditMethod == ColumnData.EDIT_METHDO_DATETIME )
+		{
+			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+					ctx.getString(R.string.datetime_display_format));
+			return sdfDateTime.format(Long.parseLong(text) );
+		}
+		else if( iEditMethod == ColumnData.EDIT_METHDO_TIME )
+		{
+//			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+//					ctx.getString(R.string.time_display_format));
+			return UnitConversions.getWorkoutTimeString(ctx,Long.parseLong(text));
+		}
+		else if( iEditMethod == ColumnData.EDIT_METHDO_DISTANCE )
+		{
+			return LapData.createDistanceFormatText( Double.parseDouble(text) );
+		}
+		else if( iEditMethod == ColumnData.EDIT_METHDO_SPEED )
+		{
+			return LapData.createSpeedFormatTextKmPerH( Double.parseDouble(text) );
+		}
+		return text;
+	}
 }

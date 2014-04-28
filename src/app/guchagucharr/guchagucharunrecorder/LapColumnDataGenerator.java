@@ -32,12 +32,13 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 				, R.string.hint_startdatetime
 				, ColumnData.EDIT_METHDO_DATETIME
 				),
-		new ColumnData( activity, RunHistoryTableContract.INSERT_DATETIME, 
-				R.string.label_insert_date_time, null,
-				SQLiteContract.INTEGER, String.valueOf(data.getInsertDateTime())
-				, R.string.hint_insertdatetime
-				, ColumnData.EDIT_METHDO_DATETIME			
-				),
+		new ColumnData( activity,true, false, RunHistoryTableContract.INSERT_DATETIME, 
+				//R.string.label_insert_date_time,
+//				null,SQLiteContract.INTEGER, String.valueOf(data.getInsertDateTime())
+//				, R.string.hint_insertdatetime
+//				, ColumnData.EDIT_METHDO_DATETIME			
+//				),
+				null, null, SQLiteContract.INTEGER, null, null ),
 		new ColumnData( activity, true, false, RunHistoryTableContract.PARENT_ID,
 				// TODO:値の設定
 				null, null,
@@ -51,23 +52,26 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_DISTANCE,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_distance, R.string.label_unit_distance,
-				SQLiteContract.REAL, String.valueOf(data.getDistance()), R.string.hint_lapdistance ),
+				SQLiteContract.REAL, String.valueOf(data.getDistance()), R.string.hint_lapdistance
+				,ColumnData.EDIT_METHDO_DISTANCE),
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_TIME,
 				R.string.label_lap_time, null,
 				SQLiteContract.INTEGER, String.valueOf(
 						data.getTime())
-						, R.string.hint_lap_time ),
+						, R.string.hint_lap_time,
+						ColumnData.EDIT_METHDO_TIME),
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_SPEED,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_speed, R.string.label_unit_speed,
 				SQLiteContract.REAL, String.valueOf(data.getDistance() / data.getTime() )//data.getSpeed())
-				, R.string.hint_lap_speed ),
+				, R.string.hint_lap_speed,
+				ColumnData.EDIT_METHDO_SPEED),
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_DISTANCE,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_distance_fixed, R.string.label_unit_distance,
 				SQLiteContract.REAL, String.valueOf(data.getDistance()),
 				R.string.hint_lapdistance_fixed 
-				, ColumnData.EDIT_METHDO_REAL
+				, ColumnData.EDIT_METHDO_DISTANCE
 				),
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_TIME,
 				// TODO:編集方法

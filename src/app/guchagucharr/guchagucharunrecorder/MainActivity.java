@@ -159,7 +159,7 @@ implements
 //			        return;
 //			      }
 //			    }
-		
+			
 		// 03/25 Activityがnullな可能性？
 		ResourceAccessor.getInstance().setActivity(this);
 		
@@ -172,6 +172,10 @@ implements
         intentFilter.addAction(TIMER_NOTIFY);
         registerReceiver(receiver,intentFilter);
 
+        // NOTICE: Resume毎につなぎ直すと、多すぎるかも？
+        // Bind( Or Create and Bind) to Service
+        mToken = RunLogger.bindToService(this, this);
+        
     	// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
@@ -180,9 +184,6 @@ implements
 		regionCancelBtn = null;
         dispInfo.init(this, componentContainer, handler,false);
 
-        // NOTICE: Resume毎につなぎ直すと、多すぎるかも？
-        // Bind( Or Create and Bind) to Service
-        mToken = RunLogger.bindToService(this, this);
         super.onResume();
     }
 	// TODO onResumeよりもっと下位のイベントがあれば、それを設定して、
@@ -1016,7 +1017,7 @@ implements
 		}
 		// TODO: limit
 		Cursor c = getContentResolver().query(
-				Uri.parse("content://" 
+				Uri.parse("content://"
 				+ RunHistoryTableContract.AUTHORITY + "/" 
 				+ RunHistoryTableContract.HISTORY_TABLE_NAME ), null, null, null, null);
 		
