@@ -115,6 +115,12 @@ public class UnitConversions {
   {
 	  return ((long)( millisec * MS_TO_S ) );
   }
+  public static long createMillisec( long hour, long minute, long second )
+  {
+	  return (long) (( hour * HR_TO_MIN * MIN_TO_S * S_TO_MS )
+			  + ( minute * MIN_TO_S * S_TO_MS )
+			  + ( second * S_TO_MS ));
+  }
   public static String getWorkoutTimeString( Context ctx, long millisec )
   {
 	  String strFmt = ctx.getString(R.string.workouttime_display_format);

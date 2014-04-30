@@ -393,8 +393,29 @@ public class RunHistoryContentProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		int match =  mUriMatcher.match(uri);
+		if( match == UriMatcher.NO_MATCH )
+		{
+			throw new SQLException("Failed to update row into " + uri);
+			//return null;
+		}
+		int iRet = 0;
+		SQLiteDatabase db = databaseHelper.getWritableDatabase();
+		switch( match )
+		{
+			case RunHistoryTableContract.HISTORY_TABLE_ID: 
+				iRet = db.update(RunHistoryTableContract.HISTORY_TABLE_NAME, values,selection,selectionArgs);
+				break;
+			case RunHistoryTableContract.HISTORY_LAP_TABLE_ID:
+				iRet = db.update(RunHistoryTableContract.HISTORY_LAP_TABLE_NAME, values,selection,selectionArgs);
+				break;
+			case RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID:
+				iRet = db.update(RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME, values,selection,selectionArgs);
+				break;
+			default:
+				throw new SQLException("Failed to update row into " + uri);				
+		}
+		return iRet;
 	}
 
 	

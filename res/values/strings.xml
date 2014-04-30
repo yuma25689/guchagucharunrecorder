@@ -67,6 +67,7 @@
     <string name="SaveErrorDatabaseOnly">Failed to save the database data but GPX file is saved. Please retry or give up saving.</string>
     <string name="SaveOK">The results have saved.</string>
     
+    <string name="datetime_display_format_full">yyyy/MM/dd HH:mm:ss</string>
     <string name="datetime_display_format">M/dd HH:mm:ss</string>
     <string name="datetime_display_format2">dd HH:mm:ss</string>
     <string name="date_display_format">yyyy/MM/dd</string>
@@ -139,4 +140,5 @@
 	<string name="INPUTDLG_TITLE_DATETIME">input date and time</string>
 	<string name="INPUTDLG_TITLE_TIME">input time</string>	
 	<string name="data_updated">data updated.</string>
+	<string name="data_not_updated">data is not updated.(maybe nothing changed.)</string>
 </resources>

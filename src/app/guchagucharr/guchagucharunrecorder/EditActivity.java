@@ -22,6 +22,7 @@ import android.net.Uri;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -57,7 +58,8 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	//private static final int TEXT_VIEW_LINKED = 1000;
 	Calendar mInputDate = null;
 	TextView mLastInputDateTimeLabel = null;
-	ColumnData mLastInputColumnData = null;
+	//ColumnData mLastInputColumnData = null;
+	String mLastInputColumnName = null;
 	
 	// 項目のID
 	static final int VALUE_INPUT_CONTROL_ID = 100;
@@ -266,24 +268,16 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					// 距離型の場合
 					if( clmn.getText() != null && 0 < clmn.getText().length() )
 					{
-						TextView lblText = new TextView(this);
+						EditText edt = new EditText(this);
 						
-						lblText.setText( ColumnData.getFormatText(this, clmn.getEditMethod(), clmn.getText()));						
-						lblText.setLayoutParams(llForContent);
-						lblText.setBackgroundColor(Color.DKGRAY);
-						lblText.setTextColor(Color.WHITE);
-						lblText.setId(iValueInputControlID);						
-						ll.addView(lblText);
+						edt.setText( 
+							String.format( "%.3f", Double.parseDouble(clmn.getText()) ) 
+						);
+								//ColumnData.getFormatText(this, clmn.getEditMethod(), clmn.getText()));						
+						edt.setLayoutParams(llForContent);
+						edt.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
+						ll.addView(edt);
 
-						Button btnDate = new Button(this);
-						// OnClickListenerでどの項目か識別できるように、タグを設定
-						btnDate.setTag(clmn);
-						btnDate.setTag(R.id.TEXT_VIEW_LINKED, lblText);
-						btnDate.setBackgroundResource(R.drawable.selector_edit_button_image);						
-						//btnDate.setText(R.string.date_button_caption);
-						btnDate.setOnClickListener(this);
-						
-						ll.addView(btnDate);
 					}
 				}
 				else
@@ -293,8 +287,8 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					|| clmn.getEditMethod() == ColumnData.EDIT_METHDO_REAL )
 					{
 						edt.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
-						edt.setText( clmn.getText());
 					}
+					edt.setText( clmn.getText());
 //					else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_DATETIME )
 //					{
 //						SimpleDateFormat sdfDateTime = new SimpleDateFormat(
@@ -367,12 +361,20 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			}
 			if( v == btnSave )
 			{
-				// TODO: 保存処理を行う
-				updateData(this);
-        		Toast.makeText(this, R.string.data_updated, 
-        				Toast.LENGTH_LONG).show();
-        		finish();
-
+				// データ更新処理を行う
+				// TODO: まだテーブルに保存されていない時の処理
+				int iRetUpdate = updateData(this);
+				if( 0 < updateData(this) )
+				{
+	        		Toast.makeText(this, R.string.data_updated, 
+	        				Toast.LENGTH_LONG).show();
+	        		finish();
+				}
+				else if(iRetUpdate == 0)
+				{
+	        		Toast.makeText(this, R.string.data_not_updated,
+	        				Toast.LENGTH_LONG).show();					
+				}
 			}
 			else if( v == btnCancel )
 			{
@@ -391,7 +393,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					{
 						// 日時型のボタンが押されたはず
 						mLastInputDateTimeLabel = (TextView)v.getTag(R.id.TEXT_VIEW_LINKED);
-						mLastInputColumnData = clmn;
+						mLastInputColumnName = clmn.getColumnName();
 						View viewDlg = getLayoutInflater().inflate(R.layout.dt_picker, null);
 						Calendar tmpDate = Calendar.getInstance();
 
@@ -406,6 +408,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 							tmpDate.get(Calendar.DAY_OF_MONTH),
 							null);
 						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
+						// TPicker.setIsTimeInputView(true);
 						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR_OF_DAY) );
 						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
 						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
@@ -418,7 +421,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 								public void onClick(DialogInterface arg0, int arg1) 
 								{
 									if( mLastInputDateTimeLabel != null 
-									&& 	mLastInputColumnData != null )
+									&& mLastInputColumnName != null )
 									{
 										mInputDate = Calendar.getInstance();
 										mInputDate.set( DPicker.getYear() 
@@ -435,9 +438,16 @@ implements IEditViewController, OnClickListener, OnTouchListener
 										
 										// TextViewに設定する
 										SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-												getString(R.string.datetime_display_format));
+												getString(R.string.datetime_display_format_full));
 										mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
-										mLastInputColumnData.setText( String.valueOf( lngDT ));
+										for( ColumnData clmn : clmnInfos )
+										{
+											if( mLastInputColumnName.equals( clmn.getColumnName() ) )
+											{
+												clmn.setText( String.valueOf( lngDT ));
+												break;
+											}
+										}
 									}
 								};			
 							}
@@ -458,18 +468,28 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					{
 						// 時間型のボタンが押されたはず
 						mLastInputDateTimeLabel = (TextView)v.getTag(R.id.TEXT_VIEW_LINKED);
-						mLastInputColumnData = clmn;						
-						Calendar tmpDate = Calendar.getInstance();
+						mLastInputColumnName = clmn.getColumnName();						
+						//Calendar tmpDate = Calendar.getInstance();
+						int hour = 0;
+						int minute = 0;
+						int second = 0;
 						if( clmn.getText() != null )
 						{
-							tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
+							long millisec = Long.parseLong(clmn.getText());
+							hour = (int)UnitConversions.getHourFromMilliSec(millisec);							
+							minute = (int)(UnitConversions.getMinuteFromMilliSec(millisec)
+									- UnitConversions.getHourFromMilliSec(millisec) * 60);							
+							second = (int)(UnitConversions.getSecondFromMilliSec(millisec)
+									- UnitConversions.getMinuteFromMilliSec(millisec) * 60);
+							//tmpDate.setTime(new Date(Long.parseLong(clmn.getText())));
 						}
 						View viewDlg = getLayoutInflater().inflate(R.layout.t_picker, null);
 
 						final MyTimePicker TPicker = (MyTimePicker)viewDlg.findViewById( R.id.time_picker );
-						TPicker.setCurrentHour(	tmpDate.get(Calendar.HOUR_OF_DAY) );
-						TPicker.setCurrentMinute( tmpDate.get(Calendar.MINUTE) );
-						TPicker.setCurrentSecond( tmpDate.get(Calendar.SECOND) );
+						TPicker.setIsTimeInputView(true);
+						TPicker.setCurrentHour(	hour );//tmpDate.get(Calendar.HOUR_OF_DAY) );
+						TPicker.setCurrentMinute( minute );//tmpDate.get(Calendar.MINUTE) );
+						TPicker.setCurrentSecond( second );//tmpDate.get(Calendar.SECOND) );
 		
 				    	new AlertDialog.Builder(this)
 						.setTitle(getString(R.string.INPUTDLG_TITLE_TIME))
@@ -479,26 +499,38 @@ implements IEditViewController, OnClickListener, OnTouchListener
 								public void onClick(DialogInterface arg0, int arg1) 
 								{
 									if( mLastInputDateTimeLabel != null 
-									&& mLastInputColumnData != null
+									&& mLastInputColumnName != null
 									)
 									{
-										mInputDate = Calendar.getInstance();
-										mInputDate.set( 0 
-												,0
-												,0
-												,TPicker.getCurrentHour()
-												,TPicker.getCurrentMinute()
-												,TPicker.getCurrentSecond()
+//										mInputDate = Calendar.getInstance();
+//										mInputDate.set( 0 
+//												,0
+//												,0
+//												,TPicker.getCurrentHour()
+//												,TPicker.getCurrentMinute()
+//												,TPicker.getCurrentSecond()
+//										);
+//										long lngDT = mInputDate.getTimeInMillis();
+										
+										long millisec = UnitConversions.createMillisec(
+											TPicker.getCurrentHour()
+											,TPicker.getCurrentMinute()
+											,TPicker.getCurrentSecond()
 										);
-										long lngDT = mInputDate.getTimeInMillis();
-										
 										// TextViewに設定する
-										SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-												getString(R.string.time_display_format));
-										mLastInputDateTimeLabel.setText( sdfDateTime.format(lngDT) );
-										
-										// TODO: 今はそのまま設定しているが、時間の場合、差分をとらないと駄目
-										mLastInputColumnData.setText( String.valueOf( lngDT ));
+										//SimpleDateFormat sdfDateTime = new SimpleDateFormat(
+										//		getString(R.string.time_display_format));
+										mLastInputDateTimeLabel.setText( //sdfDateTime.format(lngDT) );
+												UnitConversions.getWorkoutTimeString(EditActivity.this, 
+														millisec));
+										for( ColumnData clmn : clmnInfos )
+										{
+											if( mLastInputColumnName.equals( clmn.getColumnName() ) )
+											{
+												clmn.setText( String.valueOf( millisec ));
+												break;
+											}
+										}
 									}
 								};			
 							}
@@ -670,7 +702,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 //					
 //				}
 				SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-						getString(R.string.datetime_display_format));
+						getString(R.string.datetime_display_format_full));
 				SimpleDateFormat sdfTime = new SimpleDateFormat(
 						getString(R.string.time_display_format));
 	
@@ -740,38 +772,42 @@ implements IEditViewController, OnClickListener, OnTouchListener
 		return;
 	}
 	
-	public ContentValues createContentValues(Activity activity, int tableID)
+	public ContentValues createContentValuesForUpdate(Activity activity, int tableID)
 	{
 		ContentValues ret = null;
-//		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
-//		{
-//			ret = new ContentValues();
-//			ret.put(RunHistoryTableContract.START_DATETIME, totalStartTime);
-//			ret.put(RunHistoryTableContract.INSERT_DATETIME, insertTime);
-//			ret.put(RunHistoryTableContract.NAME, strExtra[0]);
-//			ret.put(RunHistoryTableContract.LAP_COUNT, getStockedLapCount() );
-//            //ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
-//			// TODO: place id under construction
-//			ret.put(RunHistoryTableContract.PLACE_ID, -1);
-//		}
-//		else 
+		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
+		{
+			ret = new ContentValues();
+			// updateなので、編集不可の項目を含める必要はない
+			// IDを含めると、エラーに？
+			//ret.put(BaseColumns._ID,clmnInfos[0].getText() );
+			ret.put(RunHistoryTableContract.START_DATETIME, clmnInfos[1].getText() );
+			//ret.put(RunHistoryTableContract.INSERT_DATETIME, clmnInfos[2].getText());
+			ret.put(RunHistoryTableContract.NAME, clmnInfos[3].getText());
+			//ret.put(RunHistoryTableContract.LAP_COUNT, clmnInfos[4].getText() );
+			//ret.put(RunHistoryTableContract.PLACE_ID, clmnInfos[5].getText() );
+		}
+		else 
 		if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
 		{
 			ActivityLapData lapData = ResourceAccessor.getInstance().getLapDataTmp();
 			ret = new ContentValues();
-			ret.put(RunHistoryTableContract.START_DATETIME, lapData.getStartDateTime());
-    		ret.put(RunHistoryTableContract.INSERT_DATETIME, lapData.getInsertDateTime() );
-    		ret.put( RunHistoryTableContract.PARENT_ID, lapData.getParentId() );
-    		ret.put( RunHistoryTableContract.LAP_INDEX, lapData.getLapIndex() );
-            ret.put( RunHistoryTableContract.LAP_DISTANCE, lapData.getDistance() );
-            ret.put( RunHistoryTableContract.LAP_TIME, lapData.getTime() );
-            ret.put( RunHistoryTableContract.LAP_SPEED, lapData.getSpeed() );
-            ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, lapData.getFixedDistance() );
-            ret.put( RunHistoryTableContract.LAP_FIXED_TIME, lapData.getFixedTime() );
-            ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, lapData.getFixedSpeed() );
-            ret.put( RunHistoryTableContract.NAME, lapData.getName() );
-            ret.put( RunHistoryTableContract.GPX_FILE_PATH, lapData.getGpxFilePath() );
-            ret.put( RunHistoryTableContract.GPX_FILE_PATH_FIXED, lapData.getGpxFixedFilePath() );
+			// updateなので、編集不可の項目を含める必要はない
+			// IDを含めると、エラーに？			
+			// ret.put(BaseColumns._ID,clmnInfos[0].getText() );			
+			ret.put(RunHistoryTableContract.START_DATETIME, clmnInfos[1].getText() );
+    		//ret.put(RunHistoryTableContract.INSERT_DATETIME, clmnInfos[2].getText() );
+            ret.put( RunHistoryTableContract.NAME, clmnInfos[3].getText() );
+    		//ret.put( RunHistoryTableContract.PARENT_ID, clmnInfos[4].getText() );
+    		//ret.put( RunHistoryTableContract.LAP_INDEX, clmnInfos[5].getText() );
+            //ret.put( RunHistoryTableContract.LAP_DISTANCE, clmnInfos[6].getText() );
+            //ret.put( RunHistoryTableContract.LAP_TIME, clmnInfos[7].getText() );
+            //ret.put( RunHistoryTableContract.LAP_SPEED, clmnInfos[8].getText() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, clmnInfos[9].getText() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_TIME, clmnInfos[10].getText() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, clmnInfos[11].getText() );
+            //ret.put( RunHistoryTableContract.GPX_FILE_PATH, clmnInfos[12].getText() );
+            ret.put( RunHistoryTableContract.GPX_FILE_PATH_FIXED, clmnInfos[13].getText() );
 		}
 		
 		return ret;
@@ -796,7 +832,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				,null);
         try {
         	ContentValues values = null;
-        	values = createContentValues(
+        	values = createContentValuesForUpdate(
         			activity, tableID );
         			//RunHistoryTableContract.HISTORY_LAP_TABLE_ID);
         	if( values == null )
@@ -811,7 +847,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
         					+ RunHistoryTableContract.AUTHORITY + "/"
         					+ tableName
         					//+ RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
-        					), values, null, null);
+        					), values, BaseColumns._ID + "=" + clmnInfos[0].getText(), null);
             //db.setTransactionSuccessful();
     		activity.getContentResolver().insert(
     				Uri.parse("content://" 

@@ -77,6 +77,7 @@ public class MyTimePicker extends FrameLayout {
     
     // state
     private boolean mIs24HourView;
+    private boolean mIsTimeInputView = false;
 
     private boolean mIsAm;
 
@@ -180,7 +181,7 @@ public class MyTimePicker extends FrameLayout {
         mHourSpinner.setOnChangeListener(new NumberPicker.OnChangedListener() {
             public void onChanged(NumberPicker spinner, int oldVal, int newVal) {
                 updateInputState();
-                if (!is24HourView()) {
+                if (isAmPmNeed()) {//!is24HourView()) {
                     if ((oldVal == HOURS_IN_HALF_DAY - 1 && newVal == HOURS_IN_HALF_DAY)
                             || (oldVal == HOURS_IN_HALF_DAY && newVal == HOURS_IN_HALF_DAY - 1)) {
                         mIsAm = !mIsAm;
@@ -216,14 +217,14 @@ public class MyTimePicker extends FrameLayout {
                 int maxValue = mMinuteSpinner.getMaxValue();
                 if (oldVal == maxValue && newVal == minValue) {
                     int newHour = mHourSpinner.getCurrent() + 1;
-                    if (!is24HourView() && newHour == HOURS_IN_HALF_DAY) {
+                    if (isAmPmNeed() && newHour == HOURS_IN_HALF_DAY) {
                         mIsAm = !mIsAm;
                         updateAmPmControl();
                     }
                     mHourSpinner.setCurrent(newHour);
                 } else if (oldVal == minValue && newVal == maxValue) {
                     int newHour = mHourSpinner.getCurrent() - 1;
-                    if (!is24HourView() && newHour == HOURS_IN_HALF_DAY - 1) {
+                    if (isAmPmNeed() && newHour == HOURS_IN_HALF_DAY - 1) {
                         mIsAm = !mIsAm;
                         updateAmPmControl();
                     }
@@ -480,7 +481,7 @@ public class MyTimePicker extends FrameLayout {
      */
     public Integer getCurrentHour() {
         int currentHour = mHourSpinner.getCurrent();
-        if (is24HourView()) {
+        if (false == isAmPmNeed()) {
             return currentHour;
         } else if (mIsAm) {
             return currentHour % HOURS_IN_HALF_DAY;
@@ -497,7 +498,7 @@ public class MyTimePicker extends FrameLayout {
         if (currentHour == null || currentHour == getCurrentHour()) {
             return;
         }
-        if (!is24HourView()) {
+        if (isAmPmNeed()) {
             // convert [0,23] ordinal to wall clock display
             if (currentHour >= HOURS_IN_HALF_DAY) {
                 mIsAm = false;
@@ -514,6 +515,22 @@ public class MyTimePicker extends FrameLayout {
         }
         mHourSpinner.setCurrent(currentHour);
         onTimeChanged();
+    }
+    public void setIsTimeInputView(Boolean isTimeInputView) {
+        if (mIsTimeInputView == isTimeInputView) {
+            return;
+        }
+    	mIsTimeInputView = isTimeInputView;
+        // cache the current hour since spinner range changes
+        int currentHour = getCurrentHour();
+        updateHourControl();
+        // set value after spinner range is updated
+        setCurrentHour(currentHour);
+        updateAmPmControl();
+    	
+    }
+    public boolean isTimeInputView() {
+    	return mIsTimeInputView;
     }
 
     /**
@@ -540,7 +557,11 @@ public class MyTimePicker extends FrameLayout {
     public boolean is24HourView() {
         return mIs24HourView;
     }
-
+    public boolean isAmPmNeed()
+    {
+    	return (false == is24HourView() && false == isTimeInputView()); 
+    }
+    
     /**
      * @return The current minute.
      */
@@ -617,7 +638,12 @@ public class MyTimePicker extends FrameLayout {
 //    }
 
     private void updateHourControl() {
-        if (is24HourView()) {
+    	if( isTimeInputView() )
+    	{
+            mHourSpinner.setRange(0,9999);
+            //mHourSpinner.setFormatter(TWO_DIGIT_FORMATTER);
+    	}
+    	else if (is24HourView()) {
             mHourSpinner.setRange(0,23);
 //            mHourSpinner.setMinValue(0);
 //            mHourSpinner.setMaxValue(23);
@@ -631,7 +657,7 @@ public class MyTimePicker extends FrameLayout {
     }
 
     private void updateAmPmControl() {
-        if (is24HourView()) {
+        if (false == isAmPmNeed()){//is24HourView()||isTimeInputView() ) {
 //            if (mAmPmSpinner != null) {
 //                mAmPmSpinner.setVisibility(View.GONE);
 //            } else {

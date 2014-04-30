@@ -25,7 +25,7 @@ public class MainColumnDataGenerator implements IColumnDataGenerator {
 		// String labelAfter, String dataType, String text, String hint
 		ColumnData[] columns = {
 		new ColumnData( activity, true, false, BaseColumns._ID, null, null,
-				SQLiteContract.INTEGER, null, null ),
+				SQLiteContract.INTEGER, String.valueOf(data.getId()), null ),
 		// TODO: ここも、できたらFix版と分けた方が良いかもしれない
 		new ColumnData( activity, RunHistoryTableContract.START_DATETIME, 
 				R.string.label_start_date_time, null,
@@ -35,7 +35,7 @@ public class MainColumnDataGenerator implements IColumnDataGenerator {
 				),
 		new ColumnData( activity, true, false, RunHistoryTableContract.INSERT_DATETIME, 
 				null, null,
-				SQLiteContract.INTEGER, "", null ),
+				SQLiteContract.INTEGER, String.valueOf(data.getInsertDateTime()), null ),
 				//R.string.label_insert_date_time, null,
 //				SQLiteContract.INTEGER, String.valueOf(data.getInsertDateTime())
 //				, R.string.hint_insertdatetime
@@ -46,11 +46,11 @@ public class MainColumnDataGenerator implements IColumnDataGenerator {
 				SQLiteContract.TEXT, data.getName(), R.string.hint_lapname ),
 		new ColumnData( activity, true, false, RunHistoryTableContract.LAP_COUNT, 
 				null, null,
-				SQLiteContract.INTEGER, "", null ),
+				SQLiteContract.INTEGER, String.valueOf(data.getLapCount()), null ),
 		new ColumnData( activity, true, false, RunHistoryTableContract.PLACE_ID,
 				// TODO:値の設定
 				null, null,
-				SQLiteContract.INTEGER, "", null )
+				SQLiteContract.INTEGER, String.valueOf(data.getPlaceId()), null )
 		};
 		return columns;
 	}

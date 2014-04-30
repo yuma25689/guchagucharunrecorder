@@ -267,7 +267,7 @@ public class ColumnData {
 		if( iEditMethod == ColumnData.EDIT_METHDO_DATETIME )
 		{
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
-					ctx.getString(R.string.datetime_display_format));
+					ctx.getString(R.string.datetime_display_format_full));
 			return sdfDateTime.format(Long.parseLong(text) );
 		}
 		else if( iEditMethod == ColumnData.EDIT_METHDO_TIME )

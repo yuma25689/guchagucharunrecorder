@@ -237,7 +237,7 @@ implements LocationListener
 //		NotificationManager mNotificationManager =
 //				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //		mNotificationManager.cancel(NOTIF_ID);
-		Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();    	
+		//Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();    	
         super.onDestroy();
     }
     

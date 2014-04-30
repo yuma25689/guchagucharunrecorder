@@ -203,7 +203,7 @@ public final class DisplayInfo {
 		else
 		{
 			widthCorrect = getCorrectionXConsiderDensity(width);
-			Log.i("width convert", width +"=>" + widthCorrect); 
+			//Log.i("width convert", width +"=>" + widthCorrect); 
 		}
 		int heightCorrect = 0;
 		if( height == LayoutParams.MATCH_PARENT
@@ -214,7 +214,7 @@ public final class DisplayInfo {
 		else
 		{
 			heightCorrect = getCorrectionYConsiderDensity(height);
-			Log.i("height convert", height +"=>" + heightCorrect); 
+			//Log.i("height convert", height +"=>" + heightCorrect); 
 		}
 		
 		RelativeLayout.LayoutParams lp = null;

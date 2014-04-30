@@ -24,7 +24,8 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 		// boolean hidden, String columnName, String labelBefore,
 		// String labelAfter, String dataType, String text, String hint
 		ColumnData[] columns = {
-		new ColumnData( activity, true, false, BaseColumns._ID, null, null, SQLiteContract.INTEGER, null, null ),
+		new ColumnData( activity, true, false, BaseColumns._ID, null, null, SQLiteContract.INTEGER, 
+				String.valueOf(data.getId()), null ),
 		// TODO: ここも、できたらFix版と分けた方が良いかもしれない
 		new ColumnData( activity, RunHistoryTableContract.START_DATETIME, 
 				R.string.label_start_date_time, null,
@@ -38,26 +39,26 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 //				, R.string.hint_insertdatetime
 //				, ColumnData.EDIT_METHDO_DATETIME			
 //				),
-				null, null, SQLiteContract.INTEGER, null, null ),
+				null, null, SQLiteContract.INTEGER, String.valueOf(data.getInsertDateTime()), null ),
 		new ColumnData( activity, true, false, RunHistoryTableContract.PARENT_ID,
-				// TODO:値の設定
 				null, null,
-				SQLiteContract.INTEGER, "", null ),
+				SQLiteContract.INTEGER, String.valueOf(data.getParentId()), null ),
 		new ColumnData( activity, RunHistoryTableContract.NAME, 
 				R.string.label_lapname, null,
 				SQLiteContract.TEXT, data.getName(), R.string.hint_lapname ),
 		new ColumnData( activity, true, false, RunHistoryTableContract.LAP_INDEX, 
 				null, null,
-				SQLiteContract.INTEGER, "", null ),
+				SQLiteContract.INTEGER, String.valueOf(data.getLapIndex()), null ),
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_DISTANCE,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_distance, R.string.label_unit_distance,
-				SQLiteContract.REAL, String.valueOf(data.getDistance()), R.string.hint_lapdistance
+				SQLiteContract.REAL, 
+						String.valueOf(data.getDistance()), R.string.hint_lapdistance
 				,ColumnData.EDIT_METHDO_DISTANCE),
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_TIME,
 				R.string.label_lap_time, null,
-				SQLiteContract.INTEGER, String.valueOf(
-						data.getTime())
+				SQLiteContract.INTEGER, 
+						String.valueOf(data.getTime())
 						, R.string.hint_lap_time,
 						ColumnData.EDIT_METHDO_TIME),
 		new ColumnData( activity, false, RunHistoryTableContract.LAP_SPEED,
@@ -69,23 +70,23 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_DISTANCE,
 				// TODO:単位は設定によって切替
 				R.string.label_lap_distance_fixed, R.string.label_unit_distance,
-				SQLiteContract.REAL, String.valueOf(data.getDistance()),
+				SQLiteContract.REAL, String.valueOf(getFixedDistance(data)),
 				R.string.hint_lapdistance_fixed 
 				, ColumnData.EDIT_METHDO_DISTANCE
 				),
 		new ColumnData( activity, RunHistoryTableContract.LAP_FIXED_TIME,
 				// TODO:編集方法
 				R.string.label_lap_time_fixed, null,
-				SQLiteContract.INTEGER, String.valueOf(
-						data.getTime())
-						, R.string.hint_lap_time_fixed
+				SQLiteContract.INTEGER, 
+					String.valueOf(getFixedTime(data))
+					, R.string.hint_lap_time_fixed
 						, ColumnData.EDIT_METHDO_TIME
 				),
 				// TODO:速度は入力不可に
 		new ColumnData( activity, true, false, RunHistoryTableContract.LAP_FIXED_SPEED,
 				null, null,
 				//R.string.label_lap_speed_fixed, R.string.label_unit_speed,
-				SQLiteContract.REAL, null, null //String.valueOf(data.getSpeed())
+				SQLiteContract.REAL, String.valueOf(getFixedDistance(data) / getFixedTime(data) ), null //String.valueOf(data.getSpeed())
 				//, R.string.hint_lap_speed_fixed 
 				//, ColumnData.EDIT_METHDO_REAL				
 				),
@@ -100,6 +101,19 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 		};
 		
 		return columns;
+	}
+	
+	public double getFixedDistance( ActivityLapData data )
+	{
+		return data.getFixedDistance() != 0 ? 
+				data.getFixedDistance() :
+				data.getDistance();
+	}
+	public long getFixedTime( ActivityLapData data )
+	{
+		return data.getFixedTime() != 0 ? 
+				data.getFixedTime() :
+				data.getTime();
 	}
 
 }
