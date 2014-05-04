@@ -121,6 +121,8 @@ implements
 	// cancel
 	ImageButton btnCancel = null;
 	
+	
+	
 	/**
 	 * Activityができたとき
 	 * インスタンス作成等

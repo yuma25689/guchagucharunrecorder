@@ -14,6 +14,7 @@ import android.graphics.Region;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -21,6 +22,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -52,6 +54,8 @@ implements IPageViewController
 	Boolean bCenterBtnEnableRegionTouched = false;
 	Region regionCancelBtn = null;
 	Boolean bCancelBtnEnableRegionTouched = false;
+	int widthTmp = 0;
+	int heightTmp = 0;
 	
 	private RelativeLayout lastSubLayout = null;
 	
@@ -88,12 +92,33 @@ implements IPageViewController
         handler = new PagerHandler( this, this );
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
 
+        // onResumeの時に呼ばれないとやばい
+ 	   	ViewTreeObserver viewTreeObserver = componentContainer.getViewTreeObserver();
+	    viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+	        @Override
+	        public void onGlobalLayout() {
+	            widthTmp = componentContainer.getWidth();
+	            heightTmp = componentContainer.getHeight();
+	        	Log.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
+				Message msg = Message.obtain();
+				msg.what = MessageDef.MSG_INIT_SIZE_GET;
+				handler.sendMessage( msg );	            
+	        }
+	    });        
 	    //inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
 	}
 
 	@Override
     protected void onResume() {
+        handler.clearFlags();
+        widthTmp = componentContainer.getWidth();
+        heightTmp = componentContainer.getHeight();
+		Message msg = Message.obtain();
+		msg.what = MessageDef.MSG_INIT_SIZE_GET;
+		handler.sendMessage( msg );		
         dispInfo.init(this, componentContainer, handler, true);
+		
+        //dispInfo.init(this, componentContainer, handler, true);
         super.onResume();
     }
 //	@Override
@@ -148,17 +173,9 @@ implements IPageViewController
 	
 	@Override
 	public int initPager()
-	{		
-        this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
-        adapter = new ResultPagerAdapter(this, this);
-        this.mViewPager.setAdapter(adapter);
-
-//		getWindow().setLayout( 
-//		dispInfo.getCorrectionXConsiderDensity(
-//			ControlDefs.APP_DIALOG_WIDTH)
-//		, dispInfo.getCorrectionYConsiderDensity(
-//			ControlDefs.APP_DIALOG_HEIGHT)
-//		);
+	{
+		Log.w("initPager","come");
+		
 		if( dispInfo.isPortrait() )
 		{
 			getWindow().setLayout( 
@@ -177,12 +194,23 @@ implements IPageViewController
 						ControlDefs.APP_DIALOG_WIDTH)
 			);			
 		}
+        this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
+        adapter = new ResultPagerAdapter(this, this);
+        this.mViewPager.setAdapter(adapter);
+
+//		getWindow().setLayout( 
+//		dispInfo.getCorrectionXConsiderDensity(
+//			ControlDefs.APP_DIALOG_WIDTH)
+//		, dispInfo.getCorrectionYConsiderDensity(
+//			ControlDefs.APP_DIALOG_HEIGHT)
+//		);
         
         return 0;
 	}
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
+		Log.w("initControls","come");
 //		int width = componentContainer.getWidth();
 //		int height = componentContainer.getHeight();
 		

@@ -141,4 +141,358 @@
 	<string name="INPUTDLG_TITLE_TIME">input time</string>	
 	<string name="data_updated">data updated.</string>
 	<string name="data_not_updated">data is not updated.(maybe nothing changed.)</string>
+	
+  <!-- Activity Type -->
+  <string name="activity_type_airplane"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for airplane.">
+    airplane
+  </string>
+  <string name="activity_type_atv"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for ATV (All Terrain Vehicles).">
+    ATV
+  </string>
+  <string name="activity_type_biking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for biking.">
+    biking
+  </string>
+  <string name="activity_type_blimp"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for blimp.">
+    blimp
+  </string>
+  <string name="activity_type_boat"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for boat.">
+    boat
+  </string>
+  <string name="activity_type_climbing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for climbing.">
+    climbing
+  </string>
+  <string name="activity_type_commercial_airplane"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for commercial airplane.">
+    commercial airplane
+  </string>
+  <string name="activity_type_cross_country_skiing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for cross-country skiing.">
+    cross-country skiing
+  </string>
+  <string name="activity_type_cycling"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for cycling.">
+    cycling
+  </string>
+  <string name="activity_type_dirt_bike"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for dirt bike.">
+    dirt bike
+  </string>
+  <string name="activity_type_donkey_back_riding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for donkey back riding.">
+    donkey back riding
+  </string>
+  <string name="activity_type_driving"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for driving.">
+    driving
+  </string>
+  <string name="activity_type_driving_bus"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for driving bus.">
+    driving bus
+  </string>
+  <string name="activity_type_driving_car"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for driving car.">
+    driving car
+  </string>
+  <string name="activity_type_ferry"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for ferry.">
+    ferry
+  </string>
+  <string name="activity_type_frisbee"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for frisbee.">
+    frisbee
+  </string>
+  <string name="activity_type_gliding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for gliding.">
+    gliding
+  </string>
+  <string name="activity_type_hang_gliding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for hang gliding.">
+    hang gliding
+  </string>
+  <string name="activity_type_helicopter"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for helicopter.">
+    helicopter
+  </string>
+  <string name="activity_type_hiking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for hiking.">
+    hiking
+  </string>
+  <string name="activity_type_horse_back_riding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for horse back riding.">
+    horse back riding
+  </string>
+  <string name="activity_type_hot_air_balloon"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for hot air balloon.">
+    hot air balloon
+  </string>
+  <string name="activity_type_ice_sailing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for ice sailing.">
+    ice sailing
+  </string>
+  <string name="activity_type_inline_skating"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for inline skating.">
+    inline skating
+  </string>
+  <string name="activity_type_kayaking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for kayaking.">
+    kayaking
+  </string>
+  <string name="activity_type_kite_surfing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for kite surfing.">
+    kite surfing
+  </string>
+  <string name="activity_type_land_sailing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for land sailing.">
+    land sailing
+  </string>
+  <string name="activity_type_mixed_type"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for mixed type.">
+    mixed type
+  </string>
+  <string name="activity_type_motor_bike"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for motor bike.">
+    motor bike
+  </string>
+  <string name="activity_type_motor_boating"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for motor boating.">
+    motor boating
+  </string>
+  <string name="activity_type_mountain_biking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for mountain biking.">
+    mountain biking
+  </string>
+  <string name="activity_type_off_trail_hiking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for off trail hiking.">
+    off trail hiking
+  </string>
+  <string name="activity_type_other"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for other.">
+    other
+  </string>
+  <string name="activity_type_paddling"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for paddling.">
+    paddling
+  </string>
+  <string name="activity_type_para_gliding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for para gliding.">
+    para gliding
+  </string>
+  <string name="activity_type_rc_airplane"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for RC (Remote Controlled) airplane.">
+    RC airplane
+  </string>
+  <string name="activity_type_rc_boat"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for RC (Remote Controlled) boat.">
+    RC boat
+  </string>
+  <string name="activity_type_rc_helicopter"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for RC (Remote Controlled) helicopter.">
+    RC helicopter
+  </string>
+  <string name="activity_type_riding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for riding.">
+    riding
+  </string>
+  <string name="activity_type_road_biking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for road biking.">
+    road biking
+  </string>
+  <string name="activity_type_roller_skiing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for roller skiing.">
+    roller skiing
+  </string>
+  <string name="activity_type_rowing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for rowing.">
+    rowing
+  </string>
+  <string name="activity_type_running"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for running.">
+    running
+  </string>
+  <string name="activity_type_sailing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for sailing.">
+    sailing
+  </string>
+  <string name="activity_type_seaplane"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for seaplane.">
+    seaplane
+  </string>
+  <string name="activity_type_skate_boarding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for skate boarding.">
+    skate boarding
+  </string>
+  <string name="activity_type_skating"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for skating.">
+    skating
+  </string>
+  <string name="activity_type_skiing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for skiing.">
+    skiing
+  </string>
+  <string name="activity_type_sky_jumping"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for sky jumping.">
+    sky jumping
+  </string>
+  <string name="activity_type_sled"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for sled.">
+    sled
+  </string>
+  <string name="activity_type_snow_boarding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for snow boarding.">
+    snow boarding
+  </string>
+  <string name="activity_type_snow_shoeing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for snow shoeing.">
+    snow shoeing
+  </string>
+  <string name="activity_type_speed_walking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for speed walking.">
+    speed walking
+  </string>
+  <string name="activity_type_street_running"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for street running.">
+    street running
+  </string>
+  <string name="activity_type_surfing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for surfing.">
+    surfing
+  </string>
+  <string name="activity_type_track_cycling"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for track cycling.">
+    track cycling
+  </string>
+  <string name="activity_type_track_running"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for track running.">
+    track running
+  </string>
+  <string name="activity_type_trail_hiking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for trail hiking.">
+    trail hiking
+  </string>
+  <string name="activity_type_trail_running"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for trail running.">
+    trail running
+  </string>
+  <string name="activity_type_train"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for train.">
+    train
+  </string>
+  <string name="activity_type_ultimate_frisbee"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for ultimate frisbee.">
+    ultimate frisbee
+  </string>
+  <string name="activity_type_unknown"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for unknown.">
+    unknown
+  </string>
+  <string name="activity_type_wakeboarding"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for wakeboarding.">
+    wakeboarding
+  </string>
+  <string name="activity_type_walking"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for walking.">
+    walking
+  </string>
+  <string name="activity_type_water_skiing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for water skiing.">
+    water skiing
+  </string>
+  <string name="activity_type_wind_surfing"
+    translation_description="When entering an 'Activity type', in the auto-complete text box, the
+      completion suggestion for wind surfing.">
+    wind surfing
+  </string>
+
+  <!-- Description -->
+  <string name="description_activity_type"
+    translation_description="Activity type description.
+
+      %1$s activity type. E.g., 'hiking'.">
+    Activity type: %1$s
+  </string>
+  <string name="generic_cancel"
+    translation_description="The text on a button to say cancel.">
+    Cancel
+  </string>
+  <string name="generic_ok"
+    translation_description="The text on a button to say ok.">
+    OK
+  </string>
+  <string name="track_edit_activity_type_hint"
+    translation_description="In the page to edit a track, the hint in the 'Activity type' text field
+      when it is empty.">
+    Activity type
+  </string>
+  		
 </resources>

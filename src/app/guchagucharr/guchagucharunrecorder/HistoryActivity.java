@@ -9,8 +9,10 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.provider.BaseColumns;
 import android.support.v4.view.ViewPager;
 //import android.text.format.Time;
@@ -21,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -56,6 +59,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private HistoryPagerAdapter adapter = null;
 	//private RelativeLayout lastMainLayout = null;
 	private RelativeLayout lastSubLayout = null;
+	int widthTmp = 0;
+	int heightTmp = 0;
+	
 //	private Button gpxShareButton = null;
 //	private String gpxFilePath = null;
 	RunHistoryLoader loader = new RunHistoryLoader();
@@ -65,23 +71,56 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		setContentView(R.layout.activity_viewpager_only);
         handler = new PagerHandler( this, this );
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
-		init();
+        // onResumeの時に呼ばれないとやばい
+ 	   	ViewTreeObserver viewTreeObserver = componentContainer.getViewTreeObserver();
+	    viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+	        @Override
+	        public void onGlobalLayout() {
+	            widthTmp = componentContainer.getWidth();
+	            heightTmp = componentContainer.getHeight();
+	        	Log.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
+				Message msg = Message.obtain();
+				msg.what = MessageDef.MSG_INIT_SIZE_GET;
+				handler.sendMessage( msg );	            
+	        }
+	    });
+		// データをローダにロード
+		int iRet = loader.load(this);
+		if( iRet != 0 )
+		{
+			// TODO: エラー発生を通知
+			finish();
+		}
+		
 	}
 	@Override
     protected void onResume() {
-        dispInfo.init(this, componentContainer, handler, true);
+		
         adapter = new HistoryPagerAdapter(this, this);
+        //componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
+        handler.clearFlags();
+        widthTmp = componentContainer.getWidth();
+        heightTmp = componentContainer.getHeight();
+		Message msg = Message.obtain();
+		msg.what = MessageDef.MSG_INIT_SIZE_GET;
+		handler.sendMessage( msg );		
+        dispInfo.init(HistoryActivity.this, componentContainer, handler, true);
+        
         super.onResume();
     }
 //	@Override
 //	public void onConfigurationChanged(Configuration newConfig) {
 //        super.onConfigurationChanged(newConfig);
-//	    //dispInfo.init(this, componentContainer, handler, true);	
+//        Log.w("onConfigurationChanged","come");
+//        handler.clearFlags();
+//        
+//        dispInfo.init(HistoryActivity.this, componentContainer, handler, true);
 //	}
 	
 	@Override
 	public int initPager()
 	{
+		// Log.w("initPager","come " + dispInfo.isPortrait());
         init();
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(adapter);
@@ -100,6 +139,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
+		// Log.w("initControls"," " + dispInfo.isPortrait());
 //		int width = componentContainer.getWidth();
 //		int height = componentContainer.getHeight();
 		if( position == 0 )
@@ -215,10 +255,17 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					//gpxExists,
 					lapCount
 			};
+			//Log.w("test", " test" );
+//			Log.w("Width - Height", " W:" + widthTmp 
+//			+ " H:" + heightTmp );
+//			Log.w("Width - Height", " W:" + dispInfo.getXNotConsiderDensity(componentContainer.getWidth()) 
+//					+ " H:" + dispInfo.getYNotConsiderDensity(componentContainer.getHeight()) );
 			DisplayBlock dispBlock = new DisplayBlock(
 					this, 
-					dispInfo.getXNotConsiderDensity(componentContainer.getWidth()),
-					dispInfo.getYNotConsiderDensity(componentContainer.getHeight()),
+					dispInfo.getXNotConsiderDensity(widthTmp),
+							//componentContainer.getWidth()),
+					dispInfo.getYNotConsiderDensity(heightTmp),
+							//componentContainer.getHeight()),
 					data.getId(),
 					dispInfo, title, text, null, sizeType, eShapeType.SHAPE_BLOCK);
 			dispBlock.setData(data);

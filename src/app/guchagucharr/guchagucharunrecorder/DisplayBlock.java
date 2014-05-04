@@ -7,6 +7,7 @@ import android.graphics.Paint.FontMetrics;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.util.Log;
 import android.util.StateSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -327,6 +328,7 @@ public class DisplayBlock extends RelativeLayout {
 			height = 0;
 			if( dispInfo.isPortrait() )
 			{
+				// Log.w("portrait","dispblock-horizontal");				
 				// 倍率の調整
 				if( sizeType == eSizeType.MODE_ONE_SIXTH )
 				{
@@ -350,6 +352,7 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			else
 			{
+				// Log.w("horizontal","dispblock-horizontal");				
 				// 倍率の調整
 				if( sizeType == eSizeType.MODE_ONE_SIXTH )
 				{
@@ -386,6 +389,8 @@ public class DisplayBlock extends RelativeLayout {
 		}
 		else
 		{
+			// Log.w("other","dispblock-other width=" + parentWidth +  " height=" + parentHeight);				
+			
 			// 倍率の調整
 			if( sizeType == eSizeType.MODE_ONE_SIXTH )
 			{

@@ -46,7 +46,9 @@ public class ResultPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
          
-        RelativeLayout layout = (RelativeLayout)this.mInflter.inflate(R.layout.result_page, null);
+        RelativeLayout layout = 
+        		(RelativeLayout)this.mInflter.inflate(
+        				R.layout.result_page, null);
  
         mParent.initControls(position, layout);
         
