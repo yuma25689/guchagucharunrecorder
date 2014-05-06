@@ -27,6 +27,7 @@ limitations under the License.
     android:padding="4dp"
     android:stretchMode="spacingWidth"
     android:verticalSpacing="4dp" />
+    <!-- 
   <LinearLayout
     android:id="@+id/choose_activity_type_weight_container"
     android:layout_height="wrap_content"
@@ -50,4 +51,5 @@ limitations under the License.
       android:selectAllOnFocus="true"
       android:singleLine="true" />
   </LinearLayout>
+  -->
 </LinearLayout>

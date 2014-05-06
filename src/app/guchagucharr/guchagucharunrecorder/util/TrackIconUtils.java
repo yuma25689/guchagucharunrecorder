@@ -19,12 +19,15 @@ package app.guchagucharr.guchagucharunrecorder.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 //import android.graphics.ColorMatrixColorFilter;
 //import android.graphics.drawable.Drawable;
 import android.util.Pair;
 //import android.view.Menu;
 //import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -191,15 +194,21 @@ public class TrackIconUtils {
     return new ArrayAdapter<StringBuilder>(context, android.R.layout.simple_spinner_item,
         new StringBuilder[] { new StringBuilder(iconValue) }) {
         @Override
-      public View getView(int position, View convertView, android.view.ViewGroup parent) {
-        ImageView imageView = convertView != null ? (ImageView) convertView
-            : new ImageView(getContext());
-        Bitmap source = BitmapFactory.decodeResource(
-            context.getResources(), TrackIconUtils.getIconDrawable(getItem(position).toString()));
-        imageView.setImageBitmap(source);
-        imageView.setPadding(4, 4, -4, -4);
-        return imageView;
-      }
+	  public View getView(int position, View convertView, android.view.ViewGroup parent) {
+	    ImageView imageView = convertView != null ? (ImageView) convertView
+	        : new ImageView(getContext());
+	    Bitmap source = BitmapFactory.decodeResource(
+	        context.getResources(),
+	        TrackIconUtils.getIconDrawable(getItem(position).toString()));
+	    imageView.setImageBitmap(source);
+	    imageView.setPadding(4, 4, -4, -4);
+	    ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+	    		LayoutParams.MATCH_PARENT, 
+	    		LayoutParams.MATCH_PARENT);
+	    imageView.setLayoutParams(params);
+	    imageView.setBackgroundColor(Color.BLUE);
+	    return imageView;
+	  }
     };
   }
 

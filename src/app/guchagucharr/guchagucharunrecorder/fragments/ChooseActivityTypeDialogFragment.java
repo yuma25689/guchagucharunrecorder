@@ -91,7 +91,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 	  // Activity種別選択ダイアログを取得
     View view = activity.getLayoutInflater().inflate(R.layout.choose_activity_type, null);
     GridView gridView = (GridView) view.findViewById(R.id.choose_activity_type_grid_view);
-    final View weightContainer = view.findViewById(R.id.choose_activity_type_weight_container);
+    // final View weightContainer = view.findViewById(R.id.choose_activity_type_weight_container);
 
 //    TextView weightLabel = (TextView) view.findViewById(R.id.choose_activity_type_weight_label);
 //    weightLabel.setText(
@@ -126,13 +126,13 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
             @Override
           public void onClick(DialogInterface dialog, int which) {
             boolean newWeight = false;
-            if (weightContainer.getVisibility() == View.VISIBLE) {
+//            if (weightContainer.getVisibility() == View.VISIBLE) {
 //              String newValue = weight.getText().toString();
 //              if (!newValue.equals(weightValue)) {
 //                newWeight = true;
 //                PreferencesUtils.storeWeightValue(activity, newValue);
 //              }
-            }
+//            }
             int selected = imageAdapter.getSelected();
             caller.onChooseActivityTypeDone(
                 TrackIconUtils.getAllIconValues().get(selected), newWeight);

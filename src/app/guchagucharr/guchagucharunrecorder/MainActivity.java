@@ -14,6 +14,7 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
@@ -25,6 +26,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -35,13 +37,18 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment.ChooseActivityTypeCaller;
 import app.guchagucharr.guchagucharunrecorder.util.CameraView;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.interfaces.IMainViewController;
 import app.guchagucharr.service.GPXGeneratorSync;
 import app.guchagucharr.service.LapData;
@@ -56,8 +63,9 @@ import app.guchagucharr.service.TempolaryDataLoader;
  * メインのアクティビティ 開始/終了、履歴、GPS状態表示、ランニング状態表示
  * @author 25689
  */
-public class MainActivity extends Activity 
+public class MainActivity extends FragmentActivity //Activity 
 implements 
+	ChooseActivityTypeCaller,
 	// LocationListener,
 	IMainViewController,
 	OnClickListener,
@@ -81,6 +89,7 @@ implements
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
 	private MainHandler handler;
+	private static String strDefaultIcon;
 	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	// private Timer mTimer = null;	
@@ -120,8 +129,9 @@ implements
 	static TextView txtLocationCount = null;
 	// cancel
 	ImageButton btnCancel = null;
-	
-	
+	// spinner
+	ImageButton activityTypeButton = null;
+	Spinner activityTypeIcon = null;
 	
 	/**
 	 * Activityができたとき
@@ -133,6 +143,7 @@ implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		strDefaultIcon = getString(R.string.activity_type_running);
         // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
 		// create handler
@@ -403,6 +414,7 @@ implements
 	static final int LAP_BUTTON_ID = 1012;
 	static final int CAMERA_BUTTON_ID = 1013;
 	static final int CANCEL_BUTTON_ID = 1014;
+	static final int HISTORY_BUTTON_ID = 1015;
 	
 	static final int LEFT_TOP_CTRL_1_LEFT_MARGIN = 20;
 	static final int LEFT_TOP_CTRL_1_TOP_MARGIN = 40;
@@ -653,6 +665,8 @@ implements
 		imgGPS.setScaleType(ScaleType.FIT_XY);
 		addViewToCompContainer(imgGPS);
 		
+		
+		
 		// CONFIRM: これの存在は割と微妙
 		// location count label
 		if( txtLocationCount == null )
@@ -671,10 +685,11 @@ implements
 		txtLocationCount.setSingleLine();
 		txtLocationCount.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		addViewToCompContainer(txtLocationCount);
-
+		
 		// history button
 		if( btnHistory == null )
 			btnHistory = new ImageButton(this);
+		btnHistory.setId(HISTORY_BUTTON_ID);
 		btnHistory.setBackgroundResource( R.drawable.selector_history_button_image );
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.main_historybutton_normal);
 		RelativeLayout.LayoutParams rlBtnHistory
@@ -684,12 +699,66 @@ implements
 		rlBtnHistory.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
 		rlBtnHistory.addRule(RelativeLayout.CENTER_VERTICAL);
 		//rlBtnHistory.topMargin = RIGHT_TOP_CTRL_1_TOP_MARGIN;
-		
+
 		btnHistory.setLayoutParams(rlBtnHistory);
 		btnHistory.setScaleType(ScaleType.FIT_XY);
 		btnHistory.setOnClickListener(this);
 		addViewToCompContainer(btnHistory);
 		
+		// activityTypeIcon
+		if( activityTypeIcon == null )
+		{
+			activityTypeIcon = new Spinner(this);
+		}
+		// Spinnerのカスタマイズが難しいので、Spinnerのインタフェースはボタンにする
+		if( activityTypeButton == null )
+		{
+			activityTypeButton = new ImageButton(this);
+		}
+		activityTypeButton.setBackgroundResource(R.drawable.selector_history_button_image );
+	    Bitmap source = BitmapFactory.decodeResource(
+		        MainActivity.this.getResources(),
+		        TrackIconUtils.getIconDrawable(strDefaultIcon));
+	    activityTypeButton.setImageBitmap(source);
+		
+		// activityTypeIcon.setBackgroundResource(R.drawable.selector_history_button_image );
+		//activityTypeIcon.setId(GPS_INDICATOR_ID);
+		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+				R.drawable.main_historybutton_normal);		
+		RelativeLayout.LayoutParams rlActTypeSpn
+		= new RelativeLayout.LayoutParams(0,0);
+		RelativeLayout.LayoutParams rlActType
+//		= new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, 
+//				RelativeLayout.LayoutParams.WRAP_CONTENT);
+		= dispInfo.createLayoutParamForNoPosOnBk(
+				bmpoptions.outWidth,
+				bmpoptions.outHeight, true );
+		rlActType.addRule(RelativeLayout.ABOVE, HISTORY_BUTTON_ID);
+		rlActType.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
+		activityTypeIcon.setLayoutParams(rlActTypeSpn);
+		activityTypeButton.setLayoutParams(rlActType);
+		activityTypeButton.setOnClickListener(new View.OnClickListener() {
+
+		    @Override
+		    public void onClick(View v) {
+		        //if (event.getAction() == MotionEvent.ACTION_UP) {
+		        	ChooseActivityTypeDialogFragment act 
+		        	= ChooseActivityTypeDialogFragment.newInstance(
+		        		  //activityType.getText().toString()
+		        		  strDefaultIcon
+		        		  );
+		        	act.show(
+		        			getSupportFragmentManager(),
+		        			ChooseActivityTypeDialogFragment.CHOOSE_ACTIVITY_TYPE_DIALOG_TAG);
+		        //}
+		    	// activityTypeIcon.performClick();
+		    }
+		});
+		
+	    activityTypeIcon.setAdapter(TrackIconUtils.getIconSpinnerAdapter(this, strDefaultIcon));
+		addViewToCompContainer(activityTypeIcon);
+		addViewToCompContainer(activityTypeButton);
+
 		// time label
 		if( txtTime == null )
 			txtTime = new TextView(this);
@@ -1538,6 +1607,24 @@ implements
         }
         return super.onOptionsItemSelected(item);
       }
+
+      private void setActivityTypeIcon(String value) {
+    	    //iconValue = value;
+    	    TrackIconUtils.setIconSpinner(activityTypeIcon, value);
+    		activityTypeButton.setBackgroundResource(R.drawable.selector_history_button_image );
+    	    Bitmap source = BitmapFactory.decodeResource(
+    		        MainActivity.this.getResources(),
+    		        TrackIconUtils.getIconDrawable(activityTypeIcon.getAdapter().getItem(0).toString()));
+    	    activityTypeButton.setImageBitmap(source);
+    	  }
+      
+      // TODO newWeightはこのアプリでは使っていないので、消してもOK
+	@Override
+	public void onChooseActivityTypeDone(String iconValue, boolean newWeight) {
+	    setActivityTypeIcon(iconValue);
+	    //activityType.setText(getString(TrackIconUtils.getIconActivityType(value)));
+		
+	}
 	
 
 }

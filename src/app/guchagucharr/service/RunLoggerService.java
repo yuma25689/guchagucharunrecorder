@@ -61,8 +61,8 @@ implements LocationListener
 {	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
-	private float requestLocationUpdatesDistance = 0.1f;//0.1f;
-	private long requestLocationUpdatesTime = 100;	// 最速で0.1s?
+	private float requestLocationUpdatesDistance = 0f;//0.1f;
+	private long requestLocationUpdatesTime = 500;	// 最速で0.5s?
 	private final ConnectionCallbacks connectionCallbacks = 
 		new ConnectionCallbacks() {
 	    @Override
