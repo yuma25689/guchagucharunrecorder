@@ -93,16 +93,17 @@ public class RunHistoryLoader {
 					int insertDatetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME );
 					int lapCountIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.LAP_COUNT);
 					int placeIdIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.PLACE_ID );				
+					int activityTypeCodeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.ACTIVITY_TYPE );				
 					int nameIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.NAME);
 					data.setId( cursor.getInt( idIndex ) );
 					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
 					data.setInsertDateTime( cursor.getLong( insertDatetimeIndex ) );
 					data.setLapCount( cursor.getLong( lapCountIndex ) );
 					data.setPlaceId( cursor.getLong( placeIdIndex ) );
+					data.setActivityTypeCode( cursor.getInt( activityTypeCodeIndex ) );
 					data.setName( cursor.getString( nameIndex ) );
 					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					//data.setGpxFilePath( cursor.getString( gpxIndex ) );
-								
 					historyData.add( data );			
 				} while( cursor.moveToNext() );
 			}

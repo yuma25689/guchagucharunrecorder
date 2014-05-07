@@ -58,7 +58,7 @@ import com.google.android.gms.location.LocationRequest;
  */
 public class RunLoggerService extends Service 
 implements LocationListener
-{	
+{
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
@@ -164,6 +164,7 @@ implements LocationListener
 	};
 	//static eMode mode2; 
 	private static eMode mode = eMode.MODE_NORMAL;
+	private int m_iActivityTypeCode = 0;
 
 	private static Notification notif = null;
 	public static void setNotification( Notification notif_ )
@@ -177,6 +178,14 @@ implements LocationListener
 	public void setMode(eMode mode_)
 	{
 		mode = mode_;
+	}
+	public int getActivityTypeCode()
+	{
+		return m_iActivityTypeCode;
+	}
+	public void setActivityTypeCode( int iActivityTypeCode )
+	{
+		m_iActivityTypeCode = iActivityTypeCode;
 	}
 	public static RunningLogStocker runLogStocker = null;
 	public static void createLogStocker()//long time)
@@ -343,6 +352,17 @@ implements LocationListener
 		public long getTimeInMillis() throws RemoteException {
 			//Log.v("getTimeInMillis","come");
 			return mService.get().getTimeInMillis();
+		}
+
+		@Override
+		public int getActivityTypeCode() throws RemoteException {
+			return mService.get().getActivityTypeCode();
+		}
+
+		@Override
+		public void setActivityTypeCode(int activityTypeCode)
+				throws RemoteException {
+			mService.get().setActivityTypeCode(activityTypeCode);
 		}
 		
     }

@@ -67,11 +67,11 @@ public class CalorieUtils {
     if (activityType == null || activityType.equals("")) {
       return ActivityType.INVALID;
     }
-    if (TrackIconUtils.getIconValue(context, activityType).equals(TrackIconUtils.WALK)) {
+    if (TrackIconUtils.getIconValue(context, activityType) == TrackIconUtils.WALK) {
       return ActivityType.WALKING;
-    } else if (TrackIconUtils.getIconValue(context, activityType).equals(TrackIconUtils.RUN)) {
+    } else if (TrackIconUtils.getIconValue(context, activityType ) == TrackIconUtils.RUN) {
       return ActivityType.RUNNING;
-    } else if (TrackIconUtils.getIconValue(context, activityType).equals(TrackIconUtils.BIKE)) {
+    } else if (TrackIconUtils.getIconValue(context, activityType) == TrackIconUtils.BIKE) {
       return ActivityType.CYCLING;
     }
     return ActivityType.INVALID;

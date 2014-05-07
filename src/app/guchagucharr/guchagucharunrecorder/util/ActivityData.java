@@ -7,6 +7,7 @@ public class ActivityData {
 	String name;
 	long lapCount;
 	long placeId;
+	int activityTypeCode;
     //String gpxFilePath;
 	/**
 	 * @return the id
@@ -92,4 +93,16 @@ public class ActivityData {
 //	public void setGpxFilePath(String gpxFilePath) {
 //		this.gpxFilePath = gpxFilePath;
 //	}
+	/**
+	 * @return the activityTypeCode
+	 */
+	public int getActivityTypeCode() {
+		return activityTypeCode;
+	}
+	/**
+	 * @param activityTypeCode the activityTypeCode to set
+	 */
+	public void setActivityTypeCode(int activityTypeCode) {
+		this.activityTypeCode = activityTypeCode;
+	}
 };

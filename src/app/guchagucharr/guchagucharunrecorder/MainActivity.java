@@ -89,7 +89,8 @@ implements
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
 	private RelativeLayout componentContainer;
 	private MainHandler handler;
-	private static String strDefaultIcon;
+	private int nActivityTypeDefaultIcon;
+	private int nActivityTypeInitIcon;
 	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	// private Timer mTimer = null;	
@@ -131,7 +132,7 @@ implements
 	ImageButton btnCancel = null;
 	// spinner
 	ImageButton activityTypeButton = null;
-	Spinner activityTypeIcon = null;
+	// Spinner activityTypeIcon = null;
 	
 	/**
 	 * Activityができたとき
@@ -143,7 +144,9 @@ implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		strDefaultIcon = getString(R.string.activity_type_running);
+		// TODO: 設定から取得
+		nActivityTypeDefaultIcon = TrackIconUtils.RUN;// getString(R.string.activity_type_running);
+		nActivityTypeInitIcon = nActivityTypeDefaultIcon;
         // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
 		// create handler
@@ -472,16 +475,16 @@ implements
 	 * @param activity
 	 * @return
 	 */
-	private boolean isTmpGpxFileExists(Activity activity)
-	{
-		// フォルダ取得
-		File tmpDir = activity.getFilesDir();
-		// 一時ファイル名作成
-		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
-		// ファイルがあるかどうか
-		File gpxFile = new File( gpxFilePath );
-		return gpxFile.exists(); 
-	}	
+//	private boolean isTmpGpxFileExists(Activity activity)
+//	{
+//		// フォルダ取得
+//		File tmpDir = activity.getFilesDir();
+//		// 一時ファイル名作成
+//		String gpxFilePath = tmpDir + "/" + GPXGeneratorSync.GPX_TEMP_FILE_NAME;
+//		// ファイルがあるかどうか
+//		File gpxFile = new File( gpxFilePath );
+//		return gpxFile.exists(); 
+//	}	
 	
 	/**
 	 * 端末の設定でGPSが許可されているかどうか調べる
@@ -555,9 +558,12 @@ implements
 	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
 						{
 							RunLoggerService.clearRunLogStocker();
-							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
+							Toast.makeText(this, R.string.cant_start_workout_because_error,
+									Toast.LENGTH_LONG).show();
 							return -1;
-						}		
+						}
+						// Activityの種別を、テンポラリから設定し直す
+						nActivityTypeInitIcon = data.getActivityTypeCode();
 					}
 				}
 			}
@@ -606,6 +612,7 @@ implements
 			{
 				// 計測中
 				iCenterButtonImageID = R.drawable.selector_runstop_button_image;
+				nActivityTypeInitIcon = RunLogger.sService.getActivityTypeCode();
 			}			
 		} catch (RemoteException e1) {
 			// TODO Auto-generated catch block
@@ -685,7 +692,7 @@ implements
 		txtLocationCount.setSingleLine();
 		txtLocationCount.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
 		addViewToCompContainer(txtLocationCount);
-		
+
 		// history button
 		if( btnHistory == null )
 			btnHistory = new ImageButton(this);
@@ -706,27 +713,29 @@ implements
 		addViewToCompContainer(btnHistory);
 		
 		// activityTypeIcon
-		if( activityTypeIcon == null )
-		{
-			activityTypeIcon = new Spinner(this);
-		}
+//		if( activityTypeIcon == null )
+//		{
+//			activityTypeIcon = new Spinner(this);
+//		}
 		// Spinnerのカスタマイズが難しいので、Spinnerのインタフェースはボタンにする
 		if( activityTypeButton == null )
 		{
 			activityTypeButton = new ImageButton(this);
 		}
-		activityTypeButton.setBackgroundResource(R.drawable.selector_history_button_image );
+		activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
 	    Bitmap source = BitmapFactory.decodeResource(
 		        MainActivity.this.getResources(),
-		        TrackIconUtils.getIconDrawable(strDefaultIcon));
+		        TrackIconUtils.getIconDrawable(nActivityTypeInitIcon));
 	    activityTypeButton.setImageBitmap(source);
+	    // 種別はTagに設定
+	    activityTypeButton.setTag(nActivityTypeInitIcon);
 		
 		// activityTypeIcon.setBackgroundResource(R.drawable.selector_history_button_image );
 		//activityTypeIcon.setId(GPS_INDICATOR_ID);
 		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
 				R.drawable.main_historybutton_normal);		
-		RelativeLayout.LayoutParams rlActTypeSpn
-		= new RelativeLayout.LayoutParams(0,0);
+//		RelativeLayout.LayoutParams rlActTypeSpn
+//		= new RelativeLayout.LayoutParams(0,0);
 		RelativeLayout.LayoutParams rlActType
 //		= new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, 
 //				RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -735,7 +744,7 @@ implements
 				bmpoptions.outHeight, true );
 		rlActType.addRule(RelativeLayout.ABOVE, HISTORY_BUTTON_ID);
 		rlActType.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
-		activityTypeIcon.setLayoutParams(rlActTypeSpn);
+		// activityTypeIcon.setLayoutParams(rlActTypeSpn);
 		activityTypeButton.setLayoutParams(rlActType);
 		activityTypeButton.setOnClickListener(new View.OnClickListener() {
 
@@ -745,7 +754,7 @@ implements
 		        	ChooseActivityTypeDialogFragment act 
 		        	= ChooseActivityTypeDialogFragment.newInstance(
 		        		  //activityType.getText().toString()
-		        		  strDefaultIcon
+		        			nActivityTypeInitIcon
 		        		  );
 		        	act.show(
 		        			getSupportFragmentManager(),
@@ -755,8 +764,8 @@ implements
 		    }
 		});
 		
-	    activityTypeIcon.setAdapter(TrackIconUtils.getIconSpinnerAdapter(this, strDefaultIcon));
-		addViewToCompContainer(activityTypeIcon);
+//	    activityTypeIcon.setAdapter(TrackIconUtils.getIconSpinnerAdapter(this, nActivityTypeInitIcon));
+//		addViewToCompContainer(activityTypeIcon);
 		addViewToCompContainer(activityTypeButton);
 
 		// time label
@@ -1225,6 +1234,8 @@ implements
 						RunLoggerService.clearRunLogStocker();
 					    RunLoggerService.createLogStocker();
 
+					    RunLogger.sService.setActivityTypeCode(//(Integer)activityTypeIcon.getAdapter().getItem(0));
+					    		(Integer) activityTypeButton.getTag() );
 					    // サービスから開始時間を取得
 						long time = RunLogger.sService.getTimeInMillis();
 						// 位置情報取得開始
@@ -1602,28 +1613,45 @@ implements
 					Log.e("recover","error notfoundexception");
 					e.printStackTrace();
 				}
+				// Activityの種別を、テンポラリから設定し直す
+				activityTypeButton.setTag(data.getActivityTypeCode());
+				// TrackIconUtils.setIconSpinner(activityTypeIcon,data.getActivityTypeCode());
+				try {
+					RunLogger.sService.setActivityTypeCode(
+							(Integer)activityTypeButton.getTag());//activityTypeIcon.getAdapter().getItem(0));
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}				
 				endWorkOutAndShowSaveDlg(true);
 				return false;
         }
         return super.onOptionsItemSelected(item);
       }
 
-      private void setActivityTypeIcon(String value) {
+      private void setActivityTypeIcon(int value) {
     	    //iconValue = value;
-    	    TrackIconUtils.setIconSpinner(activityTypeIcon, value);
-    		activityTypeButton.setBackgroundResource(R.drawable.selector_history_button_image );
+    	    // TrackIconUtils.setIconSpinner(activityTypeIcon, value);
+    		//activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
     	    Bitmap source = BitmapFactory.decodeResource(
     		        MainActivity.this.getResources(),
-    		        TrackIconUtils.getIconDrawable(activityTypeIcon.getAdapter().getItem(0).toString()));
+    		        TrackIconUtils.getIconDrawable(value));
+    	    	//activityTypeIcon.getAdapter().getItem(0).toString()));
     	    activityTypeButton.setImageBitmap(source);
+    	    activityTypeButton.setTag(value);
+    	    try {
+				RunLogger.sService.setActivityTypeCode(value);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				Log.e("setIcon to service","error");
+			}
     	  }
       
-      // TODO newWeightはこのアプリでは使っていないので、消してもOK
+      // newWeightはこのアプリでは使っていないので、消してもOK
 	@Override
-	public void onChooseActivityTypeDone(String iconValue, boolean newWeight) {
+	public void onChooseActivityTypeDone(int iconValue) { //, boolean newWeight) {
 	    setActivityTypeIcon(iconValue);
 	    //activityType.setText(getString(TrackIconUtils.getIconActivityType(value)));
-		
+	    
 	}
 	
 

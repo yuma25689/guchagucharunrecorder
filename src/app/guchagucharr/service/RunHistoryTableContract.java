@@ -32,6 +32,7 @@ public class RunHistoryTableContract implements BaseColumns {
     public static final String LAP_COUNT = "LAP_COUNT";
     public static final String PLACE_ID = "PLACE_ID";
     public static final String PARENT_ID = "PARENT_ID";
+    public static final String ACTIVITY_TYPE = "ACTIVITY_TYPE";
 	public static final String LAP_INDEX = "LAP_INDEX";
     public static final String LAP_DISTANCE = "LAP_DISTANCE";
     public static final String LAP_TIME = "LAP_TIME";

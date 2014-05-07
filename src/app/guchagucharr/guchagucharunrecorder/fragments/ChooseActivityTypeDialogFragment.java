@@ -52,7 +52,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
     /**
      * Called when choose activity type is done.
      */
-    public void onChooseActivityTypeDone(String iconValue, boolean newWeight);
+    public void onChooseActivityTypeDone(int iconValue);
   }
 
   public static final String CHOOSE_ACTIVITY_TYPE_DIALOG_TAG = "chooseActivityType";
@@ -61,9 +61,9 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 
   private ChooseActivityTypeCaller caller;
 
-  public static ChooseActivityTypeDialogFragment newInstance(String category) {
+  public static ChooseActivityTypeDialogFragment newInstance(int category) {
     Bundle bundle = new Bundle();
-    bundle.putString(KEY_CATEGORY, category);
+    bundle.putInt(KEY_CATEGORY, category);
 
     ChooseActivityTypeDialogFragment fragment = new ChooseActivityTypeDialogFragment();
     fragment.setArguments(bundle);
@@ -83,11 +83,11 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
-    return getDialog(getActivity(), getArguments().getString(KEY_CATEGORY), caller);
+    return getDialog(getActivity(), getArguments().getInt(KEY_CATEGORY), caller);
   }
 
   public static Dialog getDialog(
-      final Activity activity, final String category, final ChooseActivityTypeCaller caller) {
+      final Activity activity, final int category, final ChooseActivityTypeCaller caller) {
 	  // Activity種別選択ダイアログを取得
     View view = activity.getLayoutInflater().inflate(R.layout.choose_activity_type, null);
     GridView gridView = (GridView) view.findViewById(R.id.choose_activity_type_grid_view);
@@ -101,7 +101,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 //    final TextView weight = (TextView) view.findViewById(R.id.choose_activity_type_weight);
 
     List<Integer> imageIds = new ArrayList<Integer>();
-    for (String iconValue : TrackIconUtils.getAllIconValues()) {
+    for (int iconValue : TrackIconUtils.getAllIconValues()) {
       imageIds.add(TrackIconUtils.getIconDrawable(iconValue));
     }
 
@@ -135,7 +135,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 //            }
             int selected = imageAdapter.getSelected();
             caller.onChooseActivityTypeDone(
-                TrackIconUtils.getAllIconValues().get(selected), newWeight);
+                TrackIconUtils.getAllIconValues().get(selected));
           }
         }).setTitle(R.string.track_edit_activity_type_hint).setView(view).create();
     alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -165,17 +165,17 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
     return alertDialog;
   }
 
-  private static int getPosition(Activity activity, String category) {
-    if (category == null) {
+  private static int getPosition(Activity activity, int category) {
+    if (category == TrackIconUtils.ACTIVITY_TYPE_NONE) {
       return -1;
     }
-    String iconValue = TrackIconUtils.getIconValue(activity, category);
-    if (iconValue.equals("")) {
-      return -1;
-    }
-    List<String> iconValues = TrackIconUtils.getAllIconValues();
+//    String iconValue = TrackIconUtils.getIconValue(activity, category);
+//    if (iconValue.equals("")) {
+//      return -1;
+//    }
+    List<Integer> iconValues = TrackIconUtils.getAllIconValues();
     for (int i = 0; i < iconValues.size(); i++) {
-      if (iconValues.get(i).equals(iconValue)) {
+      if ( iconValues.get(i) == category ) {
         return i;
       }
     }

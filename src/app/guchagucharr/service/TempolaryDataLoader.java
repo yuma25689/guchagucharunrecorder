@@ -49,9 +49,11 @@ public class TempolaryDataLoader {
 					int currentModeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.CURRENT_MODE );
 					int startDatetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME );
 					int gpxDirIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_DIR);
+					int activityTypeCodeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.ACTIVITY_TYPE);
 					data.setCurrentMode( cursor.getInt( currentModeIndex ) );
 					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
 					data.setGpxDir( cursor.getString( gpxDirIndex ) );
+					data.setActivityTypeCode( cursor.getInt( activityTypeCodeIndex ) );
 					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					//data.setGpxFilePath( cursor.getString( gpxIndex ) );
 								
@@ -76,6 +78,7 @@ public class TempolaryDataLoader {
 		long startDateTime;
 		String gpxDir;
 		int currentMode;
+		int activityTypeCode;
 		/**
 		 * @return the id
 		 */
@@ -123,6 +126,18 @@ public class TempolaryDataLoader {
 		 */
 		public void setCurrentMode(int currentMode) {
 			this.currentMode = currentMode;
+		}
+		/**
+		 * @return the activityTypeCode
+		 */
+		public int getActivityTypeCode() {
+			return activityTypeCode;
+		}
+		/**
+		 * @param activityTypeCode the activityTypeCode to set
+		 */
+		public void setActivityTypeCode(int activityTypeCode) {
+			this.activityTypeCode = activityTypeCode;
 		}
 	};
 

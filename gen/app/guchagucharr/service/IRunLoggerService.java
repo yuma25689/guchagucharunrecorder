@@ -75,6 +75,23 @@ this.setMode(_arg0);
 reply.writeNoException();
 return true;
 }
+case TRANSACTION_getActivityTypeCode:
+{
+data.enforceInterface(DESCRIPTOR);
+int _result = this.getActivityTypeCode();
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
+case TRANSACTION_setActivityTypeCode:
+{
+data.enforceInterface(DESCRIPTOR);
+int _arg0;
+_arg0 = data.readInt();
+this.setActivityTypeCode(_arg0);
+reply.writeNoException();
+return true;
+}
 case TRANSACTION_clearGPS:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -194,6 +211,38 @@ _reply.recycle();
 _data.recycle();
 }
 }
+@Override public int getActivityTypeCode() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_getActivityTypeCode, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
+@Override public void setActivityTypeCode(int activityTypeCode) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeInt(activityTypeCode);
+mRemote.transact(Stub.TRANSACTION_setActivityTypeCode, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
 @Override public void clearGPS() throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
@@ -269,16 +318,20 @@ static final int TRANSACTION_getTimeInMillis = (android.os.IBinder.FIRST_CALL_TR
 static final int TRANSACTION_requestGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_getMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_setMode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
-static final int TRANSACTION_clearGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
-static final int TRANSACTION_createLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
-static final int TRANSACTION_clearLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
-static final int TRANSACTION_startLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
-static final int TRANSACTION_stopLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_getActivityTypeCode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_setActivityTypeCode = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_clearGPS = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
+static final int TRANSACTION_createLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_clearLocationManager = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_startLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+static final int TRANSACTION_stopLog = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
 }
 public long getTimeInMillis() throws android.os.RemoteException;
 public int requestGPS() throws android.os.RemoteException;
 public int getMode() throws android.os.RemoteException;
 public void setMode(int mode) throws android.os.RemoteException;
+public int getActivityTypeCode() throws android.os.RemoteException;
+public void setActivityTypeCode(int activityTypeCode) throws android.os.RemoteException;
 public void clearGPS() throws android.os.RemoteException;
 public void createLocationManager() throws android.os.RemoteException;
 public void clearLocationManager() throws android.os.RemoteException;

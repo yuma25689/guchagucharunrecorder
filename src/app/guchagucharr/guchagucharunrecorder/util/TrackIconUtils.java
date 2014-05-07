@@ -44,14 +44,24 @@ import java.util.List;
  */
 public class TrackIconUtils {
 
-  public static final String AIRPLANE = "AIRPLANE";
-  public static final String BIKE = "BIKE";
-  public static final String BOAT = "BOAT";
-  public static final String DRIVE = "DRIVE";
-  public static final String RUN = "RUN";
-  public static final String SKI = "SKI";
-  public static final String SNOW_BOARDING = "SNOW_BOARDING";
-  public static final String WALK = "WALK";
+//  public static final String AIRPLANE = "AIRPLANE";
+//  public static final String BIKE = "BIKE";
+//  public static final String MOTORBIKE = "MOTORBIKE";
+////  public static final String BOAT = "BOAT";
+//  public static final String DRIVE = "DRIVE";
+//  public static final String RUN = "RUN";
+//  public static final String SKI = "SKI";
+//  public static final String SNOW_BOARDING = "SNOW_BOARDING";
+//  public static final String WALK = "WALK";
+	public static final int ACTIVITY_TYPE_NONE = -1;
+	public static final int RUN = 0;
+	public static final int WALK = 1;
+	public static final int BIKE = 2;
+	public static final int DRIVE = 3;
+	public static final int MOTORBIKE = 4;
+	public static final int AIRPLANE = 5;
+	public static final int SNOW_BOARDING = 6;
+	public static final int SKI = 7;
 
   private static final int[] AIRPLANE_LIST = new int[] { R.string.activity_type_airplane,
       R.string.activity_type_commercial_airplane, R.string.activity_type_rc_airplane };
@@ -59,9 +69,9 @@ public class TrackIconUtils {
       R.string.activity_type_cycling, R.string.activity_type_dirt_bike,
       R.string.activity_type_motor_bike, R.string.activity_type_mountain_biking,
       R.string.activity_type_road_biking, R.string.activity_type_track_cycling };
-  private static final int[] BOAT_LIST = new int[] { R.string.activity_type_boat,
-      R.string.activity_type_ferry, R.string.activity_type_motor_boating,
-      R.string.activity_type_rc_boat };
+//  private static final int[] BOAT_LIST = new int[] { R.string.activity_type_boat,
+//      R.string.activity_type_ferry, R.string.activity_type_motor_boating,
+//      R.string.activity_type_rc_boat };
   private static final int[] DRIVE_LIST = new int[] { R.string.activity_type_atv,
       R.string.activity_type_driving, R.string.activity_type_driving_bus,
       R.string.activity_type_driving_car };
@@ -76,8 +86,8 @@ public class TrackIconUtils {
       R.string.activity_type_off_trail_hiking, R.string.activity_type_speed_walking,
       R.string.activity_type_trail_hiking, R.string.activity_type_walking };
 
-  private static final LinkedHashMap<String, Pair<Integer, Integer>>
-      MAP = new LinkedHashMap<String, Pair<Integer, Integer>>();
+  private static final LinkedHashMap<Integer, Pair<Integer, Integer>>
+      MAP = new LinkedHashMap<Integer, Pair<Integer, Integer>>();
 
   static {
     MAP.put(
@@ -94,8 +104,8 @@ public class TrackIconUtils {
         R.string.activity_type_snow_boarding, R.drawable.ic_track_snow_boarding));
     MAP.put(AIRPLANE,
         new Pair<Integer, Integer>(R.string.activity_type_airplane, R.drawable.ic_track_airplane));
-    MAP.put(
-        BOAT, new Pair<Integer, Integer>(R.string.activity_type_boat, R.drawable.ic_track_boat));
+//    MAP.put(
+//        BOAT, new Pair<Integer, Integer>(R.string.activity_type_boat, R.drawable.ic_track_boat));
   }
 
 //  private static final float[] REVERT_COLOR_MATRIX = { -1.0f, 0, 0, 0, 255, // red
@@ -111,10 +121,10 @@ public class TrackIconUtils {
    * 
    * @param iconValue the icon value
    */
-  public static int getIconDrawable(String iconValue) {
-    if (iconValue == null || iconValue.equals("")) {
-      return R.drawable.ic_track_generic;
-    }
+  public static int getIconDrawable(int iconValue) {
+//    if (iconValue == null || iconValue.equals("")) {
+//      return R.drawable.ic_track_generic;
+//    }
     Pair<Integer, Integer> pair = MAP.get(iconValue);
     return pair == null ? R.drawable.ic_track_generic : pair.second;
   }
@@ -135,9 +145,9 @@ public class TrackIconUtils {
   /**
    * Gets all icon values.
    */
-  public static List<String> getAllIconValues() {
-    List<String> values = new ArrayList<String>();
-    for (String value : MAP.keySet()) {
+  public static List<Integer> getAllIconValues() {
+    List<Integer> values = new ArrayList<Integer>();
+    for (int value : MAP.keySet()) {
       values.add(value);
     }
     return values;
@@ -149,9 +159,9 @@ public class TrackIconUtils {
    * @param context the context
    * @param activityType the activity type
    */
-  public static String getIconValue(Context context, String activityType) {
+  public static int getIconValue(Context context, String activityType) {
     if (activityType == null || activityType.equals("")) {
-      return "";
+      return ACTIVITY_TYPE_NONE;
     }
     if (inList(context, activityType, AIRPLANE_LIST)) {
       return AIRPLANE;
@@ -159,9 +169,9 @@ public class TrackIconUtils {
     if (inList(context, activityType, BIKE_LIST)) {
       return BIKE;
     }
-    if (inList(context, activityType, BOAT_LIST)) {
-      return BOAT;
-    }
+//    if (inList(context, activityType, BOAT_LIST)) {
+//      return BOAT;
+//    }
     if (inList(context, activityType, DRIVE_LIST)) {
       return DRIVE;
     }
@@ -177,36 +187,35 @@ public class TrackIconUtils {
     if (inList(context, activityType, WALK_LIST)) {
       return WALK;
     }
-    return "";
+    return ACTIVITY_TYPE_NONE;
   }
 
-  public static void setIconSpinner(Spinner spinner, String iconValue) {
+  public static void setIconSpinner(Spinner spinner, int iconValue) {
     @SuppressWarnings("unchecked")
-    ArrayAdapter<StringBuilder> adapter = (ArrayAdapter<StringBuilder>) spinner.getAdapter();
-    StringBuilder stringBuilder = adapter.getItem(0);
-    stringBuilder.delete(0, stringBuilder.length());
-    stringBuilder.append(iconValue);
+    // アダプタの値をリセットする
+    ArrayAdapter<Integer> adapter = (ArrayAdapter<Integer>) spinner.getAdapter();
+    Integer n = adapter.getItem(0);
+    n = iconValue;
     adapter.notifyDataSetChanged();
   }
 
-  public static ArrayAdapter<StringBuilder> getIconSpinnerAdapter(
-      final Context context, String iconValue) {
-    return new ArrayAdapter<StringBuilder>(context, android.R.layout.simple_spinner_item,
-        new StringBuilder[] { new StringBuilder(iconValue) }) {
+  public static ArrayAdapter<Integer> getIconSpinnerAdapter(
+      final Context context, int iconValue) {
+    return new ArrayAdapter<Integer>(context, android.R.layout.simple_spinner_item,
+        new Integer[] { iconValue }) {
         @Override
 	  public View getView(int position, View convertView, android.view.ViewGroup parent) {
 	    ImageView imageView = convertView != null ? (ImageView) convertView
 	        : new ImageView(getContext());
-	    Bitmap source = BitmapFactory.decodeResource(
-	        context.getResources(),
-	        TrackIconUtils.getIconDrawable(getItem(position).toString()));
-	    imageView.setImageBitmap(source);
-	    imageView.setPadding(4, 4, -4, -4);
-	    ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-	    		LayoutParams.MATCH_PARENT, 
-	    		LayoutParams.MATCH_PARENT);
-	    imageView.setLayoutParams(params);
-	    imageView.setBackgroundColor(Color.BLUE);
+//	    Bitmap source = BitmapFactory.decodeResource(
+//	        context.getResources(),
+//	        TrackIconUtils.getIconDrawable(getItem(position)));
+//	    imageView.setImageBitmap(source);
+//	    imageView.setPadding(4, 4, -4, -4);
+//	    ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+//	    		LayoutParams.MATCH_PARENT, 
+//	    		LayoutParams.MATCH_PARENT);
+//	    imageView.setLayoutParams(params);
 	    return imageView;
 	  }
     };

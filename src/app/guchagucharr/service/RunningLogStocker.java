@@ -26,6 +26,7 @@ import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.guchagucharunrecorder.util.FileUtil;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 // import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
 
 public class RunningLogStocker {
@@ -527,6 +528,14 @@ public class RunningLogStocker {
             //ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
 			// TODO: place id under construction
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
+			try {
+				ret.put(RunHistoryTableContract.ACTIVITY_TYPE, 
+						RunLogger.sService.getActivityTypeCode());
+			} catch (RemoteException e) {
+				e.printStackTrace();
+				Log.e("getActivityTypeCode","error occured");
+				ret.put(RunHistoryTableContract.ACTIVITY_TYPE, TrackIconUtils.ACTIVITY_TYPE_NONE );
+			}
 
 		}
 		else if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
