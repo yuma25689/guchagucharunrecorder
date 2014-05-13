@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
@@ -28,6 +29,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.ViewGroup;
 import app.guchagucharr.guchagucharunrecorder.MessageDef;
 import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.service.RunLogger;
@@ -51,36 +53,77 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
+        int tmpWidth = 0;		
+        int prevWidth = width;
+        int prevHeight = height;
+		
 		Camera.Parameters p = camera.getParameters();
 		List<Camera.Size> supportedSizes = p.getSupportedPreviewSizes();
 		if (supportedSizes != null && supportedSizes.size() > 0 )//&& RunLogger.sService != null)
 		{
-			//p.setPreviewFormat(format);
-			// getSupportedPictureSizesは必ず１つしかサイズを返さないとドキュメントには書いてある
-			p.setPreviewSize(supportedSizes.get(0).width,supportedSizes.get(0).height);
-			Log.v("getSupportedPictureSizes", "width=" 
-			+ supportedSizes.get(0).width  + " height=" + supportedSizes.get(0).height);
-
-			// ジオタグの設定
-//			Location location = RunLoggerService.getLogStocker().getCurrentLocation();
-//			if( location != null )
-//			{
-//				p.removeGpsData();
-//				// TODO: アプリケーション名を設定するのは微妙かも
-//				p.setGpsProcessingMethod(this.getContext().getString(R.string.app_name));
-//				p.setGpsAltitude(location.getAltitude());
-//				p.setGpsLatitude(location.getLatitude());
-//				p.setGpsLongitude(location.getLongitude());
-//				p.setGpsTimestamp(location.getTime());
-//				p.setPictureFormat(ImageFormat.JPEG);
-//				Log.v("geotag","geotag set");
+//			//p.setPreviewFormat(format);
+//			// getSupportedPictureSizesは必ず１つしかサイズを返さないとドキュメントには書いてある
+//			p.setPreviewSize(supportedSizes.get(0).width,supportedSizes.get(0).height);
+//			Log.v("getSupportedPictureSizes", "width=" 
+//			+ supportedSizes.get(0).width  + " height=" + supportedSizes.get(0).height);
+//
+//			// ジオタグの設定
+////			Location location = RunLoggerService.getLogStocker().getCurrentLocation();
+////			if( location != null )
+////			{
+////				p.removeGpsData();
+////				// TODO: アプリケーション名を設定するのは微妙かも
+////				p.setGpsProcessingMethod(this.getContext().getString(R.string.app_name));
+////				p.setGpsAltitude(location.getAltitude());
+////				p.setGpsLatitude(location.getLatitude());
+////				p.setGpsLongitude(location.getLongitude());
+////				p.setGpsTimestamp(location.getTime());
+////				p.setPictureFormat(ImageFormat.JPEG);
+////				Log.v("geotag","geotag set");
+////			}
+//			try{
+//				camera.setParameters(p);
+//			} catch( Exception e ) {
+//				Log.e("setParameters",e.getMessage());
+//				return;
 //			}
-			try{
-				camera.setParameters(p);
-			} catch( Exception e ) {
-				Log.e("setParameters",e.getMessage());
-				return;
-			}
+	       // カメラに設定されているサポートされているサイズを一通りチェックする
+	        for (Size currSize : supportedSizes) {
+	             
+	            // プレビューするサーフェイスサイズより大きいものは無視する
+	            if ((prevWidth < currSize.width) ||
+	                    (prevHeight < currSize.height)) {
+	                continue;
+	            }
+	             
+	            // プレビューサイズの中で一番大きいものを選ぶ
+	            if (tmpWidth < currSize.width) {
+	                tmpWidth = currSize.width;
+	                prevWidth = currSize.width;
+	                prevHeight = currSize.height;
+	            }
+	             
+	        }
+	         
+	        // プレビューサイズをカメラのパラメータにセットする
+	        p.setPreviewSize(prevWidth, prevHeight);
+	 
+	        // 実際のプレビュー画面への拡大率を設定する
+	        float wScale = width / prevWidth;
+	        float hScale = height / prevHeight;
+	         
+	        // 画面内に収まらないといけないから拡大率は幅と高さで小さい方を採用する
+	        float prevScale = wScale < hScale ? wScale : hScale;
+	         
+	        // SurfaceViewのサイズをセットする
+	        ViewGroup.LayoutParams layoutParams = this.getLayoutParams();
+	        layoutParams.width = (int)(prevWidth * prevScale);
+	        layoutParams.height = (int)(prevHeight * prevScale);
+	         
+	 
+	        // レイアウトのサイズを設定し直して画像サイズに一致するようにする
+	        // 一致させないと変な感じに画像がのびちゃう
+	        this.setLayoutParams(layoutParams);
 			camera.startPreview();
 		}
 		// TODO: サポートされていなかったら、それをユーザへ通知

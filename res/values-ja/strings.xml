@@ -90,4 +90,15 @@
 	<string name="generic_cancel" translation_description="The text on a button to say cancel.">キャンセル</string>
 	<string name="generic_ok" translation_description="The text on a button to say ok.">OK</string>
 	<string name="track_edit_activity_type_hint" translation_description="In the page to edit a track, the hint in the 'Activity type' text field       when it is empty.">活動タイプ</string>
+
+	<string name="ACTIVITY_TYPE_UNKNOWN">不明</string>	
+	<string name="ACTIVITY_TYPE_RUN">ランニング</string>
+	<string name="ACTIVITY_TYPE_WALK">徒歩</string>
+	<string name="ACTIVITY_TYPE_DRIVE">ドライブ</string>
+	<string name="ACTIVITY_TYPE_MOTORBIKE">バイク</string>
+	<string name="ACTIVITY_TYPE_BIKE">自転車</string>
+	<string name="ACTIVITY_TYPE_AIRPLANE">飛行機</string>
+	<string name="ACTIVITY_TYPE_SKI">スキー</string>
+	<string name="ACTIVITY_TYPE_SNOW_BOARDING">スノーボード</string>
+		
 </resources>

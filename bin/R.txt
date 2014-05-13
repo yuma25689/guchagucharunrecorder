@@ -1890,6 +1890,15 @@ int layout result_page 0x7f03000c
 int layout t_picker 0x7f03000d
 int layout time_picker 0x7f03000e
 int menu main_menu 0x7f090000
+int string ACTIVITY_TYPE_AIRPLANE 0x7f0600ca
+int string ACTIVITY_TYPE_BIKE 0x7f0600c9
+int string ACTIVITY_TYPE_DRIVE 0x7f0600c7
+int string ACTIVITY_TYPE_MOTORBIKE 0x7f0600c8
+int string ACTIVITY_TYPE_RUN 0x7f0600c5
+int string ACTIVITY_TYPE_SKI 0x7f0600cb
+int string ACTIVITY_TYPE_SNOW_BOARDING 0x7f0600cc
+int string ACTIVITY_TYPE_UNKNOWN 0x7f0600c4
+int string ACTIVITY_TYPE_WALK 0x7f0600c6
 int string DLG_TITLE_EXPORT_PROGRESS 0x7f06003a
 int string Delete_failed 0x7f060053
 int string Deleted 0x7f060052

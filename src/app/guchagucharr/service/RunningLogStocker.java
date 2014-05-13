@@ -528,14 +528,9 @@ public class RunningLogStocker {
             //ret.put( RunHistoryTableContract.GPX_FILE_PATH, strExtra[1] );
 			// TODO: place id under construction
 			ret.put(RunHistoryTableContract.PLACE_ID, -1);
-			try {
-				ret.put(RunHistoryTableContract.ACTIVITY_TYPE, 
-						RunLogger.sService.getActivityTypeCode());
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				Log.e("getActivityTypeCode","error occured");
-				ret.put(RunHistoryTableContract.ACTIVITY_TYPE, TrackIconUtils.ACTIVITY_TYPE_NONE );
-			}
+			ret.put(RunHistoryTableContract.ACTIVITY_TYPE, 
+					RunLoggerService.getActivityTypeCode() );
+					//RunLogger.sService.getActivityTypeCode());
 
 		}
 		else if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)

@@ -39,8 +39,8 @@ import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
-import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.service.RunLoggerService;
 
 public class ResultActivity extends Activity 
@@ -57,7 +57,7 @@ implements IPageViewController
 	int widthTmp = 0;
 	int heightTmp = 0;
 	
-	private RelativeLayout lastSubLayout = null;
+	// private RelativeLayout lastSubLayout = null;
 	
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	private ViewPager mViewPager;	
@@ -468,7 +468,6 @@ implements IPageViewController
 			// rl.addView(txtLap);
 			addViewToCompContainer(rl,txtLap);			
 
-
 			// 画像でいいかと思ったが、押したら反応するようにする
 			imgDetailExists = new ImageButton(this);
 			//imgDetailExists.setId(GPS_INDICATOR_ID);
@@ -484,10 +483,13 @@ implements IPageViewController
 			imgDetailExists.setScaleType(ScaleType.FIT_XY);
 			imgDetailExists.setOnClickListener(this);			
 			rl.addView(imgDetailExists);
-			
+
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));
-			editName.setText( getString( R.string.default_activity_name ) ); 
+			editName.setText(
+					TrackIconUtils.getActivityTypeNameFromCode(
+							this,RunLoggerService.getActivityTypeCode())
+					);//getString( R.string.default_activity_name ) ); 
 					//sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
 					//+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
 			txtDistance.setText( LapData.createDistanceFormatText( 
@@ -516,7 +518,6 @@ implements IPageViewController
 			{
 				txtLap.setVisibility(View.GONE);
 			}
-			
 		}
 		else if( position == RESULT_PAGE_LAP )
 		{
@@ -593,11 +594,10 @@ implements IPageViewController
 				
 				iPanelCount++;
 			}
-			lastSubLayout = rl;			
+			//lastSubLayout = rl;			
 		}
 		return ret;
 	}
-    
 
 	@Override
 	public void onClick(View v) {

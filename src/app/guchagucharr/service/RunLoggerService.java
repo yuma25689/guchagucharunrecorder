@@ -61,6 +61,7 @@ implements LocationListener
 {
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
+	private static int iLocationIgnoreSerialCount = 0; 
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
 	private long requestLocationUpdatesTime = 500;	// 最速で0.5s?
 	private final ConnectionCallbacks connectionCallbacks = 
@@ -164,7 +165,7 @@ implements LocationListener
 	};
 	//static eMode mode2; 
 	private static eMode mode = eMode.MODE_NORMAL;
-	private int m_iActivityTypeCode = 0;
+	private static int m_iActivityTypeCode = 0;
 
 	private static Notification notif = null;
 	public static void setNotification( Notification notif_ )
@@ -179,11 +180,11 @@ implements LocationListener
 	{
 		mode = mode_;
 	}
-	public int getActivityTypeCode()
+	public static int getActivityTypeCode()
 	{
 		return m_iActivityTypeCode;
 	}
-	public void setActivityTypeCode( int iActivityTypeCode )
+	public static void setActivityTypeCode( int iActivityTypeCode )
 	{
 		m_iActivityTypeCode = iActivityTypeCode;
 	}
@@ -464,12 +465,15 @@ implements LocationListener
 			{
 				// TODO: 精度は、設定に
 				// 50m以上の誤差がある場合は、切り捨てる
-				if( 50 < location.getAccuracy() )
+				// ただし、30回以上連続無視の場合は、切り捨てない
+				if( 50 < location.getAccuracy() && iLocationIgnoreSerialCount < 30 )
 				{
+					iLocationIgnoreSerialCount++;
 					Log.v("get location data but not stock","because over 50 accuracy");
 					return;
 				}
 				Log.v("add","location info");
+				iLocationIgnoreSerialCount = 0;
 				// NOTICE: この関数でほとんど全てのログを取っているようなもの
 				putLocationLog(location);
 			}

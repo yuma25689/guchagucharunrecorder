@@ -21,6 +21,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -154,6 +155,16 @@ implements
         // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
+    	// A-GPS情報の削除
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);        
+    	// Bundleである項目だけを指定できるが、nullで全て削除
+        locationManager.sendExtraCommand("gps", "delete_aiding_data", null);
+    	// これでA-GPS情報のダウンロードを促すらしい
+        locationManager.sendExtraCommand("gps", "force_xtra_injection", null);
+    	// NTPサーバから、現在時刻を更新してもらうのを促す？
+        locationManager.sendExtraCommand("gps", "force_time_injection", null);
+    	Log.v("a-gps reset","a-gps reset occur" );
+        
 	}
 
 	@Override
@@ -612,7 +623,7 @@ implements
 			{
 				// 計測中
 				iCenterButtonImageID = R.drawable.selector_runstop_button_image;
-				nActivityTypeInitIcon = RunLogger.sService.getActivityTypeCode();
+				nActivityTypeInitIcon = RunLoggerService.getActivityTypeCode();
 			}			
 		} catch (RemoteException e1) {
 			// TODO Auto-generated catch block
@@ -671,9 +682,7 @@ implements
 		imgGPS.setLayoutParams(rlIndGps);
 		imgGPS.setScaleType(ScaleType.FIT_XY);
 		addViewToCompContainer(imgGPS);
-		
-		
-		
+
 		// CONFIRM: これの存在は割と微妙
 		// location count label
 		if( txtLocationCount == null )
@@ -1234,7 +1243,7 @@ implements
 						RunLoggerService.clearRunLogStocker();
 					    RunLoggerService.createLogStocker();
 
-					    RunLogger.sService.setActivityTypeCode(//(Integer)activityTypeIcon.getAdapter().getItem(0));
+					    RunLoggerService.setActivityTypeCode(//(Integer)activityTypeIcon.getAdapter().getItem(0));
 					    		(Integer) activityTypeButton.getTag() );
 					    // サービスから開始時間を取得
 						long time = RunLogger.sService.getTimeInMillis();
@@ -1616,12 +1625,12 @@ implements
 				// Activityの種別を、テンポラリから設定し直す
 				activityTypeButton.setTag(data.getActivityTypeCode());
 				// TrackIconUtils.setIconSpinner(activityTypeIcon,data.getActivityTypeCode());
-				try {
-					RunLogger.sService.setActivityTypeCode(
+				//try {
+					RunLoggerService.setActivityTypeCode(
 							(Integer)activityTypeButton.getTag());//activityTypeIcon.getAdapter().getItem(0));
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}				
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//				}				
 				endWorkOutAndShowSaveDlg(true);
 				return false;
         }

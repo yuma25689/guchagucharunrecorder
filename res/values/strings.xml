@@ -494,5 +494,15 @@
       when it is empty.">
     Activity type
   </string>
+	<string name="ACTIVITY_TYPE_UNKNOWN">unknown</string>
+  	<string name="ACTIVITY_TYPE_RUN">Runnning</string>
+	<string name="ACTIVITY_TYPE_WALK">Walking</string>
+	<string name="ACTIVITY_TYPE_DRIVE">Driving</string>
+	<string name="ACTIVITY_TYPE_MOTORBIKE">Driving</string>
+	<string name="ACTIVITY_TYPE_BIKE">bike</string>
+	<string name="ACTIVITY_TYPE_AIRPLANE">Airplane</string>
+	<string name="ACTIVITY_TYPE_SKI">Ski</string>
+	<string name="ACTIVITY_TYPE_SNOW_BOARDING">Snow boarding</string>
+  
   		
 </resources>

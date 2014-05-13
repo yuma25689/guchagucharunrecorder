@@ -17,20 +17,14 @@
 package app.guchagucharr.guchagucharunrecorder.util;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 //import android.graphics.ColorMatrixColorFilter;
 //import android.graphics.drawable.Drawable;
 import android.util.Pair;
 //import android.view.Menu;
 //import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import app.guchagucharr.guchagucharunrecorder.R;
 
 import java.util.ArrayList;
@@ -63,6 +57,27 @@ public class TrackIconUtils {
 	public static final int SNOW_BOARDING = 6;
 	public static final int SKI = 7;
 
+	public static final int[] ActivityTypeNameIds = {
+		R.string.ACTIVITY_TYPE_RUN,
+		R.string.ACTIVITY_TYPE_WALK,
+		R.string.ACTIVITY_TYPE_BIKE,
+		R.string.ACTIVITY_TYPE_DRIVE,
+		R.string.ACTIVITY_TYPE_MOTORBIKE,
+		R.string.ACTIVITY_TYPE_AIRPLANE,
+		R.string.ACTIVITY_TYPE_SKI,
+		R.string.ACTIVITY_TYPE_SNOW_BOARDING
+	};
+	public static String getActivityTypeNameFromCode( Context ctx, int code )
+	{
+		if( 0 <= code && code < ActivityTypeNameIds.length )
+		{
+			return ctx.getString( ActivityTypeNameIds[code] );
+		}
+		
+		return ctx.getString( R.string.ACTIVITY_TYPE_UNKNOWN );
+	}
+	
+	
   private static final int[] AIRPLANE_LIST = new int[] { R.string.activity_type_airplane,
       R.string.activity_type_commercial_airplane, R.string.activity_type_rc_airplane };
   private static final int[] BIKE_LIST = new int[] { R.string.activity_type_biking,
@@ -190,14 +205,14 @@ public class TrackIconUtils {
     return ACTIVITY_TYPE_NONE;
   }
 
-  public static void setIconSpinner(Spinner spinner, int iconValue) {
-    @SuppressWarnings("unchecked")
-    // アダプタの値をリセットする
-    ArrayAdapter<Integer> adapter = (ArrayAdapter<Integer>) spinner.getAdapter();
-    Integer n = adapter.getItem(0);
-    n = iconValue;
-    adapter.notifyDataSetChanged();
-  }
+//  public static void setIconSpinner(Spinner spinner, int iconValue) {
+//    @SuppressWarnings("unchecked")
+//    // アダプタの値をリセットする
+//    ArrayAdapter<Integer> adapter = (ArrayAdapter<Integer>) spinner.getAdapter();
+//    Integer n = adapter.getItem(0);
+//    n = iconValue;
+//    adapter.notifyDataSetChanged();
+//  }
 
   public static ArrayAdapter<Integer> getIconSpinnerAdapter(
       final Context context, int iconValue) {

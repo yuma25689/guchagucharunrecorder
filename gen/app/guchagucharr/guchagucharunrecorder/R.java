@@ -12294,6 +12294,15 @@ containing a value of this type.
         public static final int main_menu=0x7f090000;
     }
     public static final class string {
+        public static final int ACTIVITY_TYPE_AIRPLANE=0x7f0600ca;
+        public static final int ACTIVITY_TYPE_BIKE=0x7f0600c9;
+        public static final int ACTIVITY_TYPE_DRIVE=0x7f0600c7;
+        public static final int ACTIVITY_TYPE_MOTORBIKE=0x7f0600c8;
+        public static final int ACTIVITY_TYPE_RUN=0x7f0600c5;
+        public static final int ACTIVITY_TYPE_SKI=0x7f0600cb;
+        public static final int ACTIVITY_TYPE_SNOW_BOARDING=0x7f0600cc;
+        public static final int ACTIVITY_TYPE_UNKNOWN=0x7f0600c4;
+        public static final int ACTIVITY_TYPE_WALK=0x7f0600c6;
         public static final int DLG_TITLE_EXPORT_PROGRESS=0x7f06003a;
         public static final int Delete_failed=0x7f060053;
         public static final int Deleted=0x7f060052;
