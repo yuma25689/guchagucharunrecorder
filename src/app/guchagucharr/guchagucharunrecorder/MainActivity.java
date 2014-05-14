@@ -155,6 +155,12 @@ implements
         // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
+        
+        updateAssistGps();
+	}
+
+	private void updateAssistGps()
+	{
     	// A-GPS情報の削除
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);        
     	// Bundleである項目だけを指定できるが、nullで全て削除
@@ -163,10 +169,9 @@ implements
         locationManager.sendExtraCommand("gps", "force_xtra_injection", null);
     	// NTPサーバから、現在時刻を更新してもらうのを促す？
         locationManager.sendExtraCommand("gps", "force_time_injection", null);
-    	Log.v("a-gps reset","a-gps reset occur" );
-        
+    	Log.v("a-gps reset","a-gps reset occur" );		
 	}
-
+	
 	@Override
     protected void onResume() {
 		

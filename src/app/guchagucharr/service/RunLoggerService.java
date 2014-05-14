@@ -35,6 +35,7 @@ import android.util.Log;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.guchagucharunrecorder.R;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
 
@@ -61,6 +62,7 @@ implements LocationListener
 {
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
+	private long mLastLocationStockTime = 0;
 	private static int iLocationIgnoreSerialCount = 0; 
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
 	private long requestLocationUpdatesTime = 500;	// 最速で0.5s?
@@ -121,7 +123,15 @@ implements LocationListener
 								totalTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
 							}
-							
+							long diffTime = getTimeInMillis() - mLastLocationStockTime;
+							if( 60 * UnitConversions.S_TO_MS < diffTime )
+							{
+								// 1分以上音沙汰なし
+								// TODO: LocationClientを作成し直してみる？
+						        clearGPS();
+						        requestGPS();
+						        Log.v("recreate locationclient","come");
+							}
 							//clearGPS();
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
 							//requestGPS();
@@ -380,6 +390,7 @@ implements LocationListener
 	void startLog()
 	{		
 	    //if(mTimer == null){
+  	    mLastLocationStockTime = getTimeInMillis();		
         timerTask = new UpdateTimeDisplayTask();
         mTimer = new Timer(true);
         mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
@@ -474,6 +485,7 @@ implements LocationListener
 				}
 				Log.v("add","location info");
 				iLocationIgnoreSerialCount = 0;
+				mLastLocationStockTime = getTimeInMillis();
 				// NOTICE: この関数でほとんど全てのログを取っているようなもの
 				putLocationLog(location);
 			}
