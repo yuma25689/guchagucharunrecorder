@@ -86,7 +86,6 @@ implements IPageViewController
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_viewpager_only);
 		
         handler = new PagerHandler( this, this );

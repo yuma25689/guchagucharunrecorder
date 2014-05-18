@@ -1,9 +1,5 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-
-import java.io.File;
-
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -38,11 +34,9 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
@@ -51,7 +45,6 @@ import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialog
 import app.guchagucharr.guchagucharunrecorder.util.CameraView;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.interfaces.IMainViewController;
-import app.guchagucharr.service.GPXGeneratorSync;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLogger;
@@ -191,7 +184,6 @@ implements
 //			        return;
 //			      }
 //			    }
-			
 		// 03/25 Activityがnullな可能性？
 		ResourceAccessor.getInstance().setActivity(this);
 		
@@ -257,8 +249,6 @@ implements
 	    // サービスの停止
 	    RunLogger.stopService(this);		
 	}
-	
-	
 	@Override
 	protected void onPause()
 	{		

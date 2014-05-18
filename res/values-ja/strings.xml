@@ -46,7 +46,7 @@
     <string name="datetime_display_format2">dd\'日\'HH\'時\'mm\'分\'ss\'秒\'</string>
     <string name="date_display_format">yyyy\'年\'MM\'月\'dd\'日\'</string>
     <string name="time_display_format">HH\'時\'mm\'分\'ss\'秒\'</string>
-    <string name="workouttime_display_format" formatted="false">%s時間%s分%s秒</string>
+    <string name="workouttime_display_format" formatted="false"><xliff:g id="workouttime">%s時間%s分%s秒</xliff:g></string>
     
     <string name="menu_detail">詳細</string>
     <string name="menu_delete">削除</string>

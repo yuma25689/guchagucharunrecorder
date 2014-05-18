@@ -94,6 +94,8 @@ public class DisplayBlock extends RelativeLayout {
 	
 	int width = 0;
 	int height = 0;
+	double maxRowCnt = 3;
+	double maxColCnt = 2;
 	double magnifyHeight = 1;
 	double fontMagnify = 1;
 	int magnifyWidth = 1;
@@ -300,13 +302,16 @@ public class DisplayBlock extends RelativeLayout {
 	}
 	private void init()
 	{
+		// 子要素の数
 		int iChildrenCount = 0;
 		if( text == null )
 		{
+			// テキストが設定されていなければ、何も作らない
 			return;
 		}
 		else
 		{
+			// テキストの数=子要素の数
 			iChildrenCount = text.length;
 		}
 		int iShowTextCount = 0;
@@ -324,6 +329,9 @@ public class DisplayBlock extends RelativeLayout {
 		RelativeLayout.LayoutParams lpThis = null;
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 		{
+			// 1行に1要素の設定
+			// ラップの表示に使っているようだが、多分あまりよくない
+			// TODO: 廃止でいいかもしれない
 			width = parentWidth - BLOCK_MARGIN * 2;
 			height = 0;
 			if( dispInfo.isPortrait() )
@@ -389,8 +397,22 @@ public class DisplayBlock extends RelativeLayout {
 		}
 		else
 		{
-			// Log.w("other","dispblock-other width=" + parentWidth +  " height=" + parentHeight);				
-			
+			// ブロック要素
+			// 4個の場合
+			// 縦横どっちにしても、2*2
+			// 6個の場合
+			// 縦ならば、col*row=2*3になっている
+			// 横ならば、col*row=3*2にする
+			if(dispInfo.isPortrait())
+			{
+				maxRowCnt = 3;
+				maxColCnt = 2;
+			}
+			else
+			{
+				maxRowCnt = 2;
+				maxColCnt = 3;				
+			}
 			// 倍率の調整
 			if( sizeType == eSizeType.MODE_ONE_SIXTH )
 			{
@@ -403,16 +425,27 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			else if( sizeType == eSizeType.MODE_ONE )
 			{
-				magnifyHeight = 3;
-				fontMagnify = 2.2;
-				magnifyWidth = 2;
+				if( dispInfo.isPortrait() )
+				{
+					// 縦
+					magnifyHeight = 3;
+					fontMagnify = 2.2;
+					magnifyWidth = 2;
+				}
+				else
+				{
+					// 横
+					magnifyHeight = 2;
+					fontMagnify = 2.2;
+					magnifyWidth = 3;					
+				}
 			}
 			// SHAPE_BLOCKとみなす
 			// タイル状にレイアウトするイメージ
-			width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / 2) )
+			width = (int)( ( ( parentWidth - CORRECT_VALUE )* ((double)magnifyWidth / maxColCnt) )
 					- BLOCK_MARGIN * 2 );
 			height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
-					* (magnifyHeight / 3 ) - BLOCK_MARGIN * 2);
+					* (magnifyHeight / maxRowCnt ) - BLOCK_MARGIN * 2);
 			//addTitle(TITLE_MAX_LINE_CNT);
 			addTitle(TITLE_ID_1,height/(iShowTextCount+title.length-2),2,title[0],0);//iShowTextCount);
 			if( 1 < title.length )

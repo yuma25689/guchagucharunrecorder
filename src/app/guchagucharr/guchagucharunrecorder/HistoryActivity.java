@@ -4,12 +4,16 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 //import java.util.Date;
 import java.util.Vector;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -24,6 +28,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -37,6 +42,7 @@ import app.guchagucharr.service.RunLoggerService;
 //import android.provider.BaseColumns;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 
 public class HistoryActivity extends Activity implements IPageViewController, OnClickListener {
 	// MainData用
@@ -153,35 +159,39 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		
 		return 0;
 	}
+	@SuppressLint("SimpleDateFormat")
 	public void updateMainPage(RelativeLayout rl)
 	{
-		//lastMainLayout = rl;
-		// 勝手にこんなことしていいんでしょうか・・・。
-		//lastMainLayout.removeAllViews();
+		// メインテーブルのデータを取得
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
+		// データの数から、1ページの要素数を取得
+		// 今のところ、1,4,6のいずれか
 		DisplayBlock.eSizeType sizeType = DisplayBlock.getProperSizeTypeFromCount(
 				mainData.size());
 		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 				getString(R.string.datetime_display_format));
 		SimpleDateFormat sdfDateTimeAfter = null;
-//		SimpleDateFormat sdfDate = new SimpleDateFormat(getString(R.string.date_display_format));
-//		SimpleDateFormat sdfTime = new SimpleDateFormat(getString(R.string.time_display_format));
 		int lastEvenPanelID = 0;
 		int lastOddPanelID = 0;
+		int beforePanelID = 0;
+		int beforeLineEndPanelID = 0;
 		int iPanelCount = 0;
 		for( ActivityData data : mainData )
 		{
+			// メインデータを全てループする
 			double distanceTotal = 0;
 			double speedTotal = 0;
 			long timeTotal = 0;
+			
 			Vector<ActivityLapData> lapDatas = loader.getHistoryLapDatas(data.getId());
 			for( ActivityLapData lapData: lapDatas )
 			{
+				// Distanceとtimeは、ラップから求める
 				distanceTotal += lapData.getDistance();
-				timeTotal += lapData.getTime();				
+				timeTotal += lapData.getTime();			
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
-			}	
+			}
 			speedTotal = distanceTotal / ( timeTotal * UnitConversions.MS_TO_S ); 
 			// DisplayBlock追加
 //			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
@@ -190,6 +200,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //			String titleTime = sdfTime.format(new Date(data.getDateTime()));
 			//String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
 			//Locale locale = Locale.getDefault();
+			// 時間を、表示すべき形式に変換しながら取得する
 			Calendar calStart = Calendar.getInstance();//TimeZone.getDefault(),
 					//locale);//TimeZone.getTimeZone("UTC"));
 			calStart.setTimeInMillis(data.getStartDateTime());
@@ -245,6 +256,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //			}
 			if( 1 < data.getLapCount() )
 			{
+				// ラップ数が1でない場合、ラップ数を取得
 				lapCount = getString( R.string.LAP_COUNT_LABEL ) + data.getLapCount();
 			}
 			String text[] = {
@@ -269,19 +281,40 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					data.getId(),
 					dispInfo, title, text, null, sizeType, eShapeType.SHAPE_BLOCK);
 			dispBlock.setData(data);
+			
+			// 背景イメージの設定・・うまくいくのか？
+			if( data.getActivityTypeCode() != TrackIconUtils.ACTIVITY_TYPE_NONE )
+			{
+				int iconID = TrackIconUtils.getIconDrawable(data.getActivityTypeCode());
+//			    Options options = new BitmapFactory.Options();
+//			    options.inJustDecodeBounds = true;
+//			    BitmapFactory.decodeResource(
+//			    		this.getResources(), iconID, options);
+				ImageView img = new ImageView(this);
+				img.setImageResource(iconID);
+				img.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
+				img.setAlpha(80);
+				dispBlock.addView(img);
+			}
+			
 			if( iPanelCount == 0 )
 			{
+				// 最初のパネルの場合
+				// 縦横関係なく、左上に表示し、IDはMAIN_FIRST_PANEL_ID
 				RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
 				lp.addRule(RelativeLayout.ALIGN_LEFT);
 				lp.addRule(RelativeLayout.ALIGN_TOP);
 				dispBlock.setId(MAIN_FIRST_PANEL_ID);
 				lastOddPanelID = dispBlock.getId();
+				beforePanelID = dispBlock.getId();
 			}
 			else
 			{
+				// 最初じゃないパネルの場合
 				dispBlock.setId(MAIN_FIRST_PANEL_ID+iPanelCount);
 				if( dispInfo.isPortrait() )
 				{
+					// 縦向きの場合
 					if( iPanelCount % 2 == 0 )
 					{
 						// ここにくるのは、奇数枚
@@ -308,36 +341,48 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					}
 				} else {
 					// 横向きの場合
-					// 最高で２行にする
-					if( DisplayBlock.getBlockCountOnOnePage(sizeType) / 2 <= iPanelCount ) 
+					if( iPanelCount % 3 == 0 )
 					{
-						// ここにくるのは、2行目
+						// ここにくるのは、3の倍数枚
 						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-						lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-						if( DisplayBlock.getBlockCountOnOnePage(sizeType) / 2 < iPanelCount )
-						{
-							lp.addRule(RelativeLayout.RIGHT_OF, MAIN_FIRST_PANEL_ID+iPanelCount-1);
-						}
+						beforeLineEndPanelID = beforePanelID - 1;
+						//if( lastLineBreakPanelID != 0 )
+						//{
+						lp.addRule(RelativeLayout.BELOW, beforeLineEndPanelID);
+						//}
+						beforePanelID = dispBlock.getId();
+						// beforeLineEndPanelID = lastLineBreakPanelID - 1;
 					}
 					else
 					{
-						// ここにくるのは、1行目
+						// 3の倍数以外
 						RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
-						lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-						if( 0 < iPanelCount )
+						if( beforePanelID != 0 )
 						{
-							lp.addRule(RelativeLayout.RIGHT_OF, MAIN_FIRST_PANEL_ID+iPanelCount-1);
+							lp.addRule(RelativeLayout.RIGHT_OF, beforePanelID);
 						}
-					}
+						if( beforeLineEndPanelID != 0 )
+						{
+							lp.addRule(RelativeLayout.BELOW, beforeLineEndPanelID);
+						}
+						beforePanelID = dispBlock.getId();
+					}					
 				}
 			}
+			
+			// 作成したdisplayblockのその他の設定
+			// 背景色の設定
 			// 下に行くほど薄くする
 			final double COLOR_RANGE = 80;
 			double rate = COLOR_RANGE / mainData.size();
 			int iMinus = (int) (iPanelCount * rate);
 			dispBlock.setBackgroundColorAsStateList(0xFF, 0, 20 + iMinus, 70 + iMinus);
 			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
+			// displayBlock時の処理を設定
 			dispBlock.setOnClickListener(this);
+			
+			
+			// 作成したdisplayBlockをレイアウトに追加
 			rl.addView(dispBlock);
 			iPanelCount++;
 		}
@@ -429,13 +474,16 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					text,
 					gpxFilePath,
 					sizeType, 
+					// TODO:ラップデータは、とりあえず、横いっぱいにしてあるが、微妙
 					eShapeType.SHAPE_HORIZONTAL);
 			dispBlock.setData(data);
 			
 			if( dispInfo.isPortrait() )
 			{
+				// 縦向きのとき
 				if( iPanelCount == 0 )
 				{
+					// 最初のパネル
 					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
 					lp.addRule(RelativeLayout.ALIGN_LEFT);
 					lp.addRule(RelativeLayout.ALIGN_TOP);
@@ -444,6 +492,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				}
 				else
 				{
+					// 最初じゃないパネル
 					dispBlock.setId(SUB_FIRST_PANEL_ID+iPanelCount);
 					RelativeLayout.LayoutParams lp = (LayoutParams) dispBlock.getLayoutParams();
 					if( lastOddPanelID != 0 )
