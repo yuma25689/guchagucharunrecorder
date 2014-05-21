@@ -44,6 +44,7 @@
     <string name="datetime_display_format_full">yyyy\'年\'M\'月\'dd\'日\'HH\'時\'mm\'分\'ss\'秒\'</string>
     <string name="datetime_display_format">M\'月\'dd\'日\'HH\'時\'mm\'分\'ss\'秒\'</string>
     <string name="datetime_display_format2">dd\'日\'HH\'時\'mm\'分\'ss\'秒\'</string>
+    <string name="month_display_format">yyyy\'年\'MM\'月\'</string>
     <string name="date_display_format">yyyy\'年\'MM\'月\'dd\'日\'</string>
     <string name="time_display_format">HH\'時\'mm\'分\'ss\'秒\'</string>
     <string name="workouttime_display_format" formatted="false"><xliff:g id="workouttime">%s時間%s分%s秒</xliff:g></string>

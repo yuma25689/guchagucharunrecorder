@@ -60,7 +60,7 @@
     
     <string name="DLG_TITLE_EXPORT_PROGRESS">Now saving</string>
     <string name="MSG_EXPORT_PROGRESS">Now saving GPX file.</string>
-    
+
     <string name="SaveError">Failed to save the result. Please retry or give up saving.</string>
     <string name="SaveErrorGPX">Failed to save the gpx file. Please retry or give up saving.</string>
     <string name="SaveErrorGPXOnly">Failed to save the GPX file  but database data is saved. Please retry or give up saving.</string>
@@ -70,6 +70,7 @@
     <string name="datetime_display_format_full">yyyy/MM/dd HH:mm:ss</string>
     <string name="datetime_display_format">M/dd HH:mm:ss</string>
     <string name="datetime_display_format2">dd HH:mm:ss</string>
+    <string name="month_display_format">yyyy/MM</string>
     <string name="date_display_format">yyyy/MM/dd</string>
     <string name="time_display_format">HH:mm:ss</string>
     <string name="gmt_date_time_for_gpx_format">yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'</string>
@@ -503,6 +504,7 @@
 	<string name="ACTIVITY_TYPE_AIRPLANE">Airplane</string>
 	<string name="ACTIVITY_TYPE_SKI">Ski</string>
 	<string name="ACTIVITY_TYPE_SNOW_BOARDING">Snow boarding</string>
-  
+	<string name="ACTIVITY_TYPE_TRAIN">Train</string>
+	
   		
 </resources>

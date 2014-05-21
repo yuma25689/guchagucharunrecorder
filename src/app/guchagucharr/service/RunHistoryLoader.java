@@ -65,7 +65,7 @@ public class RunHistoryLoader {
 		historyData.clear();
 		historyLapData.clear();
 	}
-	public int load(Activity activity)
+	public int load(Activity activity, boolean descOfInsertTime )
 	{
 		clear();
 		// ContentProvider検索
@@ -73,13 +73,15 @@ public class RunHistoryLoader {
 			// 親テーブルの検索
 			String history = RunHistoryTableContract.CONTENT_URI_STRING 
 					+ "/" + RunHistoryTableContract.HISTORY_TABLE_NAME;
-			Log.v("uri",history);			
+			Log.v("uri",history);
+			String sortOrder = descOfInsertTime ? " desc" : " asc";
 			Cursor cursor = activity.getContentResolver().query(
 					Uri.parse( history ),
 				    null,//mProjection,
 				    null,//mSelectionClause,
 				    null,//mSeletionArgs,
-				    RunHistoryTableContract.INSERT_DATETIME + " desc" );//mSortOrder);
+				    // 追加した日が現在に近いものから並べる？
+				    RunHistoryTableContract.INSERT_DATETIME + sortOrder );//mSortOrder);
 			
 			// 全レコードループ
 			if( 0 < cursor.getCount() )

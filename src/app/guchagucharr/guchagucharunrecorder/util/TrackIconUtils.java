@@ -47,6 +47,7 @@ public class TrackIconUtils {
 //  public static final String SKI = "SKI";
 //  public static final String SNOW_BOARDING = "SNOW_BOARDING";
 //  public static final String WALK = "WALK";
+	public static final int ACTIVITY_TYPE_ALL = -2;
 	public static final int ACTIVITY_TYPE_NONE = -1;
 	public static final int RUN = 0;
 	public static final int WALK = 1;
@@ -56,6 +57,7 @@ public class TrackIconUtils {
 	public static final int AIRPLANE = 5;
 	public static final int SNOW_BOARDING = 6;
 	public static final int SKI = 7;
+	public static final int TRAIN = 8;
 
 	public static final int[] ActivityTypeNameIds = {
 		R.string.ACTIVITY_TYPE_RUN,
@@ -65,7 +67,8 @@ public class TrackIconUtils {
 		R.string.ACTIVITY_TYPE_MOTORBIKE,
 		R.string.ACTIVITY_TYPE_AIRPLANE,
 		R.string.ACTIVITY_TYPE_SKI,
-		R.string.ACTIVITY_TYPE_SNOW_BOARDING
+		R.string.ACTIVITY_TYPE_SNOW_BOARDING,
+		R.string.ACTIVITY_TYPE_TRAIN
 	};
 	public static String getActivityTypeNameFromCode( Context ctx, int code )
 	{
@@ -100,6 +103,7 @@ public class TrackIconUtils {
   private static final int[] WALK_LIST = new int[] { R.string.activity_type_hiking,
       R.string.activity_type_off_trail_hiking, R.string.activity_type_speed_walking,
       R.string.activity_type_trail_hiking, R.string.activity_type_walking };
+  private static final int[] TRAIN_LIST = new int[] { R.string.activity_type_train };
 
   private static final LinkedHashMap<Integer, Pair<Integer, Integer>>
       MAP = new LinkedHashMap<Integer, Pair<Integer, Integer>>();
@@ -119,6 +123,8 @@ public class TrackIconUtils {
         R.string.activity_type_snow_boarding, R.drawable.ic_track_snow_boarding));
     MAP.put(AIRPLANE,
         new Pair<Integer, Integer>(R.string.activity_type_airplane, R.drawable.ic_track_airplane));
+    MAP.put(TRAIN,
+            new Pair<Integer, Integer>(R.string.activity_type_train, R.drawable.ic_track_train));
 //    MAP.put(
 //        BOAT, new Pair<Integer, Integer>(R.string.activity_type_boat, R.drawable.ic_track_boat));
   }
@@ -141,7 +147,7 @@ public class TrackIconUtils {
 //      return R.drawable.ic_track_generic;
 //    }
     Pair<Integer, Integer> pair = MAP.get(iconValue);
-    return pair == null ? R.drawable.ic_track_generic : pair.second;
+    return pair == null ? R.drawable.ic_track_all : pair.second;
   }
 
   /**
@@ -202,6 +208,9 @@ public class TrackIconUtils {
     if (inList(context, activityType, WALK_LIST)) {
       return WALK;
     }
+    if (inList(context, activityType, TRAIN_LIST)) {
+        return TRAIN;
+      }
     return ACTIVITY_TYPE_NONE;
   }
 

@@ -4,16 +4,13 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashMap;
 //import java.util.Date;
 import java.util.Vector;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
@@ -38,7 +35,6 @@ import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
-import app.guchagucharr.service.RunLoggerService;
 //import android.provider.BaseColumns;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
@@ -57,8 +53,66 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	static final int CONTEXT_MENU_LAP_SHARE_ID = CONTEXT_MENU_SHARE_ID + CONTEXT_MENU_LAP_BASE_ID;
 	static final int CONTEXT_MENU_LAP_EDIT_ID = CONTEXT_MENU_EDIT_ID + CONTEXT_MENU_LAP_BASE_ID;
 	
+	class TotalData {
+		double distance = 0;
+		double speed = 0;
+		double time = 0;
+		Calendar calendar;
+		/**
+		 * @return the distance
+		 */
+		public double getDistance() {
+			return distance;
+		}
+		/**
+		 * @param distance the distance to set
+		 */
+		public void plusDistance(double distance) {
+			this.distance += distance;
+		}
+		/**
+		 * @return the speed
+		 */
+		public double getSpeed() {
+			return speed;
+		}
+		/**
+		 * @param speed the speed to set
+		 */
+		public void plusSpeed(double speed) {
+			this.speed += speed;
+			// 平均を取る？あまり意味ない気がする・・・
+			this.speed /= 2;
+		}
+		/**
+		 * @return the time
+		 */
+		public double getTime() {
+			return time;
+		}
+		/**
+		 * @param time the time to set
+		 */
+		public void plusTime(double time) {
+			this.time += time;
+		}
+		/**
+		 * @return the calendar
+		 */
+		public Calendar getCalendar() {
+			return calendar;
+		}
+		/**
+		 * @param calendar the calendar to set
+		 */
+		public void setCalendar(Calendar calendar) {
+			this.calendar = calendar;
+		}		
+	}
+	
 	private ActivityData selectedActivityData = null;
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
+	private Vector<View> mainViewChildren = new Vector<View>();
 	private ViewPager mViewPager;
 	private ViewGroup componentContainer;
 	private PagerHandler handler;
@@ -67,6 +121,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private RelativeLayout lastSubLayout = null;
 	int widthTmp = 0;
 	int heightTmp = 0;
+	final int TYPE_IMAGE_ALPHA = 60;
 	
 //	private Button gpxShareButton = null;
 //	private String gpxFilePath = null;
@@ -91,7 +146,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        }
 	    });
 		// データをローダにロード
-		int iRet = loader.load(this);
+		int iRet = loader.load(this,false);
 		if( iRet != 0 )
 		{
 			// TODO: エラー発生を通知
@@ -162,6 +217,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@SuppressLint("SimpleDateFormat")
 	public void updateMainPage(RelativeLayout rl)
 	{
+		mainViewChildren.clear();	// 現在のビューをクリア
 		// メインテーブルのデータを取得
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
 		// データの数から、1ページの要素数を取得
@@ -170,45 +226,112 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				mainData.size());
 		SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 				getString(R.string.datetime_display_format));
+		SimpleDateFormat sdfMonth = new SimpleDateFormat(
+				getString(R.string.month_display_format));
 		SimpleDateFormat sdfDateTimeAfter = null;
 		int lastEvenPanelID = 0;
 		int lastOddPanelID = 0;
 		int beforePanelID = 0;
 		int beforeLineEndPanelID = 0;
 		int iPanelCount = 0;
+		// 現在月のデータ格納用の変数
+		HashMap<String,TotalData> totalDataMap = new HashMap<String,TotalData>();
+		Calendar prevCalendar = null;
+		String prevMonth = null;
+		String currentMonth = null;
+		TotalData totalDataTmp = new TotalData();
+//		double distanceOfCurrentMonth = 0;
+//		double speedOfCurrentMonth = 0;
+//		double timeOfCurrentMonth = 0;
+		
 		for( ActivityData data : mainData )
 		{
 			// メインデータを全てループする
 			double distanceTotal = 0;
 			double speedTotal = 0;
 			long timeTotal = 0;
-			
+
 			Vector<ActivityLapData> lapDatas = loader.getHistoryLapDatas(data.getId());
 			for( ActivityLapData lapData: lapDatas )
 			{
 				// Distanceとtimeは、ラップから求める
 				distanceTotal += lapData.getDistance();
-				timeTotal += lapData.getTime();			
+				timeTotal += lapData.getTime();
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
 			}
 			speedTotal = distanceTotal / ( timeTotal * UnitConversions.MS_TO_S ); 
-			// DisplayBlock追加
-//			String titleDateTime = sdfDateTime.format(data.getStartDateTime())
-//					+ getString(R.string.to) + sdfDateTime.format(data.getStartDateTime() + timeTotal);
-//			String titleDate = sdfDate.format(new Date(data.getDateTime()));
-//			String titleTime = sdfTime.format(new Date(data.getDateTime()));
-			//String title = titleDateTime;//titleDate + System.getProperty("line.separator") + titleTime;
-			//Locale locale = Locale.getDefault();
 			// 時間を、表示すべき形式に変換しながら取得する
 			Calendar calStart = Calendar.getInstance();//TimeZone.getDefault(),
-					//locale);//TimeZone.getTimeZone("UTC"));
 			calStart.setTimeInMillis(data.getStartDateTime());
-			//calStart.set(Calendar.HOUR, 0);
 			calStart.set(Calendar.HOUR_OF_DAY, 0);
 			calStart.set(Calendar.MINUTE, 0);
 			calStart.set(Calendar.SECOND, 0);
 			calStart.set(Calendar.MILLISECOND, 0);
+			
+			// NOTICE: 暫定版だが、とりあえず、集計に使うのは開始時間を基準にする
+			currentMonth = String.valueOf(calStart.get(Calendar.YEAR)) 
+					+ String.valueOf(calStart.get(Calendar.MONTH));
+			
+			if( prevMonth != null && false == prevMonth.equals( currentMonth ) )
+			{
+				// 月が変わった時の処理を行う
+				totalDataTmp.setCalendar(prevCalendar);
+				totalDataMap.put(prevMonth, totalDataTmp);
+				
+				String dispMonth[] = { sdfMonth.format(prevCalendar.getTimeInMillis()) };
+				// DisplayBlockもここで作ってしまう？
+				// 後で作っても良い気はするが・・・
+				String textTotal[] = {
+						LapData.createDistanceFormatText( totalDataTmp.getDistance() ),
+						""
+						//LapData.createTimeFormatText( (long)totalDataTmp.getTime() ),
+						//LapData.createSpeedFormatText( speedTotal ),
+						//LapData.createSpeedFormatTextKmPerH( totalDataTmp.getSpeed() )
+						//gpxExists,
+				};
+				
+				DisplayBlock dispBlockTotal = new DisplayBlock(
+						this, 
+						dispInfo.getXNotConsiderDensity(widthTmp),
+						dispInfo.getYNotConsiderDensity(heightTmp),
+						-1,
+						dispInfo, dispMonth, textTotal, null, sizeType, eShapeType.SHAPE_BLOCK);
+				// TODO: setDataで何をsetすべきか調査
+				// dispBlock.setData(data);
+				
+				// 背景イメージの設定 とりあえずなしで
+//				if( data.getActivityTypeCode() != TrackIconUtils.ACTIVITY_TYPE_NONE )
+//				{
+//					int iconID = TrackIconUtils.getIconDrawable(data.getActivityTypeCode());
+//					ImageView img = new ImageView(this);
+//					img.setImageResource(iconID);
+//					img.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
+//					img.setAlpha(TYPE_IMAGE_ALPHA);
+//					dispBlock.addView(img);
+//				}
+								
+				// 作成したdisplayblockのその他の設定
+				// 背景色の設定
+				// 下に行くほど薄くする
+				final double COLOR_RANGE = 80;
+				double rate = COLOR_RANGE / mainData.size();
+				int iMinus = (int) (iPanelCount * rate);
+				dispBlockTotal.setBackgroundColorAsStateList(0xFF, 0, 70 + iMinus, 20 + iMinus);
+								
+				// 作成したdisplayBlockをレイアウトに追加
+				mainViewChildren.add(dispBlockTotal);
+				//iPanelCount++;
+				
+				// 月の集計用の一時領域をクリア
+				totalDataTmp = new TotalData();
+			}
+			prevCalendar = calStart;
+			prevMonth = currentMonth;
+			totalDataTmp.plusDistance( distanceTotal );
+			totalDataTmp.plusSpeed( speedTotal );
+			totalDataTmp.plusTime( timeTotal );
+			
 			Calendar calEnd = Calendar.getInstance();//TimeZone.getDefault(),
 					//locale);//TimeZone.getTimeZone("UTC"));
 			calEnd.setTimeInMillis(data.getStartDateTime() + timeTotal);
@@ -223,6 +346,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				calEnd.set(Calendar.DATE, 0);
 				if( calStart.equals(calEnd) == false )
 				{
+
 					sdfDateTimeAfter = new SimpleDateFormat(
 							getString(R.string.datetime_display_format));					
 				}
@@ -293,10 +417,72 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				ImageView img = new ImageView(this);
 				img.setImageResource(iconID);
 				img.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-				img.setAlpha(80);
+				img.setAlpha(TYPE_IMAGE_ALPHA);
 				dispBlock.addView(img);
 			}
 			
+			// 作成したdisplayblockのその他の設定
+			// 背景色の設定
+			// 下に行くほど薄くする
+			final double COLOR_RANGE = 80;
+			double rate = COLOR_RANGE / mainData.size();
+			int iMinus = (int) (iPanelCount * rate);
+			dispBlock.setBackgroundColorAsStateList(0xFF, 0, 20 + iMinus, 70 + iMinus);
+			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
+			// displayBlock時の処理を設定
+			dispBlock.setOnClickListener(this);
+			
+			
+			// 作成したdisplayBlockをレイアウトに追加
+			mainViewChildren.add(dispBlock);
+			//rl.addView(dispBlock);
+			//iPanelCount++;
+		}
+		if( prevMonth != null )
+		{
+			// 月が変わった時の処理を行う
+			totalDataTmp.setCalendar(prevCalendar);
+			totalDataMap.put(prevMonth, totalDataTmp);
+			
+			String dispMonth[] = { sdfMonth.format(prevCalendar.getTimeInMillis()) };
+			// DisplayBlockもここで作ってしまう？
+			// 後で作っても良い気はするが・・・
+			String textTotal[] = {
+					LapData.createDistanceFormatText( totalDataTmp.getDistance() ),
+					""
+					//LapData.createTimeFormatText( (long)totalDataTmp.getTime() ),
+					//LapData.createSpeedFormatText( speedTotal ),
+					//LapData.createSpeedFormatTextKmPerH( totalDataTmp.getSpeed() )
+					//gpxExists,
+			};
+			
+			DisplayBlock dispBlockTotal = new DisplayBlock(
+					this, 
+					dispInfo.getXNotConsiderDensity(widthTmp),
+					dispInfo.getYNotConsiderDensity(heightTmp),
+					-1,
+					dispInfo, dispMonth, textTotal, null, sizeType, eShapeType.SHAPE_BLOCK);
+							
+			// 作成したdisplayblockのその他の設定
+			// 背景色の設定
+			// 下に行くほど薄くする
+			final double COLOR_RANGE = 80;
+			double rate = COLOR_RANGE / mainData.size();
+			int iMinus = (int) (iPanelCount * rate);
+			dispBlockTotal.setBackgroundColorAsStateList(0xFF, 0, 70 + iMinus, 20 + iMinus);
+							
+			// 作成したdisplayBlockをレイアウトに追加
+			mainViewChildren.add(dispBlockTotal);
+			
+			// 月の集計用の一時領域をクリア
+			totalDataTmp = new TotalData();
+		}
+		
+		// 現在のビューとしてコンテナに格納したビューを、逆順でレイアウトに突っ込む
+		// (データ取得は、表示したい順番と逆順なので、逆順に入っているはず)
+		for(int i = mainViewChildren.size() - 1; i>=0;i--)
+		{
+			View dispBlock = mainViewChildren.get(i);
 			if( iPanelCount == 0 )
 			{
 				// 最初のパネルの場合
@@ -370,21 +556,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				}
 			}
 			
-			// 作成したdisplayblockのその他の設定
-			// 背景色の設定
-			// 下に行くほど薄くする
-			final double COLOR_RANGE = 80;
-			double rate = COLOR_RANGE / mainData.size();
-			int iMinus = (int) (iPanelCount * rate);
-			dispBlock.setBackgroundColorAsStateList(0xFF, 0, 20 + iMinus, 70 + iMinus);
-			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
-			// displayBlock時の処理を設定
-			dispBlock.setOnClickListener(this);
-			
-			
-			// 作成したdisplayBlockをレイアウトに追加
-			rl.addView(dispBlock);
 			iPanelCount++;
+			
+			rl.addView(mainViewChildren.get(i));
 		}
 		return;
 	}
@@ -547,7 +721,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	public void init()
 	{
 		// データをローダにロード
-		int iRet = loader.load(this);
+		int iRet = loader.load(this, false);
 		if( iRet != 0 )
 		{
 			// TODO: エラー発生を通知
@@ -752,7 +926,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        // 削除しました。メッセージ
 	        Toast.makeText(this, R.string.Deleted, Toast.LENGTH_LONG).show();
 	        // データをリロードする
-	        loader.load(this);
+	        loader.load(this,false);
 	        // ページ更新
 	        // やばいかも。
 	        //updateMainPage(lastMainLayout);
