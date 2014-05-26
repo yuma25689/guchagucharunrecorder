@@ -1,20 +1,25 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.util.Log;
 import android.util.StateSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 // import android.widget.RelativeLayout;
 import android.widget.TextView;
 import app.guchagucharr.guchagucharunrecorder.util.RouteButton;
+import app.guchagucharr.guchagucharunrecorder.util.TextAndIcon;
 
 /**
  * TODO: 無理矢理このクラスに入れ過ぎなので、分けた方がいいかもしれない
@@ -22,7 +27,7 @@ import app.guchagucharr.guchagucharunrecorder.util.RouteButton;
  *
  */
 public class DisplayBlock extends RelativeLayout {
-
+	
 	Object data = null;
 	public void setData(Object data_)
 	{
@@ -110,6 +115,7 @@ public class DisplayBlock extends RelativeLayout {
 		return title;
 	}
 	String text[] = null;
+	ArrayList<TextAndIcon> textAndIcon = null; 
 	eSizeType sizeType = eSizeType.MODE_ONE_SIXTH;
 	eShapeType shapeType = eShapeType.SHAPE_BLOCK;
 	int parentWidth = 0;
@@ -145,6 +151,29 @@ public class DisplayBlock extends RelativeLayout {
 		init();
 	}
 	
+	public DisplayBlock(Activity activity,
+			int _parentWidth,
+			int _parentHeight,
+			long recordId_,
+			DisplayInfo dispInfo_, 
+			String[] title_, ArrayList<TextAndIcon> textAndIcon_,
+			String strGpxFilePath_,
+			eSizeType sizeType_,
+			eShapeType shapeType_ ) {
+		super(activity);
+		recordId = recordId_;
+		mActivity = activity;
+		parentWidth = _parentWidth;
+		parentHeight = _parentHeight;
+		dispInfo = dispInfo_;
+		title = title_;
+		text = null;	// NOTICE: textと、textAndIconはトレードオフ？
+		textAndIcon = textAndIcon_;
+		gpxFilePath = strGpxFilePath_;
+		sizeType = sizeType_;
+		shapeType = shapeType_;
+		init();
+	}
 	
 	/**
 	 * あるサイズ調整
@@ -304,27 +333,55 @@ public class DisplayBlock extends RelativeLayout {
 	{
 		// 子要素の数
 		int iChildrenCount = 0;
-		if( text == null )
+		if( text != null )
 		{
-			// テキストが設定されていなければ、何も作らない
-			return;
+			iChildrenCount = text.length;
+		}
+		else if( textAndIcon != null )
+		{
+			iChildrenCount = textAndIcon.size();
 		}
 		else
 		{
-			// テキストの数=子要素の数
-			iChildrenCount = text.length;
-		}
+			// テキストが設定されていなければ、何も作らない
+			return;
+		}			
 		int iShowTextCount = 0;
-		for( int j=0; j<iChildrenCount; ++j )
+		if( text != null )
 		{
-			if( text[j] == null )
+			for( int j=0; j<iChildrenCount; ++j )
 			{
-				continue;
+				if( text[j] == null )
+				{
+					continue;
+				}
+				iShowTextCount++;
 			}
-			iShowTextCount++;
+		}
+		else
+		{
+			for( int j=0; j<iChildrenCount; ++j )
+			{
+				if( textAndIcon.get(j).getText() == null )
+				{
+					continue;
+				}
+				iShowTextCount++;
+			}			
 		}
 		paintForMeasureText = new Paint();
 		
+		int iTitleLineCnt = 2;
+		if( 0 < title.length && title[0].length() <= 8 )
+		{
+			// 8文字以下のタイトルは、１行に入れる
+			iTitleLineCnt = 1;
+		}
+		int iTitleHeightBunbo = iShowTextCount+title.length-iTitleLineCnt;
+		if( iTitleHeightBunbo == 0 )
+		{
+			iTitleHeightBunbo = iShowTextCount+title.length;			
+		}
 		// このビューは、RelativeLayoutに置くものとする
 		RelativeLayout.LayoutParams lpThis = null;
 		if( shapeType == eShapeType.SHAPE_HORIZONTAL )
@@ -383,9 +440,16 @@ public class DisplayBlock extends RelativeLayout {
 						* (magnifyHeight / 3 ) - BLOCK_MARGIN_HORZ * 2 );
 				
 			}
-			addTitle(TITLE_ID_1,height/(iShowTextCount+title.length-2),2,title[0],0);//iShowTextCount);
+			if( 0 < title.length )
+			{
+				// 分母の計算
+				// 結構無理があると思われる。
+				// 引いてる2が何の2か不明
+				addTitle(TITLE_ID_1,height/iTitleHeightBunbo,2,title[0],0);//iShowTextCount);
+			}
 			if( 1 < title.length )
 			{
+				// TODO:ここの分母微妙
 				addTitle(TITLE_ID_2,height/(iShowTextCount+title.length-1),2,title[1],1);
 			}
 
@@ -447,12 +511,18 @@ public class DisplayBlock extends RelativeLayout {
 			height = (int)(( parentHeight - dispInfo.getStatusBarHeight() )
 					* (magnifyHeight / maxRowCnt ) - BLOCK_MARGIN * 2);
 			//addTitle(TITLE_MAX_LINE_CNT);
-			addTitle(TITLE_ID_1,height/(iShowTextCount+title.length-2),2,title[0],0);//iShowTextCount);
+			if( 0 < title.length )
+			{
+				// 分母の計算
+				// 結構無理があると思われる。
+				addTitle(TITLE_ID_1,height/iTitleHeightBunbo,iTitleLineCnt,title[0],0);//iShowTextCount);
+			}
+			//addTitle(TITLE_ID_1,height/(iShowTextCount+title.length-2),2,title[0],0);//iShowTextCount);
 			if( 1 < title.length )
 			{
-				addTitle(TITLE_ID_2,height/(iShowTextCount+title.length-1),2,title[1],1);
+				// TODO: ここはまだ通っていないので、確認必要
+				addTitle(TITLE_ID_2,height/(iShowTextCount+title.length-1),iTitleLineCnt,title[1],1);
 			}
-			
 			lpThis = dispInfo.createLayoutParamForNoPosOnBk(
 					width,
 					height,
@@ -466,84 +536,195 @@ public class DisplayBlock extends RelativeLayout {
 		setClickable(true);
 		mActivity.registerForContextMenu(this);
 		
-		int i=0;
-		for( i=0; i<iChildrenCount; ++i )
+		if( text != null )
 		{
-			if( text[i] == null )
+			int i=0;
+			for( i=0; i<text.length; ++i )
 			{
-				continue;
-			}
-			TextView txt = new TextView(this.getContext());
-			txt.setId(i+1);
-			txt.setTextColor(Color.argb(0xAA, 255, 255, 255));
-			//txt.setPadding(ITEM_PADDING,0,ITEM_PADDING,0);
-			RelativeLayout.LayoutParams lpTmp = null;
-			if( shapeType == eShapeType.SHAPE_HORIZONTAL )
-			{
-				lpTmp = new RelativeLayout.LayoutParams(
-						android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
-						height/(iShowTextCount+title.length),1,text[i]);
-				//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
-				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
-				txt.setSingleLine(false);
-				lpTmp.leftMargin = ITEM_LEFT_MARGIN;
-				if( i == 0 )
+				if( text[i] == null )
 				{
-							//BELOW,TITLE_ID_1);
-					lpTmp.addRule(ALIGN_PARENT_LEFT);
-					lpTmp.addRule(ALIGN_PARENT_TOP);
-					lpTmp.topMargin = height/(iShowTextCount+title.length-1);
-					//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					continue;
+				}
+				TextView txt = new TextView(this.getContext());
+				txt.setId(i+1);
+				txt.setTextColor(Color.argb(0xAA, 255, 255, 255));
+				//txt.setPadding(ITEM_PADDING,0,ITEM_PADDING,0);
+				RelativeLayout.LayoutParams lpTmp = null;
+				if( shapeType == eShapeType.SHAPE_HORIZONTAL )
+				{
+					lpTmp = new RelativeLayout.LayoutParams(
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+					float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
+							height/(iShowTextCount+title.length),1,text[i]);
+					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
+					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					txt.setSingleLine(false);
+					lpTmp.leftMargin = ITEM_LEFT_MARGIN;
+					if( i == 0 )
+					{
+						//BELOW,TITLE_ID_1);
+						lpTmp.addRule(ALIGN_PARENT_LEFT);
+						lpTmp.addRule(ALIGN_PARENT_TOP);
+						lpTmp.topMargin = height/(iShowTextCount+title.length-(iTitleLineCnt-1));
+						//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
+					else
+					{
+						//if( (i+1) % 3 == 0 )
+						//{
+							lpTmp.addRule(BELOW,i);
+							lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+						//}
+						//else
+						//{
+							//lpTmp.addRule(RIGHT_OF,i);
+						//}
+					}
 				}
 				else
 				{
-					//if( (i+1) % 3 == 0 )
-					//{
+					lpTmp = new RelativeLayout.LayoutParams( 
+							android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+					float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
+							height/(iShowTextCount+title.length),1,text[i]);
+					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
+					if( i== 0)
+					{
+						//lpTmp.addRule(BELOW,TITLE_ID_1);					
+						lpTmp.addRule(ALIGN_PARENT_RIGHT);
+						lpTmp.addRule(ALIGN_PARENT_TOP);
+						lpTmp.rightMargin = ITEM_LEFT_MARGIN;
+						lpTmp.topMargin = height/(iShowTextCount+title.length-(iTitleLineCnt-1));
+						//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
+					else
+					{
 						lpTmp.addRule(BELOW,i);
 						lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
-					//}
-					//else
-					//{
-						//lpTmp.addRule(RIGHT_OF,i);
-					//}
+					}
 				}
-			}
-			else
-			{
-				lpTmp = new RelativeLayout.LayoutParams( 
-						android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
-				float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
-						height/(iShowTextCount+title.length),1,text[i]);
-				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
-				//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
-				if( i== 0)
+				// lpTmp.leftMargin = ITEM_LEFT_MARGIN;
+				//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+				//txt.setGravity(Gravity.CENTER_VERTICAL);
+				if( shapeType == eShapeType.SHAPE_HORIZONTAL )
 				{
-					//lpTmp.addRule(BELOW,TITLE_ID_1);					
-					lpTmp.addRule(ALIGN_PARENT_RIGHT);
-					lpTmp.addRule(ALIGN_PARENT_TOP);
-					lpTmp.rightMargin = ITEM_LEFT_MARGIN;
-					lpTmp.topMargin = height/(iShowTextCount+title.length-1);
-					//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					txt.setSingleLine(false);
+				}
+				txt.setLayoutParams(lpTmp);
+				txt.setText(text[i]);
+				addView( txt );
+				
+			}
+		}
+		else
+		{			
+			int i=0;
+			for( i=0; i<textAndIcon.size(); ++i )
+			{
+				if( textAndIcon.get(i).getText() == null )
+				{
+					continue;
+				}
+				BitmapFactory.Options bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+						textAndIcon.get(i).getIconId());
+				int imageWidth = bmpoptions.outWidth;
+				int imageHeight = bmpoptions.outHeight;
+				int iProperHeight = height/(iShowTextCount+title.length);
+				if( iProperHeight < imageHeight )
+				{
+					imageWidth = imageHeight = iProperHeight;
+				}
+				ImageView imgIcon = new ImageView(this.getContext());
+				imgIcon.setImageResource(textAndIcon.get(i).getIconId());
+				imgIcon.setLayoutParams(
+						new RelativeLayout.LayoutParams( 
+								imageWidth,
+								imageHeight )
+//								android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+//								android.view.ViewGroup.LayoutParams.WRAP_CONTENT )
+					);
+				
+				LinearLayout row = new LinearLayout(this.getContext());
+				TextView txt = new TextView(this.getContext());
+				row.setId(i+1);
+				txt.setTextColor(Color.argb(0xAA, 255, 255, 255));
+				//txt.setPadding(ITEM_PADDING,0,ITEM_PADDING,0);
+				RelativeLayout.LayoutParams lpTmp = null;
+				if( shapeType == eShapeType.SHAPE_HORIZONTAL )
+				{
+					lpTmp = new RelativeLayout.LayoutParams(
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+					float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
+							height/(iShowTextCount+title.length),1,textAndIcon.get(i).getText());
+					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
+					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					txt.setSingleLine(false);
+					lpTmp.leftMargin = ITEM_LEFT_MARGIN;
+					if( i == 0 )
+					{
+								//BELOW,TITLE_ID_1);
+						lpTmp.addRule(ALIGN_PARENT_LEFT);
+						lpTmp.addRule(ALIGN_PARENT_TOP);
+						lpTmp.topMargin = height/(iShowTextCount+title.length-1);
+						//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
+					else
+					{
+						lpTmp.addRule(BELOW,i);
+						lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
 				}
 				else
 				{
-					lpTmp.addRule(BELOW,i);
-					lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					lpTmp = new RelativeLayout.LayoutParams( 
+							android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+							android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+					// ここの計算は、ImageViewを考慮したものにしなければならない
+					float maxTextSize = getProperTextSize(//width-ITEM_LEFT_MARGIN-ITEM_PADDING,
+							//height/(iShowTextCount+title.length),1,textAndIcon.get(i).getText());
+							width-imageWidth-ITEM_LEFT_MARGIN-ITEM_PADDING,
+							imageHeight,1,textAndIcon.get(i).getText());
+					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
+					if( i == 0 )
+					{
+						//lpTmp.addRule(BELOW,TITLE_ID_1);
+						lpTmp.addRule(ALIGN_PARENT_LEFT);
+						lpTmp.addRule(ALIGN_PARENT_TOP);
+						lpTmp.rightMargin = ITEM_LEFT_MARGIN;
+						lpTmp.topMargin = height/(iShowTextCount+title.length);
+						//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
+					else
+					{
+						lpTmp.addRule(BELOW,i);
+						lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+					}
 				}
+				// lpTmp.leftMargin = ITEM_LEFT_MARGIN;
+				//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
+				//txt.setGravity(Gravity.CENTER_VERTICAL);
+				if( shapeType == eShapeType.SHAPE_HORIZONTAL )
+				{
+					txt.setSingleLine(false);
+				}
+				RelativeLayout.LayoutParams lpTxt = new RelativeLayout.LayoutParams(
+						android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+						android.view.ViewGroup.LayoutParams.WRAP_CONTENT );
+				lpTxt.addRule( RelativeLayout.CENTER_VERTICAL );
+				txt.setLayoutParams(lpTxt);
+				
+				row.addView(imgIcon);
+				row.setLayoutParams(lpTmp);
+				txt.setText(textAndIcon.get(i).getText());
+				row.addView(txt);
+				addView( row );
+				
 			}
-			// lpTmp.leftMargin = ITEM_LEFT_MARGIN;
-			//lpTmp.setMargins(ITEM_LEFT_MARGIN, 0, 0, 0);
-			//txt.setGravity(Gravity.CENTER_VERTICAL);
-			if( shapeType == eShapeType.SHAPE_HORIZONTAL )
-			{
-				txt.setSingleLine(false);
-			}
-			txt.setLayoutParams(lpTmp);
-			txt.setText(text[i]);
-			addView( txt );
 			
 		}
 		if( gpxFilePath != null )

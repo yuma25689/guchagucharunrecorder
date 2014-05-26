@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map.Entry;
 //import java.util.Date;
 import java.util.Vector;
 
@@ -26,9 +27,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
+import app.guchagucharr.guchagucharunrecorder.util.TextAndIcon;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
@@ -54,6 +57,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	static final int CONTEXT_MENU_LAP_EDIT_ID = CONTEXT_MENU_EDIT_ID + CONTEXT_MENU_LAP_BASE_ID;
 	
 	class TotalData {
+		int nActivityTypeCode = -1;
 		double distance = 0;
 		double speed = 0;
 		double time = 0;
@@ -107,6 +111,18 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		 */
 		public void setCalendar(Calendar calendar) {
 			this.calendar = calendar;
+		}
+		/**
+		 * @return the nIconResID
+		 */
+		public int getActivityTypeCode() {
+			return nActivityTypeCode;
+		}
+		/**
+		 * @param nIconResID the nIconResID to set
+		 */
+		public void setActivityTypeCode(int nActivityTypeCode) {
+			this.nActivityTypeCode = nActivityTypeCode;
 		}		
 	}
 	
@@ -156,7 +172,6 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	}
 	@Override
     protected void onResume() {
-		
         adapter = new HistoryPagerAdapter(this, this);
         //componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
         handler.clearFlags();
@@ -217,6 +232,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@SuppressLint("SimpleDateFormat")
 	public void updateMainPage(RelativeLayout rl)
 	{
+		// TODO: とりあえず、フィルタリング用コントロールを置くためにツールバーを設定する?
+		LinearLayout toolBar;
 		mainViewChildren.clear();	// 現在のビューをクリア
 		// メインテーブルのデータを取得
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
@@ -235,15 +252,16 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		int beforeLineEndPanelID = 0;
 		int iPanelCount = 0;
 		// 現在月のデータ格納用の変数
-		HashMap<String,TotalData> totalDataMap = new HashMap<String,TotalData>();
+		HashMap<String,HashMap<Integer,TotalData>> totalDataMonthMap 
+			= new HashMap<String,HashMap<Integer,TotalData>>();
+		HashMap<Integer,TotalData> totalDataTmpMap = new HashMap<Integer,TotalData>();
 		Calendar prevCalendar = null;
 		String prevMonth = null;
 		String currentMonth = null;
-		TotalData totalDataTmp = new TotalData();
+		//TotalData totalDataTmp = new TotalData();
 //		double distanceOfCurrentMonth = 0;
 //		double speedOfCurrentMonth = 0;
 //		double timeOfCurrentMonth = 0;
-		
 		for( ActivityData data : mainData )
 		{
 			// メインデータを全てループする
@@ -268,49 +286,43 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			calStart.set(Calendar.MINUTE, 0);
 			calStart.set(Calendar.SECOND, 0);
 			calStart.set(Calendar.MILLISECOND, 0);
-			
+
 			// NOTICE: 暫定版だが、とりあえず、集計に使うのは開始時間を基準にする
 			currentMonth = String.valueOf(calStart.get(Calendar.YEAR)) 
 					+ String.valueOf(calStart.get(Calendar.MONTH));
-			
+
 			if( prevMonth != null && false == prevMonth.equals( currentMonth ) )
 			{
 				// 月が変わった時の処理を行う
-				totalDataTmp.setCalendar(prevCalendar);
-				totalDataMap.put(prevMonth, totalDataTmp);
-				
+				ArrayList<TextAndIcon> arrTextAndIcon = new  ArrayList<TextAndIcon>();				
+				// 現在の各アクティビティの月の集計を全てループ
+				for( Entry<Integer,TotalData> totalActData : totalDataTmpMap.entrySet() )
+				{
+					// NOTICE:各データに月を設定？あまり意味ないかもしれないが・・・
+					totalActData.getValue().setCalendar(prevCalendar);
+					TextAndIcon textAndIcon = new TextAndIcon(
+							TrackIconUtils.getIconDrawable(
+									totalActData.getValue().getActivityTypeCode()),
+							LapData.createDistanceFormatText(
+									totalActData.getValue().getDistance() ) );
+					arrTextAndIcon.add(textAndIcon);
+				}
 				String dispMonth[] = { sdfMonth.format(prevCalendar.getTimeInMillis()) };
 				// DisplayBlockもここで作ってしまう？
 				// 後で作っても良い気はするが・・・
-				String textTotal[] = {
-						LapData.createDistanceFormatText( totalDataTmp.getDistance() ),
-						""
-						//LapData.createTimeFormatText( (long)totalDataTmp.getTime() ),
-						//LapData.createSpeedFormatText( speedTotal ),
-						//LapData.createSpeedFormatTextKmPerH( totalDataTmp.getSpeed() )
-						//gpxExists,
-				};
-				
+//				String textTotal[] = {
+//					""
+//				};
+				totalDataMonthMap.put(prevMonth, totalDataTmpMap);
 				DisplayBlock dispBlockTotal = new DisplayBlock(
-						this, 
-						dispInfo.getXNotConsiderDensity(widthTmp),
-						dispInfo.getYNotConsiderDensity(heightTmp),
-						-1,
-						dispInfo, dispMonth, textTotal, null, sizeType, eShapeType.SHAPE_BLOCK);
+					this, 
+					dispInfo.getXNotConsiderDensity(widthTmp),
+					dispInfo.getYNotConsiderDensity(heightTmp),
+					-1,
+					dispInfo, dispMonth, arrTextAndIcon, null, sizeType, eShapeType.SHAPE_BLOCK);
 				// TODO: setDataで何をsetすべきか調査
 				// dispBlock.setData(data);
-				
-				// 背景イメージの設定 とりあえずなしで
-//				if( data.getActivityTypeCode() != TrackIconUtils.ACTIVITY_TYPE_NONE )
-//				{
-//					int iconID = TrackIconUtils.getIconDrawable(data.getActivityTypeCode());
-//					ImageView img = new ImageView(this);
-//					img.setImageResource(iconID);
-//					img.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-//					img.setAlpha(TYPE_IMAGE_ALPHA);
-//					dispBlock.addView(img);
-//				}
-								
+												
 				// 作成したdisplayblockのその他の設定
 				// 背景色の設定
 				// 下に行くほど薄くする
@@ -324,16 +336,29 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				//iPanelCount++;
 				
 				// 月の集計用の一時領域をクリア
-				totalDataTmp = new TotalData();
+				totalDataMonthMap.clear();
+				totalDataTmpMap.clear();
 			}
 			prevCalendar = calStart;
 			prevMonth = currentMonth;
+			//totalDataTmp 
+			TotalData totalDataTmp = null;
+			if( totalDataTmpMap.containsKey(data.getActivityTypeCode() ) )
+			{
+				// 既に、そのキーのエントリがあれば、そこに追加する
+				totalDataTmp = totalDataTmpMap.get(data.getActivityTypeCode());
+			}
+			else
+			{
+				totalDataTmp = new TotalData();
+			}
+			totalDataTmp.setActivityTypeCode( data.getActivityTypeCode() );
 			totalDataTmp.plusDistance( distanceTotal );
 			totalDataTmp.plusSpeed( speedTotal );
 			totalDataTmp.plusTime( timeTotal );
-			
-			Calendar calEnd = Calendar.getInstance();//TimeZone.getDefault(),
-					//locale);//TimeZone.getTimeZone("UTC"));
+			totalDataTmpMap.put(data.getActivityTypeCode(), totalDataTmp);
+
+			Calendar calEnd = Calendar.getInstance();
 			calEnd.setTimeInMillis(data.getStartDateTime() + timeTotal);
 			//calEnd.set(Calendar.HOUR, 0);
 			calEnd.set(Calendar.HOUR_OF_DAY, 0);			
@@ -441,28 +466,41 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		if( prevMonth != null )
 		{
 			// 月が変わった時の処理を行う
-			totalDataTmp.setCalendar(prevCalendar);
-			totalDataMap.put(prevMonth, totalDataTmp);
-			
+			ArrayList<TextAndIcon> arrTextAndIcon = new  ArrayList<TextAndIcon>();				
+			// 現在の各アクティビティの月の集計を全てループ
+			for( Entry<Integer,TotalData> totalActData : totalDataTmpMap.entrySet() )
+			{
+				// NOTICE:各データに月を設定？あまり意味ないかもしれないが・・・
+				totalActData.getValue().setCalendar(prevCalendar);
+				TextAndIcon textAndIcon = new TextAndIcon(
+						TrackIconUtils.getIconDrawable(
+								totalActData.getValue().getActivityTypeCode()),
+						LapData.createDistanceFormatText(
+								totalActData.getValue().getDistance() ) );
+				textAndIcon.setIconId(
+						TrackIconUtils.getIconDrawable(
+								totalActData.getValue().getActivityTypeCode()));
+				textAndIcon.setText(
+						LapData.createDistanceFormatText( 
+								totalActData.getValue().getDistance() ));
+				arrTextAndIcon.add(textAndIcon);
+			}
 			String dispMonth[] = { sdfMonth.format(prevCalendar.getTimeInMillis()) };
 			// DisplayBlockもここで作ってしまう？
 			// 後で作っても良い気はするが・・・
-			String textTotal[] = {
-					LapData.createDistanceFormatText( totalDataTmp.getDistance() ),
-					""
-					//LapData.createTimeFormatText( (long)totalDataTmp.getTime() ),
-					//LapData.createSpeedFormatText( speedTotal ),
-					//LapData.createSpeedFormatTextKmPerH( totalDataTmp.getSpeed() )
-					//gpxExists,
-			};
-			
+//			String textTotal[] = {
+//				""
+//			};
+			totalDataMonthMap.put(prevMonth, totalDataTmpMap);
 			DisplayBlock dispBlockTotal = new DisplayBlock(
-					this, 
-					dispInfo.getXNotConsiderDensity(widthTmp),
-					dispInfo.getYNotConsiderDensity(heightTmp),
-					-1,
-					dispInfo, dispMonth, textTotal, null, sizeType, eShapeType.SHAPE_BLOCK);
-							
+				this, 
+				dispInfo.getXNotConsiderDensity(widthTmp),
+				dispInfo.getYNotConsiderDensity(heightTmp),
+				-1,
+				dispInfo, dispMonth, arrTextAndIcon, null, sizeType, eShapeType.SHAPE_BLOCK);
+			// TODO: setDataで何をsetすべきか調査
+			// dispBlock.setData(data);
+											
 			// 作成したdisplayblockのその他の設定
 			// 背景色の設定
 			// 下に行くほど薄くする
@@ -473,9 +511,11 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 							
 			// 作成したdisplayBlockをレイアウトに追加
 			mainViewChildren.add(dispBlockTotal);
+			//iPanelCount++;
 			
 			// 月の集計用の一時領域をクリア
-			totalDataTmp = new TotalData();
+			totalDataMonthMap.clear();
+			totalDataTmpMap.clear();
 		}
 		
 		// 現在のビューとしてコンテナに格納したビューを、逆順でレイアウトに突っ込む
