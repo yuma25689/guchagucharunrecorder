@@ -112,6 +112,7 @@
 	<string name="label_start_date_time">StartTime</string>
 	<string name="label_insert_date_time">InsertTime</string>
 	<string name="label_lapname">Name</string>
+	<string name="label_activity_type">ActivityType</string>
 	<string name="label_lap_distance">Distance</string>
 	<string name="label_lap_time">LapTime</string>
 	<string name="label_lap_speed">LapSpeed</string>
@@ -124,6 +125,7 @@
 	<string name="hint_startdatetime">recording start time</string>
 	<string name="hint_insertdatetime">recording end time?</string>
 	<string name="hint_lapname">name of the lap</string>
+	<string name="hint_activity_type">activity type</string>
 	<string name="hint_lapdistance">distance of the lap</string>
 	<string name="hint_lap_time">time of the lap</string>
 	<string name="hint_lap_speed">speed of the lap</string>

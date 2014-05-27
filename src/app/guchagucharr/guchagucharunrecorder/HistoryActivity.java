@@ -137,7 +137,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private RelativeLayout lastSubLayout = null;
 	int widthTmp = 0;
 	int heightTmp = 0;
-	final int TYPE_IMAGE_ALPHA = 60;
+	final int TYPE_IMAGE_ALPHA = 75;
 	
 //	private Button gpxShareButton = null;
 //	private String gpxFilePath = null;
@@ -456,8 +456,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			//dispBlock.setBackgroundColor(Color.argb(0xFF, 0, 20 + iMinus, 155 + iMinus));
 			// displayBlock時の処理を設定
 			dispBlock.setOnClickListener(this);
-			
-			
+
 			// 作成したdisplayBlockをレイアウトに追加
 			mainViewChildren.add(dispBlock);
 			//rl.addView(dispBlock);

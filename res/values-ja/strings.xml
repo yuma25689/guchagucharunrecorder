@@ -79,6 +79,33 @@
 	<string name="description_save">編集内容を保存</string>
 	<string name="description_cancel">編集をキャンセル</string>
 
+	<!-- for edit dialog -->
+	<string name="label_start_date_time">開始時刻</string>
+	<string name="label_insert_date_time">記録時刻</string>
+	<string name="label_lapname">名前</string>
+	<string name="label_activity_type">記録種別</string>
+	<string name="label_lap_distance">距離</string>
+	<string name="label_lap_time">時間</string>
+	<string name="label_lap_speed">速度</string>
+	<string name="label_lap_distance_fixed">手入力距離</string>
+	<string name="label_lap_time_fixed">手入力時間</string>
+	<string name="label_lap_speed_fixed">手入力速度</string>
+	<string name="label_gpxfilepath">GPX</string>
+	<string name="label_gpxfilepath_fixed">手入力GPX</string>
+												
+	<string name="hint_startdatetime">記録開始時間</string>
+	<string name="hint_insertdatetime">保存した時間</string>
+	<string name="hint_lapname">このラップの名前</string>
+	<string name="hint_activity_type">記録の種類</string>
+	<string name="hint_lapdistance">アプリに計測されたラップ距離</string>
+	<string name="hint_lap_time">アプリに計測されたラップ時間</string>
+	<string name="hint_lap_speed">アプリに計測されたラップ速度</string>
+	<string name="hint_lapdistance_fixed">手入力されたラップ距離</string>
+	<string name="hint_lap_time_fixed">手入力されたラップ時間</string>
+	<string name="hint_lap_speed_fixed">手入力されたラップ速度</string>
+	<string name="hint_gpxfilepath">GPXファイルのパス</string>
+	<string name="hint_gpxfilepath_fixed">手入力されたGPXファイルのパス</string>
+		
 	<string name="edit_error_cant_launch">すみませんが、エラーが発生したため、編集できません。</string>
 	<string name="date_button_caption">編集</string>
 					

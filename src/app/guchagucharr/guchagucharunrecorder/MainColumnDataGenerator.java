@@ -50,7 +50,10 @@ public class MainColumnDataGenerator implements IColumnDataGenerator {
 		new ColumnData( activity, true, false, RunHistoryTableContract.PLACE_ID,
 				// TODO:値の設定
 				null, null,
-				SQLiteContract.INTEGER, String.valueOf(data.getPlaceId()), null )
+				SQLiteContract.INTEGER, String.valueOf(data.getPlaceId()), null ),
+		new ColumnData( activity, RunHistoryTableContract.ACTIVITY_TYPE, 
+				R.string.label_activity_type, null,
+				SQLiteContract.INTEGER, String.valueOf(data.getActivityTypeCode()), R.string.hint_activity_type ),
 		};
 		return columns;
 	}

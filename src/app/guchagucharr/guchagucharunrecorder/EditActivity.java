@@ -23,6 +23,8 @@ import android.net.Uri;
 //import android.location.Criteria;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,6 +55,26 @@ import app.guchagucharr.service.RunHistoryTableContract;
 public class EditActivity extends Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
 {
+	// EditTextの値変更監視
+	public class UITextWatcher implements TextWatcher {
+		String valueName;
+		public UITextWatcher(String valueName_)
+		{
+			valueName = valueName_;
+		}
+		public void afterTextChanged(Editable arg) {
+			for( ColumnData clmn : clmnInfos )
+			{
+				if( valueName.equals( clmn.getColumnName() ) )
+				{
+					clmn.setText( arg.toString() );
+					break;
+				}
+			}
+		}
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+		public void onTextChanged(CharSequence s, int start, int before, int count) {}
+	}	
 	// タグのID
 	// --> write in tags.xml
 	//private static final int TEXT_VIEW_LINKED = 1000;
@@ -276,6 +298,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 								//ColumnData.getFormatText(this, clmn.getEditMethod(), clmn.getText()));						
 						edt.setLayoutParams(llForContent);
 						edt.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
+						edt.addTextChangedListener(new UITextWatcher(clmn.getColumnName()));
 						ll.addView(edt);
 
 					}
@@ -307,9 +330,11 @@ implements IEditViewController, OnClickListener, OnTouchListener
 //					}
 					edt.setId(iValueInputControlID);					
 					edt.setLayoutParams(llForContent);				
+					edt.addTextChangedListener(new UITextWatcher(clmn.getColumnName()));
 					ll.addView(edt);
 				}
 			}
+			// TODO: Activity Type設定用コントロールは特別にする
 			else
 			{
 				// Edit不可能
@@ -786,6 +811,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			ret.put(RunHistoryTableContract.NAME, clmnInfos[3].getText());
 			//ret.put(RunHistoryTableContract.LAP_COUNT, clmnInfos[4].getText() );
 			//ret.put(RunHistoryTableContract.PLACE_ID, clmnInfos[5].getText() );
+			ret.put(RunHistoryTableContract.ACTIVITY_TYPE, clmnInfos[6].getText() );
 		}
 		else 
 		if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
