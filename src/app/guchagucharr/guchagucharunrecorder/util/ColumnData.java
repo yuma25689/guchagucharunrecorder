@@ -25,6 +25,7 @@ public class ColumnData {
 	public static final int EDIT_METHDO_TIME = 4;
 	public static final int EDIT_METHDO_DISTANCE = 5;
 	public static final int EDIT_METHDO_SPEED = 6;
+	public static final int EDIT_METHDO_ACTIVITY_TYPE = 7;
 	int editMethod = EDIT_METHDO_TEXT;
 	public int getEditMethod()
 	{

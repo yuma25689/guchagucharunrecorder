@@ -13,6 +13,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 //import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 //import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -22,7 +24,9 @@ import android.net.Uri;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.provider.BaseColumns;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -43,17 +47,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 //import android.widget.TimePicker;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment.ChooseActivityTypeCaller;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
 import app.guchagucharr.guchagucharunrecorder.util.MyDatePicker;
 import app.guchagucharr.guchagucharunrecorder.util.MyTimePicker;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 import app.guchagucharr.service.RunHistoryTableContract;
 
-public class EditActivity extends Activity 
+public class EditActivity extends FragmentActivity //Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
+,ChooseActivityTypeCaller
 {
 	// EditTextの値変更監視
 	public class UITextWatcher implements TextWatcher {
@@ -303,6 +311,65 @@ implements IEditViewController, OnClickListener, OnTouchListener
 
 					}
 				}
+				// Activity Type設定用コントロールは特別にする
+				else if( clmn.getEditMethod() == ColumnData.EDIT_METHDO_ACTIVITY_TYPE )
+				{
+					// Activity種別の入力の場合
+					if( clmn.getText() != null && 0 < clmn.getText().length() )
+					{
+						ImageButton activityTypeButton = new ImageButton(this);
+						activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
+						int iIconCd = TrackIconUtils.ACTIVITY_TYPE_NONE;
+						try {
+							iIconCd = Integer.parseInt(clmn.getText());
+						} 
+						catch( Exception ex )
+						{
+							iIconCd = TrackIconUtils.ACTIVITY_TYPE_NONE;
+						}
+					    Bitmap source = BitmapFactory.decodeResource(
+						        getResources(),
+						        TrackIconUtils.getIconDrawable(iIconCd));
+					    activityTypeButton.setImageBitmap(source);
+					    // 種別はTagに設定
+					    activityTypeButton.setTag(iIconCd);
+					    activityTypeButton.setTag(R.id.COLUMN_NAME_ID, clmn.getColumnName() );
+						
+						BitmapFactory.Options bmpoptions 
+						= ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+								R.drawable.main_historybutton_normal);		
+						RelativeLayout.LayoutParams rlActType
+						= dispInfo.createLayoutParamForNoPosOnBk(
+								bmpoptions.outWidth,
+								bmpoptions.outHeight, true );
+						// activityTypeIcon.setLayoutParams(rlActTypeSpn);
+						activityTypeButton.setLayoutParams(rlActType);
+						activityTypeButton.setOnClickListener(new View.OnClickListener() {
+
+						    @Override
+						    public void onClick(View v) {
+						    	int iCurrentCd = TrackIconUtils.ACTIVITY_TYPE_NONE;
+						    	try {
+						    		iCurrentCd = (Integer)v.getTag();
+						    	} catch( Exception ex )
+						    	{
+						    		iCurrentCd = TrackIconUtils.ACTIVITY_TYPE_NONE;
+						    	}						    	
+					        	ChooseActivityTypeDialogFragment act 
+					        	= ChooseActivityTypeDialogFragment.newInstance(
+					        			v,
+					        			iCurrentCd
+					        		  );
+					        	act.show(
+					        			getSupportFragmentManager(),
+					        			ChooseActivityTypeDialogFragment.CHOOSE_ACTIVITY_TYPE_DIALOG_TAG);
+						    }
+						});
+						//activityTypeButton.setLayoutParams(llForContent);
+						activityTypeButton.setId(iValueInputControlID);
+						ll.addView(activityTypeButton);
+					}
+				}
 				else
 				{
 					EditText edt = new EditText(this);
@@ -334,7 +401,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					ll.addView(edt);
 				}
 			}
-			// TODO: Activity Type設定用コントロールは特別にする
 			else
 			{
 				// Edit不可能
@@ -891,6 +957,31 @@ implements IEditViewController, OnClickListener, OnTouchListener
         	
         }
         return iCount;
+	}
+
+    private void setActivityTypeIcon(View parent,int value) {
+    	Bitmap source = BitmapFactory.decodeResource(
+    			this.getResources(),
+    			TrackIconUtils.getIconDrawable(value));
+    	ImageButton parentButton = (ImageButton) parent;
+    	parentButton.setImageBitmap(source);
+    	parentButton.setTag(value);
+    	
+    	String clmnName = (String) parentButton.getTag(R.id.COLUMN_NAME_ID);
+		for( ColumnData clmn : clmnInfos )
+		{
+			if( clmnName.equals( clmn.getColumnName() ) )
+			{
+				clmn.setText( String.valueOf(value) );
+				break;
+			}
+		}
+    	
+    }
+	
+	@Override
+	public void onChooseActivityTypeDone(View parent,int iconValue) {
+		setActivityTypeIcon(parent,iconValue);
 	}
 	
 }

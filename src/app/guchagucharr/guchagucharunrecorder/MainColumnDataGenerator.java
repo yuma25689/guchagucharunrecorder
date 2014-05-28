@@ -53,7 +53,8 @@ public class MainColumnDataGenerator implements IColumnDataGenerator {
 				SQLiteContract.INTEGER, String.valueOf(data.getPlaceId()), null ),
 		new ColumnData( activity, RunHistoryTableContract.ACTIVITY_TYPE, 
 				R.string.label_activity_type, null,
-				SQLiteContract.INTEGER, String.valueOf(data.getActivityTypeCode()), R.string.hint_activity_type ),
+				SQLiteContract.INTEGER, String.valueOf(data.getActivityTypeCode()),
+				R.string.hint_activity_type, ColumnData.EDIT_METHDO_ACTIVITY_TYPE ),
 		};
 		return columns;
 	}

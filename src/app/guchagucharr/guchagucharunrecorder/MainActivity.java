@@ -755,10 +755,18 @@ implements
 		    @Override
 		    public void onClick(View v) {
 		        //if (event.getAction() == MotionEvent.ACTION_UP) {
+		    	int iCurrentCd = nActivityTypeInitIcon;
+		    	try {
+		    		iCurrentCd = Integer.parseInt((String)activityTypeButton.getTag());
+		    	} catch( Exception ex )
+		    	{
+		    		iCurrentCd = nActivityTypeInitIcon;
+		    	}
 		        	ChooseActivityTypeDialogFragment act 
 		        	= ChooseActivityTypeDialogFragment.newInstance(
 		        		  //activityType.getText().toString()
-		        			nActivityTypeInitIcon
+		        			activityTypeButton,
+		        			iCurrentCd//nActivityTypeInitIcon
 		        		  );
 		        	act.show(
 		        			getSupportFragmentManager(),
@@ -1632,28 +1640,29 @@ implements
         return super.onOptionsItemSelected(item);
       }
 
-      private void setActivityTypeIcon(int value) {
-    	    //iconValue = value;
-    	    // TrackIconUtils.setIconSpinner(activityTypeIcon, value);
-    		//activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
-    	    Bitmap source = BitmapFactory.decodeResource(
-    		        MainActivity.this.getResources(),
-    		        TrackIconUtils.getIconDrawable(value));
-    	    	//activityTypeIcon.getAdapter().getItem(0).toString()));
-    	    activityTypeButton.setImageBitmap(source);
-    	    activityTypeButton.setTag(value);
-    	    try {
-				RunLogger.sService.setActivityTypeCode(value);
-			} catch (RemoteException e) {
-				e.printStackTrace();
-				Log.e("setIcon to service","error");
-			}
+      private void setActivityTypeIcon(View parent,int value) {
+    	  //iconValue = value;
+    	  // TrackIconUtils.setIconSpinner(activityTypeIcon, value);
+    	  //activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
+    	  Bitmap source = BitmapFactory.decodeResource(
+    			this.getResources(),
+    			TrackIconUtils.getIconDrawable(value));
+	    	//activityTypeIcon.getAdapter().getItem(0).toString()));
+    	  ImageButton parentButton = (ImageButton) parent;
+    	  parentButton.setImageBitmap(source);
+    	  parentButton.setTag(value);
+    	  try {
+    		  RunLogger.sService.setActivityTypeCode(value);
+    	  } catch (RemoteException e) {
+    		  e.printStackTrace();
+    		  Log.e("setIcon to service","error");
     	  }
+      }
       
       // newWeightはこのアプリでは使っていないので、消してもOK
 	@Override
-	public void onChooseActivityTypeDone(int iconValue) { //, boolean newWeight) {
-	    setActivityTypeIcon(iconValue);
+	public void onChooseActivityTypeDone(View parent,int iconValue) { //, boolean newWeight) {
+	    setActivityTypeIcon(parent,iconValue);
 	    //activityType.setText(getString(TrackIconUtils.getIconActivityType(value)));
 	    
 	}

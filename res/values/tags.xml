@@ -1,3 +1,4 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
   <item name="TEXT_VIEW_LINKED" type="id"/>
+  <item name="COLUMN_NAME_ID" type="id"/>
 </resources>

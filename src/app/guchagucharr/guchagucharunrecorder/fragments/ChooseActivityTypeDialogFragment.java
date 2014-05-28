@@ -52,19 +52,21 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
     /**
      * Called when choose activity type is done.
      */
-    public void onChooseActivityTypeDone(int iconValue);
+    public void onChooseActivityTypeDone(View parent,int iconValue);
   }
 
   public static final String CHOOSE_ACTIVITY_TYPE_DIALOG_TAG = "chooseActivityType";
 
   private static final String KEY_CATEGORY = "category";
 
+  private static View lastParent = null;
   private ChooseActivityTypeCaller caller;
 
-  public static ChooseActivityTypeDialogFragment newInstance(int category) {
+  public static ChooseActivityTypeDialogFragment newInstance(View v,int category) {
     Bundle bundle = new Bundle();
     bundle.putInt(KEY_CATEGORY, category);
 
+    lastParent = v;
     ChooseActivityTypeDialogFragment fragment = new ChooseActivityTypeDialogFragment();
     fragment.setArguments(bundle);
     return fragment;
@@ -125,7 +127,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 
             @Override
           public void onClick(DialogInterface dialog, int which) {
-            boolean newWeight = false;
+//            boolean newWeight = false;
 //            if (weightContainer.getVisibility() == View.VISIBLE) {
 //              String newValue = weight.getText().toString();
 //              if (!newValue.equals(weightValue)) {
@@ -135,6 +137,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 //            }
             int selected = imageAdapter.getSelected();
             caller.onChooseActivityTypeDone(
+            	lastParent,
                 TrackIconUtils.getAllIconValues().get(selected));
           }
         }).setTitle(R.string.track_edit_activity_type_hint).setView(view).create();
@@ -156,7 +159,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
     gridView.setOnItemClickListener(new OnItemClickListener() {
         @Override
       public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        //alertDialog.getButton(Dialog.BUTTON_POSITIVE).setEnabled(true);
+        alertDialog.getButton(Dialog.BUTTON_POSITIVE).setEnabled(true);
         imageAdapter.setSelected(position);
         imageAdapter.notifyDataSetChanged();
         //updateWeightContainer(weightContainer, position);
