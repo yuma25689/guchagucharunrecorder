@@ -137,7 +137,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	private RelativeLayout lastSubLayout = null;
 	int widthTmp = 0;
 	int heightTmp = 0;
-	final int TYPE_IMAGE_ALPHA = 75;
+	final int TYPE_IMAGE_ALPHA = 90;//75;
 	
 //	private Button gpxShareButton = null;
 //	private String gpxFilePath = null;

@@ -85,6 +85,10 @@ public class DisplayBlock extends RelativeLayout {
 	static final float MIN_ITEM_FONT_SIZE_HORZ = 12f;
 	
 	DisplayInfo dispInfo = null;
+	static final int TEXT_INCLUDE_WIDTH_PLAY = 16;	// テキストが収まる横幅の遊び
+	// TODO: 無理矢理定数を使って設定しているが、本来このような値を使って調整すべきでない
+	// どうしてもいかなかったので、現状これを使っている
+	static final int TEXT_INCLUDE_HEIGHT_PLAY = 6;	// テキストが収まる縦幅の遊び
 	static final int ITEM_PADDING = 5;
 	static final int ITEM_LEFT_MARGIN = 7;
 	static final int ITEM_RIGHT_MARGIN = 7;
@@ -182,7 +186,6 @@ public class DisplayBlock extends RelativeLayout {
 	{
 		int viewWidth = width;
 		int viewHeight = height;
-		
 		if( 1 < lineCnt )
 		{
 			viewHeight /= lineCnt;
@@ -190,7 +193,6 @@ public class DisplayBlock extends RelativeLayout {
 		/** 最小のテキストサイズ */
 		final float MIN_TEXT_SIZE = 10f;
 		final float MAX_TEXT_SIZE = 50f;
-		
 		float textSizeTmp = MAX_TEXT_SIZE;		
 
 		// それほど良いロジックではないかもしれないが、
@@ -202,7 +204,6 @@ public class DisplayBlock extends RelativeLayout {
 		for( int i=0; i<lineCnt;++i )
 		{
 			textSize[i] = textSizeTmp;
-			
 			if( text == null )
 			{
 				textSplited[i] = null;
@@ -219,7 +220,7 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			// Paintにテキストサイズ設定
 			paintForMeasureText.setTextSize(textSize[i]);
-			
+
 			// テキストの縦幅取得
 			FontMetrics fm = paintForMeasureText.getFontMetrics();
 			float textHeight = (float) (Math.abs(fm.top)) + (Math.abs(fm.descent));
@@ -227,7 +228,8 @@ public class DisplayBlock extends RelativeLayout {
 			// テキストの横幅取得
 			float textWidth = getMeasureTextWidth(textSizeTmp,textSplited[i]);
 			// 縦幅と、横幅が収まるまでループ
-			while (viewHeight < textHeight || viewWidth < textWidth)
+			while ((viewHeight - TEXT_INCLUDE_HEIGHT_PLAY) < textHeight 
+					|| (viewWidth - TEXT_INCLUDE_WIDTH_PLAY) < textWidth)
 			{
 				// 調整しているテキストサイズが、定義している最小サイズ以下か。
 				if (MIN_TEXT_SIZE >= textSize[i])
@@ -292,6 +294,7 @@ public class DisplayBlock extends RelativeLayout {
 				lineCnt,
 				text);
 		txtTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, maxTextSize);
+		txtTitle.setPadding(0, 0, 0, 0);		
 		RelativeLayout.LayoutParams lp
 		= new RelativeLayout.LayoutParams(
 				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
@@ -560,6 +563,7 @@ public class DisplayBlock extends RelativeLayout {
 					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE_HORZ * fontMagnify ));
 					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
 					txt.setSingleLine(false);
+					txt.setPadding(0, 0, 0, 0);
 					lpTmp.leftMargin = ITEM_LEFT_MARGIN;
 					if( i == 0 )
 					{
@@ -590,6 +594,10 @@ public class DisplayBlock extends RelativeLayout {
 					float maxTextSize = getProperTextSize(width-ITEM_LEFT_MARGIN-ITEM_PADDING,
 							height/(iShowTextCount+title.length),1,text[i]);
 					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					txt.setSingleLine(false);	
+					// TODO: １行にしていないが、微妙。一応、テキストサイズの方を１行に収まるように調整しているつもり
+										
+					txt.setPadding(0, 0, 0, 0);					
 					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
 					if( i== 0)
 					{
@@ -632,7 +640,7 @@ public class DisplayBlock extends RelativeLayout {
 						textAndIcon.get(i).getIconId());
 				int imageWidth = bmpoptions.outWidth;
 				int imageHeight = bmpoptions.outHeight;
-				int iProperHeight = height/(iShowTextCount+title.length);
+				int iProperHeight = height/(iShowTextCount+title.length) - ITEM_PADDING * 2;
 				if( iProperHeight < imageHeight )
 				{
 					imageWidth = imageHeight = iProperHeight;
@@ -689,6 +697,9 @@ public class DisplayBlock extends RelativeLayout {
 							width-imageWidth-ITEM_LEFT_MARGIN-ITEM_PADDING,
 							imageHeight,1,textAndIcon.get(i).getText());
 					txt.setTextSize(TypedValue.COMPLEX_UNIT_PX,maxTextSize);
+					txt.setSingleLine(false);	
+					// TODO: １行にしていないが、微妙。一応、テキストサイズの方を１行に収まるように調整しているつもり
+					txt.setPadding(0, 0, 0, 0);					
 					//txt.setTextSize((int)(MIN_ITEM_FONT_SIZE * fontMagnify));
 					if( i == 0 )
 					{
