@@ -124,7 +124,7 @@ implements
 	static TextView txtLocationCount = null;
 	// cancel
 	ImageButton btnCancel = null;
-	// spinner
+	// spinnerもどき
 	ImageButton activityTypeButton = null;
 	// Spinner activityTypeIcon = null;
 	

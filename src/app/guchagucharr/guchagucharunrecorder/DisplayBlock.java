@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-// import android.widget.RelativeLayout;
 import android.widget.TextView;
 import app.guchagucharr.guchagucharunrecorder.util.RouteButton;
 import app.guchagucharr.guchagucharunrecorder.util.TextAndIcon;
@@ -24,10 +23,12 @@ import app.guchagucharr.guchagucharunrecorder.util.TextAndIcon;
 /**
  * TODO: 無理矢理このクラスに入れ過ぎなので、分けた方がいいかもしれない
  * @author 25689
- *
  */
 public class DisplayBlock extends RelativeLayout {
-	
+
+	// ブロックに表示するデータ？
+	// 一応保持しているが、現在、使用していない。
+	// ただし、メニューから使うかも。
 	Object data = null;
 	public void setData(Object data_)
 	{
@@ -37,6 +38,7 @@ public class DisplayBlock extends RelativeLayout {
 	{
 		return data;
 	}
+	// 数から、１画面に表示するのに適切なブロックの数を求める
 	public static eSizeType getProperSizeTypeFromCount(int iCount)
 	{
 		if( iCount == 1 )
@@ -49,6 +51,8 @@ public class DisplayBlock extends RelativeLayout {
 		}
 		return eSizeType.MODE_ONE_SIXTH;
 	}
+	/* 
+	 * ほぼ未使用
 	public static int getBlockCountOnOnePage(eSizeType sizeType)
 	{
 		if( sizeType == eSizeType.MODE_ONE )
@@ -65,7 +69,7 @@ public class DisplayBlock extends RelativeLayout {
 		}
 		return 0;
 		
-	}
+	}*/
 	// private ResourceAccessor res;
 	public enum eSizeType {
 		MODE_ONE,

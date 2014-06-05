@@ -3,8 +3,8 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import java.text.SimpleDateFormat;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
@@ -15,7 +15,9 @@ import android.graphics.Region;
 //import android.location.Criteria;
 import android.os.Bundle;
 import android.os.Message;
+import android.os.RemoteException;
 import android.provider.Settings;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -36,16 +38,20 @@ import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.DisplayBlock.eShapeType;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment;
+import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment.ChooseActivityTypeCaller;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IPageViewController;
 import app.guchagucharr.service.LapData;
+import app.guchagucharr.service.RunLogger;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.service.RunLoggerService;
 
-public class ResultActivity extends Activity 
+public class ResultActivity extends FragmentActivity //Activity 
 implements IPageViewController
-, OnClickListener 
+, ChooseActivityTypeCaller
+, OnClickListener
 , OnTouchListener
 {
 	static final int CONTEXT_MENU_EDIT_ID = 0;
@@ -82,6 +88,8 @@ implements IPageViewController
 	ImageButton btnCancel = null;
 	TextView txtLap = null;
 	ImageButton imgDetailExists = null;
+	// spinnerもどき
+	ImageButton activityTypeButton = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +142,32 @@ implements IPageViewController
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
+	}
+    private void setActivityTypeIcon(View parent,int value) {
+  	  //iconValue = value;
+  	  // TrackIconUtils.setIconSpinner(activityTypeIcon, value);
+  	  //activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
+  	  Bitmap source = BitmapFactory.decodeResource(
+  			this.getResources(),
+  			TrackIconUtils.getIconDrawable(value));
+	    	//activityTypeIcon.getAdapter().getItem(0).toString()));
+  	  ImageButton parentButton = (ImageButton) parent;
+  	  parentButton.setImageBitmap(source);
+  	  parentButton.setTag(value);
+  	  try {
+  		  RunLogger.sService.setActivityTypeCode(value);
+  	  } catch (RemoteException e) {
+  		  e.printStackTrace();
+  		  Log.e("setIcon to service","error");
+  	  }
+    }
+    
+    // newWeightはこのアプリでは使っていないので、消してもOK
+	@Override
+	public void onChooseActivityTypeDone(View parent,int iconValue) { //, boolean newWeight) {
+	    setActivityTypeIcon(parent,iconValue);
+	    //activityType.setText(getString(TrackIconUtils.getIconActivityType(value)));
+	    
 	}
 
 	static final int CENTER_BUTTON_ID = 1000;
@@ -467,6 +501,66 @@ implements IPageViewController
 			// rl.addView(txtLap);
 			addViewToCompContainer(rl,txtLap);			
 
+			// Spinnerのカスタマイズが難しいので、Spinnerのインタフェースはボタンにする
+			if( activityTypeButton == null )
+			{
+				activityTypeButton = new ImageButton(this);
+			}
+			activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
+		    Bitmap source = BitmapFactory.decodeResource(
+			        this.getResources(),
+			        TrackIconUtils.getIconDrawable(RunLoggerService.getActivityTypeCode()));
+		    activityTypeButton.setImageBitmap(source);
+		    // 種別はTagに設定
+		    activityTypeButton.setTag(RunLoggerService.getActivityTypeCode());
+			
+			// activityTypeIcon.setBackgroundResource(R.drawable.selector_history_button_image );
+			//activityTypeIcon.setId(GPS_INDICATOR_ID);
+			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+					R.drawable.main_historybutton_normal);		
+//			RelativeLayout.LayoutParams rlActTypeSpn
+//			= new RelativeLayout.LayoutParams(0,0);
+			RelativeLayout.LayoutParams rlActType
+//			= new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, 
+//					RelativeLayout.LayoutParams.WRAP_CONTENT);
+			= dispInfo.createLayoutParamForNoPosOnBk(
+					bmpoptions.outWidth,
+					bmpoptions.outHeight, true );
+			rlActType.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			rlActType.leftMargin = LEFT_TOP_CTRL_1_LEFT_MARGIN;
+			rlActType.addRule(RelativeLayout.CENTER_VERTICAL);
+			// activityTypeIcon.setLayoutParams(rlActTypeSpn);
+			activityTypeButton.setLayoutParams(rlActType);
+			activityTypeButton.setOnClickListener(new View.OnClickListener() {
+
+			    @Override
+			    public void onClick(View v) {
+			        //if (event.getAction() == MotionEvent.ACTION_UP) {
+			    	int iCurrentCd = RunLoggerService.getActivityTypeCode();//nActivityTypeInitIcon;
+			    	try {
+			    		iCurrentCd = Integer.parseInt((String)activityTypeButton.getTag());
+			    	} catch( Exception ex )
+			    	{
+			    		iCurrentCd = RunLoggerService.getActivityTypeCode();//nActivityTypeInitIcon;
+			    	}
+			        	ChooseActivityTypeDialogFragment act 
+			        	= ChooseActivityTypeDialogFragment.newInstance(
+			        		  //activityType.getText().toString()
+			        			activityTypeButton,
+			        			iCurrentCd//nActivityTypeInitIcon
+			        		  );
+			        	act.show(
+			        			getSupportFragmentManager(),
+			        			ChooseActivityTypeDialogFragment.CHOOSE_ACTIVITY_TYPE_DIALOG_TAG);
+			        //}
+			    	// activityTypeIcon.performClick();
+			    }
+			});
+			
+//		    activityTypeIcon.setAdapter(TrackIconUtils.getIconSpinnerAdapter(this, nActivityTypeInitIcon));
+//			addViewToCompContainer(activityTypeIcon);
+			addViewToCompContainer(rl,activityTypeButton);
+			
 			// 画像でいいかと思ったが、押したら反応するようにする
 			imgDetailExists = new ImageButton(this);
 			//imgDetailExists.setId(GPS_INDICATOR_ID);
@@ -485,7 +579,7 @@ implements IPageViewController
 
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));
-			editName.setText(
+			editName.setText( 
 					TrackIconUtils.getActivityTypeNameFromCode(
 							this,RunLoggerService.getActivityTypeCode())
 					);//getString( R.string.default_activity_name ) ); 
