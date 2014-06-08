@@ -233,7 +233,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	public void updateMainPage(RelativeLayout rl)
 	{
 		// TODO: とりあえず、フィルタリング用コントロールを置くためにツールバーを設定する?
-		LinearLayout toolBar;
+		//LinearLayout toolBar;
 		mainViewChildren.clear();	// 現在のビューをクリア
 		// メインテーブルのデータを取得
 		ArrayList<ActivityData> mainData = loader.getHistoryData();
@@ -273,7 +273,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			for( ActivityLapData lapData: lapDatas )
 			{
 				// Distanceとtimeは、ラップから求める
-				distanceTotal += lapData.getDistance();
+				distanceTotal += lapData.getFixedDistance() == 0 
+						? lapData.getDistance() : lapData.getFixedDistance();
 				timeTotal += lapData.getTime();
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
@@ -650,7 +651,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			double distance = 0;
 			double speed = 0;
 			long time = 0;
-			distance = data.getDistance();
+			distance = data.getFixedDistance() == 0 
+					? data.getDistance() : data.getFixedDistance();
 			time = data.getTime();				
 			speed = distance / ( time * UnitConversions.MS_TO_S ); 
 			String gpxFilePath = data.getGpxFilePath();
@@ -872,7 +874,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			Vector<ActivityLapData> lapDatas = loader.getHistoryLapDatas(item.getItemId());
 			for( ActivityLapData lapData: lapDatas )
 			{
-				distanceTotal += lapData.getDistance();
+				distanceTotal += lapData.getFixedDistance() == 0 ?
+						lapData.getDistance() : lapData.getFixedDistance();
 				timeTotal += lapData.getTime();				
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
