@@ -55,6 +55,7 @@ implements IPageViewController
 , OnTouchListener
 {
 	static final int CONTEXT_MENU_EDIT_ID = 0;
+	public static final String WORK_OUT_END = "workoutend";
 
 	Region regionCenterBtn = null;
 	Boolean bCenterBtnEnableRegionTouched = false;
@@ -96,6 +97,15 @@ implements IPageViewController
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_viewpager_only);
 		
+		if( getIntent() != null && getIntent().getIntExtra(ResultActivity.WORK_OUT_END,0) == 1 )
+		{
+			// 最初に来たフラグクリア
+			getIntent().putExtra( ResultActivity.WORK_OUT_END,0 );
+			// WorkOut終了時二ここに来たときのみ、ユーザに音声通知
+			// タイミング微妙だが、終了ボタン押下時に下のActivityでやったらうまくいかなかった・・・
+			RunNotificationSoundPlayer.soundActivityFinish(getApplicationContext());
+		}
+
         handler = new PagerHandler( this, this );
         componentContainer = (ViewGroup) findViewById(R.id.viewpager1);
 
@@ -112,7 +122,7 @@ implements IPageViewController
 				handler.sendMessage( msg );	            
 	        }
 	    });        
-	    //inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
+	    //inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import android.os.RemoteException;
 import android.util.Log;
 //import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
+import app.guchagucharr.guchagucharunrecorder.RunNotificationSoundPlayer;
 import app.guchagucharr.service.RunLoggerService.eMode;
 
 
@@ -204,7 +205,7 @@ public class RunLogger {
 //    	builder.setContentText("位置情報ログ取得中");
 //    	builder.setSmallIcon(android.R.drawable.ic_dialog_info);
 //    	builder.setWhen(System.currentTimeMillis());
-//    	Notification notification = builder.build();
+//    	Notification notification = builder.build();		
 		Notification notification = new Notification(android.R.drawable.ic_dialog_info,
 				"RunLoggerService", System.currentTimeMillis());
 		PendingIntent contentIntent = PendingIntent.getActivity(ctx, 0,

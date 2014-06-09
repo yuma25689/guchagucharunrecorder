@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.CurrentSettingUtil;
 
 public final class ResourceAccessor {
 	
@@ -41,7 +42,7 @@ public final class ResourceAccessor {
 	public static final long TIME_HOUR = 60 * 60;
 	public static final String DISPINFO_KEY = "DISP_INFO";
 		
-	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();
+	private SparseArray<Bitmap> bmpArray = new SparseArray<Bitmap>();	
 	
 	Activity activity;
 	// 2014/04/10 データ編集に利用するテンポラリデータを、ここに設定するものとする

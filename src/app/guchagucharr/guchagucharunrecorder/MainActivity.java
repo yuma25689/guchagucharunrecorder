@@ -43,6 +43,7 @@ import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment;
 import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialogFragment.ChooseActivityTypeCaller;
 import app.guchagucharr.guchagucharunrecorder.util.CameraView;
+import app.guchagucharr.guchagucharunrecorder.util.SoundPlayer;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.interfaces.IMainViewController;
 import app.guchagucharr.service.LapData;
@@ -277,6 +278,7 @@ implements
 				e.printStackTrace();
 				Log.e("onPause","RemoteException");
 			}
+			
 			// どっちにしても、トークンをnullにする
 		    mToken = null;
 		}
@@ -299,25 +301,25 @@ implements
 	}
 //	@Override
 //	protected void onStop()
-//	{
-//		// stopService
-//				
-//        // clearGPS();
+//	{				
 //        super.onStop();
 //	}
-//	@Override
-//	protected void onDestroy()
-//	{
-//		// NOTICE: 本当に不要？
-////		if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
-////		{
-////			RunLogger.sService.clearGPS();
-////			// サービスの登録解除
-////		    RunLogger.unbindFromService(mToken);
-////		    mToken = null;
-////		}
-//		super.onDestroy();		
-//	}
+	@Override
+	protected void onDestroy()
+	{
+		// このタイミングで大丈夫なんだろうか・・・
+		SoundPlayer.releaseSound();
+		
+		// NOTICE: 本当に不要？
+//		if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
+//		{
+//			RunLogger.sService.clearGPS();
+//			// サービスの登録解除
+//		    RunLogger.unbindFromService(mToken);
+//		    mToken = null;
+//		}
+		super.onDestroy();		
+	}
 
 	/**
 	 * 取得した位置情報を画面に表示する処理
@@ -1260,6 +1262,9 @@ implements
 							Toast.makeText(this, R.string.cant_start_workout_because_error, Toast.LENGTH_LONG).show();
 							return;
 						}
+				        // 音声でユーザに開始を通知
+				        RunNotificationSoundPlayer.soundActivityStart(getApplicationContext());
+
 //						if( false == RunLoggerService.getLogStocker().start(this,time) )
 //						{
 //							// ログ取得開始に失敗したら、ログをクリアして戻る
@@ -1302,8 +1307,9 @@ implements
 						// RunLogger.sService.setMode( eMode.MODE_MEASURING.ordinal() );
 					}
 					else if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
-					{
+					{						
 						endWorkOutAndShowSaveDlg(false);
+						
 //						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 //		//				txtDistance.setVisibility(View.VISIBLE);
 //		//				txtSpeed.setVisibility(View.VISIBLE);
@@ -1329,7 +1335,7 @@ implements
 	}
 
 	private void endWorkOutAndShowSaveDlg(boolean recoveryMode)
-	{
+	{		
 		try {
 			RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 			// モードをファイルに書き込み
@@ -1361,13 +1367,14 @@ implements
 			btnLap.setVisibility(View.GONE);
 			btnCamera.setVisibility(View.GONE);
 			btnCancel.setVisibility(View.GONE);
-	
+
 			if( RunLoggerService.getLogStocker().getLocationDataCount() <= 0 )
 			{
 				return;
 			}
 			// launch activity for save
 			Intent intent = new Intent( this, ResultActivity.class );
+			intent.putExtra(ResultActivity.WORK_OUT_END, 1);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
 	        startActivity(intent);
 		} catch (RemoteException e) {

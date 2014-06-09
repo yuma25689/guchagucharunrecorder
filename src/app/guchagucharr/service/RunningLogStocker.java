@@ -25,6 +25,9 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.R;
+import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
+import app.guchagucharr.guchagucharunrecorder.RunNotificationSoundPlayer;
+import app.guchagucharr.guchagucharunrecorder.util.CurrentSettingUtil;
 import app.guchagucharr.guchagucharunrecorder.util.FileUtil;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 // import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
@@ -408,15 +411,30 @@ public class RunningLogStocker {
 		// ファイルの書き込みを始める
 		gpxGen.startCreateGPXFile( getTmpGpxFilePath(ctx));
 	}
-	public void putLocationLog( Location location )
+	public void putLocationLog( Context ctx, Location location )
 	{
 		if( 0 == iLocationDataCount ) // vLocation.isEmpty() )
 		{
 		}
 		else
 		{
+		
+			int iPrev =	(int)Math.ceil(
+							CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
+									currentLapData.getDistance()));
+			
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
+
+			int iCurrent =	(int)Math.ceil(
+					CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
+							currentLapData.getDistance()));
+			if( iPrev < iCurrent )
+			{
+		        // 音声でユーザに到達距離を通知
+		        RunNotificationSoundPlayer.soundCantGetLocationLongTime(
+		        		ctx);
+			}
 		}
 		location.setBearing(m_iLap);
 		
@@ -899,6 +917,10 @@ public class RunningLogStocker {
 				Toast.makeText(mActivityWhenSave, R.string.SaveError, Toast.LENGTH_LONG).show();				
 			}
 			Toast.makeText(mActivityWhenSave, R.string.SaveOK, Toast.LENGTH_LONG).show();
+			
+	        // 音声でユーザに保存完了を通知
+	        RunNotificationSoundPlayer.soundActivitySaved(ResourceAccessor.getInstance().getActivity());
+			
 			stocker.clear();
 			mActivityWhenSave.finish();
 		}

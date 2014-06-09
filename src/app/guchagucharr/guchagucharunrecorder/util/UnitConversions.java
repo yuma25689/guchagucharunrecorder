@@ -27,6 +27,11 @@ public class UnitConversions {
 
   private UnitConversions() {}
 
+  public static final int DISTANCE_UNIT_METER = 1;
+  public static final int DISTANCE_UNIT_KILOMETER = 2;
+  public static final int DISTANCE_UNIT_MILE = 3;
+  public static final int DISTANCE_UNIT_FEET = 4;
+  
   // Time
 
   // multiplication factor to convert seconds to milliseconds

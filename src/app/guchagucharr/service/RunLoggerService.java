@@ -35,6 +35,8 @@ import android.util.Log;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.guchagucharunrecorder.R;
+import app.guchagucharr.guchagucharunrecorder.RunNotificationSoundPlayer;
+import app.guchagucharr.guchagucharunrecorder.util.SoundPlayer;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 //import app.guchagucharr.guchagucharunrecorder.MainActivity.eMode;
 //import android.os.Vibrator;
@@ -131,6 +133,9 @@ implements LocationListener
 						        clearGPS();
 						        requestGPS();
 						        Log.v("recreate locationclient","come");
+						        // 音声でユーザにGPSが取得できていないのを通知
+						        RunNotificationSoundPlayer.soundCantGetLocationLongTime(getApplicationContext());
+						        // TODO:バイブも必要
 							}
 							//clearGPS();
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
@@ -207,9 +212,9 @@ implements LocationListener
 	{
 		return runLogStocker;
 	}
-	public static void putLocationLog( Location data )
+	public static void putLocationLog( Context ctx, Location data )
 	{
-		runLogStocker.putLocationLog(data);
+		runLogStocker.putLocationLog(ctx,data);
 	}
 	public static boolean isEmptyLogStocker()
 	{
@@ -257,7 +262,10 @@ implements LocationListener
 //		NotificationManager mNotificationManager =
 //				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //		mNotificationManager.cancel(NOTIF_ID);
-		//Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();    	
+		//Toast.makeText(this, "Stop Service", Toast.LENGTH_SHORT).show();
+		// このタイミングで大丈夫なんだろうか・・・
+		SoundPlayer.releaseSound();
+        
         super.onDestroy();
     }
     
@@ -487,7 +495,7 @@ implements LocationListener
 				iLocationIgnoreSerialCount = 0;
 				mLastLocationStockTime = getTimeInMillis();
 				// NOTICE: この関数でほとんど全てのログを取っているようなもの
-				putLocationLog(location);
+				putLocationLog(getApplicationContext(),location);
 			}
 	        // Send intent to activity
 	        Intent activityNotifyIntent = new Intent();
