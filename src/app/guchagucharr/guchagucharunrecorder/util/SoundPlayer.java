@@ -6,6 +6,7 @@ import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 
 public class SoundPlayer {
+	private static int nowPlayingStreamID = 0;
 	private static SoundPool soundPool = null;
 	public static int sound(Context ctx,int soundResourceId)
 	{
@@ -18,7 +19,9 @@ public class SoundPlayer {
 					public void onLoadComplete(SoundPool s,int Id, int sts)
 					{
 						if( sts == 0 )
-							s.play(Id, 1.0f, 1.0f, 1, 0, 1.0f);
+						{
+							nowPlayingStreamID = s.play(Id, 1.0f, 1.0f, 1, 0, 1.0f);
+						}
 					}
 				}
 		);

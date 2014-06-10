@@ -31,6 +31,7 @@ import app.guchagucharr.guchagucharunrecorder.util.CurrentSettingUtil;
 import app.guchagucharr.guchagucharunrecorder.util.FileUtil;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 // import app.guchagucharr.service.RunHistoryLoader.ActivityLapData;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 
 public class RunningLogStocker {
 
@@ -419,21 +420,24 @@ public class RunningLogStocker {
 		else
 		{
 		
-			int iPrev =	(int)Math.ceil(
+			int iPrev =	(int)Math.floor(
 							CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
 									currentLapData.getDistance()));
 			
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 
-			int iCurrent =	(int)Math.ceil(
+			int iCurrent =	(int)Math.floor(
 					CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
 							currentLapData.getDistance()));
 			if( iPrev < iCurrent )
 			{
 		        // 音声でユーザに到達距離を通知
-		        RunNotificationSoundPlayer.soundCantGetLocationLongTime(
-		        		ctx);
+		        RunNotificationSoundPlayer.soundArrivalNotify(
+		        		ctx,
+		        		iCurrent,
+		        		UnitConversions.DISTANCE_UNIT_KILOMETER
+		        		);
 			}
 		}
 		location.setBearing(m_iLap);

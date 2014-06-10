@@ -41,6 +41,24 @@ public class RunNotificationSoundPlayer {
 		R.raw.sound14mile,
 		R.raw.sound15mile
 	};
+	// 5分ごとに通知する
+	// TODO: 設定に移す
+	public static final int MINUTE_NOTIFY_RANGE = 5;
+
+	public static final int MINUTE_SOUND_RES_IDS[] =
+	{
+		R.raw.sound5minute,
+		R.raw.sound10minute,
+		R.raw.sound15minute,
+		R.raw.sound20minute,
+		R.raw.sound25minute,
+		R.raw.sound30minute,
+		R.raw.sound35minute,
+		R.raw.sound40minute,
+		R.raw.sound45minute,
+		R.raw.sound50minute,
+		R.raw.sound55minute
+	};
 	public static void soundCantGetLocationLongTime( Context ctx )
 	{
 		// しばらくGPSが取得できていないのを鳴らす
@@ -60,6 +78,20 @@ public class RunNotificationSoundPlayer {
 	{
 		// 計測終了
 		SoundPlayer.sound(ctx, R.raw.saved );	
+	}
+	public static void soundTimeNotify( Context ctx, int arrivalTime )//, int unitType )
+	{
+		if( arrivalTime < 1)
+		{
+			// 到達した距離が1より小さい場合、まだ通知できないものとする
+			return;
+		}
+		// km
+		if( arrivalTime - 1 < MINUTE_SOUND_RES_IDS.length )
+		{
+			// 通知
+			SoundPlayer.sound(ctx, MINUTE_SOUND_RES_IDS[arrivalTime]);
+		}
 	}
 	
 	public static void soundArrivalNotify( Context ctx, int arrivalDistance, int unitType )

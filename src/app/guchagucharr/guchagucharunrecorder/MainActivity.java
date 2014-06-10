@@ -1,5 +1,6 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -1342,7 +1343,12 @@ implements
 			// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 			// logging end
 			RunLogger.sService.stopLog();
-			clearGPS();		            
+			clearGPS();
+			// Notifyの消去
+			NotificationManager mNotificationManager =
+			(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			mNotificationManager.cancel(RunLoggerService.NOTIF_ID);
+			
 	        RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 	        RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 	        if( false == recoveryMode )

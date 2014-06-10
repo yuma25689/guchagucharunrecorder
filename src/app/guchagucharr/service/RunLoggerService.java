@@ -64,6 +64,7 @@ implements LocationListener
 {
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
+	private long mPrevTime = 0;
 	private long mLastLocationStockTime = 0;
 	private static int iLocationIgnoreSerialCount = 0; 
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
@@ -119,6 +120,26 @@ implements LocationListener
 						{
 							long lapTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
+							
+							if( mPrevTime != 0 )
+							{
+								long prevMin = (long)Math.floor(
+									mPrevTime * UnitConversions.MS_TO_S * UnitConversions.S_TO_MIN );
+								long currentMin = (long)Math.floor(
+									lapTime * UnitConversions.MS_TO_S * UnitConversions.S_TO_MIN
+									);
+								int range = (int) (currentMin / RunNotificationSoundPlayer.MINUTE_NOTIFY_RANGE);
+								if( prevMin / RunNotificationSoundPlayer.MINUTE_NOTIFY_RANGE 
+								< range )
+								{
+									// 通知の時間に到達
+									if( range < RunNotificationSoundPlayer.MINUTE_SOUND_RES_IDS.length )
+									{
+										RunNotificationSoundPlayer.soundTimeNotify(getApplicationContext(),range-1);
+									}
+								}
+							}
+							mPrevTime = lapTime;
 							long totalTime = lapTime;
 							if( RunLoggerService.getLogStocker().getLapData(0) != null)
 							{
