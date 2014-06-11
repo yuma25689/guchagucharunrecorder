@@ -435,7 +435,7 @@ public class RunningLogStocker {
 		        // 音声でユーザに到達距離を通知
 		        RunNotificationSoundPlayer.soundArrivalNotify(
 		        		ctx,
-		        		iCurrent,
+		        		iCurrent - 1,
 		        		UnitConversions.DISTANCE_UNIT_KILOMETER
 		        		);
 			}

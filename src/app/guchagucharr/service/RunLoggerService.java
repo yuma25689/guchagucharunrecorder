@@ -62,6 +62,16 @@ import com.google.android.gms.location.LocationRequest;
 public class RunLoggerService extends Service 
 implements LocationListener
 {
+	// 位置を連続で取得できていない継続の回数
+	// mLastLocationStockTimeが格納される時に、0クリアすること
+	private int m_nLocationCantGetSerialCount = 0;
+	// この秒数位置を取得できなかったら、音声ナビ
+	private int m_nFirstWarningSecond = 60;
+	// 最後に警告を出力した時刻
+	private long m_nLastWarnTime = 0;
+	// １回警告が発生してからの、警告の秒数
+	private int m_nWarningSecondOnContinue = 30;
+	
 	// 2014/03/14 MyTracksで利用しているLocationClientの利用
 	private LocationClient locationClient;
 	private long mPrevTime = 0;
@@ -146,8 +156,20 @@ implements LocationListener
 								totalTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
 							}
-							long diffTime = getTimeInMillis() - mLastLocationStockTime;
-							if( 60 * UnitConversions.S_TO_MS < diffTime )
+							long diffTime = 0;
+
+							int nWarnSecond = m_nFirstWarningSecond;
+							if( m_nLocationCantGetSerialCount == 0 )
+							{
+								diffTime = getTimeInMillis() - mLastLocationStockTime;
+							}
+							else
+							{
+								diffTime = getTimeInMillis() - m_nLastWarnTime;
+								nWarnSecond = m_nWarningSecondOnContinue;
+							}
+							
+							if( nWarnSecond * UnitConversions.S_TO_MS < diffTime )
 							{
 								// 1分以上音沙汰なし
 								// TODO: LocationClientを作成し直してみる？
@@ -157,6 +179,9 @@ implements LocationListener
 						        // 音声でユーザにGPSが取得できていないのを通知
 						        RunNotificationSoundPlayer.soundCantGetLocationLongTime(getApplicationContext());
 						        // TODO:バイブも必要
+						        m_nLocationCantGetSerialCount++;
+								// 最後に警告を出力した時刻
+						        m_nLastWarnTime = getTimeInMillis();
 							}
 							//clearGPS();
 							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
@@ -419,6 +444,7 @@ implements LocationListener
 	void startLog()
 	{		
 	    //if(mTimer == null){
+		m_nLocationCantGetSerialCount = 0;
   	    mLastLocationStockTime = getTimeInMillis();		
         timerTask = new UpdateTimeDisplayTask();
         mTimer = new Timer(true);
@@ -515,6 +541,7 @@ implements LocationListener
 				Log.v("add","location info");
 				iLocationIgnoreSerialCount = 0;
 				mLastLocationStockTime = getTimeInMillis();
+				m_nLocationCantGetSerialCount = 0;
 				// NOTICE: この関数でほとんど全てのログを取っているようなもの
 				putLocationLog(getApplicationContext(),location);
 			}
