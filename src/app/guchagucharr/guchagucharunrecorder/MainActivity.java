@@ -1,12 +1,15 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 //import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources.NotFoundException;
@@ -23,6 +26,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -46,6 +50,7 @@ import app.guchagucharr.guchagucharunrecorder.fragments.ChooseActivityTypeDialog
 import app.guchagucharr.guchagucharunrecorder.util.CameraView;
 import app.guchagucharr.guchagucharunrecorder.util.SoundPlayer;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IMainViewController;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
@@ -80,6 +85,9 @@ implements
 	boolean bCameraMode = false;
 	// サービスのトークン
     private RunLogger.ServiceToken mToken = null;
+    
+    // 距離の単位
+	int mCurrentUnit = UnitConversions.DISTANCE_UNIT_KILOMETER;
 
     // 画面初期化用
 	public static DisplayInfo dispInfo = DisplayInfo.getInstance();	
@@ -87,7 +95,6 @@ implements
 	private MainHandler handler;
 	private int nActivityTypeDefaultIcon;
 	private int nActivityTypeInitIcon;
-	
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	// private Timer mTimer = null;	
 	
@@ -118,8 +125,9 @@ implements
 	static TextView txtDistanceOfLap = null;
 	// speed
 	static TextView txtSpeed = null;
+	// 速度表示は１つに
 	// speed2
-	static TextView txtSpeed2 = null;
+	// static TextView txtSpeed2 = null;
 	// lap label
 	static TextView txtLap = null;
 	// location count label
@@ -150,7 +158,6 @@ implements
         // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
-        
         updateAssistGps();
 	}
 
@@ -201,14 +208,18 @@ implements
         // NOTICE: Resume毎につなぎ直すと、多すぎるかも？
         // Bind( Or Create and Bind) to Service
         mToken = RunLogger.bindToService(this, this);
-        
-    	// update display size etc.
+        // 設定をメモリに展開しておく
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		mCurrentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+			String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
+
+		// update display size etc.
 		// when end update, send message to handler
 		// now, initialize there.
 		regionCenterBtn = null;
 		regionLapBtn = null;
 		regionCancelBtn = null;
-        dispInfo.init(this, componentContainer, handler,false);
+        dispInfo.init(this, componentContainer, handler, false);
 
         super.onResume();
     }
@@ -339,11 +350,13 @@ implements
 				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
 				{
 					// ラップが2周目以降の場合は、ラップのデータも表示する
-					txtDistance.setText( LapData.createDistanceFormatText( 
+					txtDistance.setText( LapData.createDistanceFormatText(
+							mCurrentUnit,
 							RunLoggerService.getLogStocker().getCurrentLapData().getDistance()
 						)
 					);
-					txtDistanceOfLap.setText(LapData.createDistanceFormatText( 
+					txtDistanceOfLap.setText(LapData.createDistanceFormatText(
+						mCurrentUnit,
 						RunLoggerService.getLogStocker().getTotalDistance()
 						+ RunLoggerService.getLogStocker().getCurrentLapData().getDistance()
 						)
@@ -352,13 +365,15 @@ implements
 				else
 				{
 					// ラップが１周目の場合は、ラップのデータは表示しない
-					txtDistance.setText( LapData.createDistanceFormatText( 
+					txtDistance.setText( LapData.createDistanceFormatText(
+						mCurrentUnit,
 						RunLoggerService.getLogStocker().getCurrentLapData().getDistance() )
 					);	
 				}
-				txtSpeed.setText( LapData.createSpeedFormatText( speed ) );//location.getSpeed() ) );
+				txtSpeed.setText( LapData.createSpeedFormatTextKmPerH( mCurrentUnit, speed ) );//location.getSpeed() ) );
 				//runLogStocker.getCurrentLapData().getSpeed() ) );
-				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( speed ) );//location.getSpeed() ) );
+				// 速度表示は１つに
+				//txtSpeed2.setText( LapData.createSpeedFormatText( speed ) );//location.getSpeed() ) );
 				//runLogStocker.getCu rrentLapData().getSpeed() ) );
 				txtLocationCount.setText( String.valueOf(RunLoggerService.getLogStocker().getLocationDataCount() ) );
 				//getLocationData().size() ) );
@@ -401,11 +416,12 @@ implements
         	{
         		imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
         	}
-        	else if( 50 < location.getAccuracy() )
+        	// TODO: 値はここには書かない
+        	else if( 40 < location.getAccuracy() )
 			{
 				imgGPS.setBackgroundResource(R.drawable.gps_bad);
 			}
-			else if( 30 >= location.getAccuracy() )
+			else if( 25 >= location.getAccuracy() )
 			{
 				imgGPS.setBackgroundResource(R.drawable.gps_soso);
 			}
@@ -939,35 +955,35 @@ implements
 		addViewToCompContainer(txtSpeed);
 
 		// speed
-		if( txtSpeed2 == null )		
-			txtSpeed2 = new TextView(this);
-		RelativeLayout.LayoutParams rlTxtSpeed2
-		= dispInfo.createLayoutParamForNoPosOnBk( 
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-        if( true == dispInfo.isPortrait() )
-        {
-        	// 縦向き
-    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
-        }
-        else
-        {
-        	// 横向き
-    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
-    		//rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
-    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-        }
-		
-		txtSpeed2.setLayoutParams(rlTxtSpeed2);
-		txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-		txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
-		txtSpeed2.setSingleLine();
-		//txtSpeed.setText("12.5 km/h");
-		txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-		addViewToCompContainer(txtSpeed2);
+//		if( txtSpeed2 == null )		
+//			txtSpeed2 = new TextView(this);
+//		RelativeLayout.LayoutParams rlTxtSpeed2
+//		= dispInfo.createLayoutParamForNoPosOnBk( 
+//				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+//        if( true == dispInfo.isPortrait() )
+//        {
+//        	// 縦向き
+//    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+//    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+//    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+//        }
+//        else
+//        {
+//        	// 横向き
+//    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+//    		//rlTxtSpeed.topMargin = CENTER_BELOW_CTRL_MARGIN;
+//    		//rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+//    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+//    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+//        }
+//		
+//		txtSpeed2.setLayoutParams(rlTxtSpeed2);
+//		txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+//		txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+//		txtSpeed2.setSingleLine();
+//		//txtSpeed.setText("12.5 km/h");
+//		txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+//		addViewToCompContainer(txtSpeed2);
 		
 		// next Lap button
 		if( btnLap == null )
@@ -1066,7 +1082,7 @@ implements
 				txtDistance.setVisibility(View.GONE);
 				txtDistanceOfLap.setVisibility(View.GONE);
 				txtSpeed.setVisibility(View.GONE);
-				txtSpeed2.setVisibility(View.GONE);
+				// txtSpeed2.setVisibility(View.GONE);
 				btnLap.setVisibility(View.GONE);
 				btnCamera.setVisibility(View.GONE);
 				btnCancel.setVisibility(View.GONE);
@@ -1078,7 +1094,7 @@ implements
 			{
 				txtDistance.setVisibility(View.VISIBLE);
 				txtSpeed.setVisibility(View.VISIBLE);
-				txtSpeed2.setVisibility(View.VISIBLE);
+				// txtSpeed2.setVisibility(View.VISIBLE);
 				txtTime.setVisibility(View.VISIBLE);		
 				btnLap.setVisibility(View.VISIBLE);
 				btnCamera.setVisibility(View.VISIBLE);
@@ -1167,16 +1183,16 @@ implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+				txtDistance.setText( LapData.createDistanceFormatText( mCurrentUnit, 0 ) );
 				//txtTime.setText( LapData.createTimeFormatText( 0 ) );
-				txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
-				txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+				txtSpeed.setText( LapData.createSpeedFormatTextKmPerH( mCurrentUnit, 0 ) );
+				// txtSpeed2.setText( LapData.createSpeedFormatText( 0 ) );
 				
 				//new Date().getTime());
 				txtTimeOfLap.setVisibility(View.VISIBLE);
 				txtTimeOfLap.setText( LapData.createTimeFormatText( 0 ) );
 				txtDistanceOfLap.setVisibility(View.VISIBLE);
-				txtDistanceOfLap.setText( LapData.createDistanceFormatText( 0 ) );
+				txtDistanceOfLap.setText( LapData.createDistanceFormatText( mCurrentUnit, 0 ) );
 
 				txtLap.setVisibility(View.VISIBLE);
 				txtLap.setText(getString(R.string.LAP_LABEL) 
@@ -1192,14 +1208,20 @@ implements
 					// 全てクリアする
 					// TODO:確認ダイアログ
 					if( RunLogger.sService.getMode() == eMode.MODE_MEASURING.ordinal() )
-					{
+					{						
 						RunLogger.sService.setMode( eMode.MODE_NORMAL.ordinal() );
 						// モードをファイルに書き込み
 						// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 						// logging end
 						RunLogger.sService.stopLog();
 						clearGPS();
-			            RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
+						// Notifyの消去
+						NotificationManager mNotificationManager =
+						(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+						mNotificationManager.cancel(RunLoggerService.NOTIF_ID);
+						// mNotificationManager.notify();
+
+						RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(),false);//new Date().getTime());
 						
@@ -1209,13 +1231,14 @@ implements
 						txtDistance.setVisibility(View.GONE);
 						txtDistanceOfLap.setVisibility(View.GONE);
 						txtSpeed.setVisibility(View.GONE);
-						txtSpeed2.setVisibility(View.GONE);
+						// txtSpeed2.setVisibility(View.GONE);
 						txtLap.setVisibility(View.GONE);
 						btnCenter.setEnabled(false);
 						txtLocationCount.setVisibility(View.GONE);
 						btnLap.setVisibility(View.GONE);
 						btnCamera.setVisibility(View.GONE);
 						btnCancel.setVisibility(View.GONE);
+						
 						resetGpsIndicator();
 						//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
 						if( bUseGPS )
@@ -1223,6 +1246,7 @@ implements
 							requestGPS();
 						}
 						Log.v("btnCancel","clicked");
+						finish();
 						return;
 					}
 				} catch (RemoteException e) {
@@ -1284,15 +1308,15 @@ implements
 
 						// 画面表示のクリア
 						// TODO:クリア関数があれば、それを利用
-						txtDistance.setText( LapData.createDistanceFormatText( 0 ) );
+						txtDistance.setText( LapData.createDistanceFormatText( mCurrentUnit, 0 ) );
 						txtTime.setText( LapData.createTimeFormatText( 0 ) );
-						txtSpeed.setText( LapData.createSpeedFormatText( 0 ) );
-						txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 0 ) );
+						txtSpeed.setText( LapData.createSpeedFormatTextKmPerH( mCurrentUnit, 0 ) );
+						// txtSpeed2.setText( LapData.createSpeedFormatText( 0 ) );
 						txtLocationCount.setText("0");
 						
 						txtDistance.setVisibility(View.VISIBLE);
 						txtSpeed.setVisibility(View.VISIBLE);
-						txtSpeed2.setVisibility(View.VISIBLE);
+						// txtSpeed2.setVisibility(View.VISIBLE);
 						txtTime.setVisibility(View.VISIBLE);
 						btnLap.setVisibility(View.VISIBLE);
 						btnCamera.setVisibility(View.VISIBLE);
@@ -1366,7 +1390,7 @@ implements
 			txtDistance.setVisibility(View.GONE);
 			txtDistanceOfLap.setVisibility(View.GONE);
 			txtSpeed.setVisibility(View.GONE);
-			txtSpeed2.setVisibility(View.GONE);
+			// txtSpeed2.setVisibility(View.GONE);
 			txtLap.setVisibility(View.GONE);
 			btnCenter.setEnabled(false);
 			txtLocationCount.setVisibility(View.GONE);
@@ -1613,42 +1637,48 @@ implements
       public boolean onOptionsItemSelected(MenuItem item) {
         //Intent intent;
         switch (item.getItemId()) {
-          case R.id.id_menu_recovery:
-				//　テスト中
-        	  	// RunLoggerStockerにデータ復旧->save dialog launch
-				TempolaryDataLoader loader = new TempolaryDataLoader();
-        	  	TempolaryDataLoader.TempolaryData data = loader.new TempolaryData();
-				data.setGpxDir("/mnt/sdcard/app.guchagucharr.guchagucharunrecorder/20140427091934124");
-				RunLoggerService.clearRunLogStocker();
-				RunLoggerService.createLogStocker();
-				
-				// => recovery関数内で
-				// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
-				// 時間を一時保存されていた時間をstartで復旧
-				try {
-					if( false == RunLoggerService.getLogStocker().recovery(this, data, false ) )
-	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
-					{
-						RunLoggerService.clearRunLogStocker();
-						Toast.makeText(this, R.string.cant_recovery_because_error, Toast.LENGTH_LONG).show();
-						break;
-					}
-				} catch (NotFoundException e) {
-					// TODO Auto-generated catch block
-					Log.e("recover","error notfoundexception");
-					e.printStackTrace();
-				}
-				// Activityの種別を、テンポラリから設定し直す
-				activityTypeButton.setTag(data.getActivityTypeCode());
-				// TrackIconUtils.setIconSpinner(activityTypeIcon,data.getActivityTypeCode());
-				//try {
-					RunLoggerService.setActivityTypeCode(
-							(Integer)activityTypeButton.getTag());//activityTypeIcon.getAdapter().getItem(0));
-//				} catch (RemoteException e) {
+//        
+//          case R.id.id_menu_recovery:
+//				//　テスト中
+//        	  	// RunLoggerStockerにデータ復旧->save dialog launch
+//				TempolaryDataLoader loader = new TempolaryDataLoader();
+//        	  	TempolaryDataLoader.TempolaryData data = loader.new TempolaryData();
+//				data.setGpxDir("/mnt/sdcard/app.guchagucharr.guchagucharunrecorder/20140427091934124");
+//				RunLoggerService.clearRunLogStocker();
+//				RunLoggerService.createLogStocker();
+//				
+//				// => recovery関数内で
+//				// RunLogger.sService.setMode(eMode.MODE_MEASURING.ordinal());
+//				// 時間を一時保存されていた時間をstartで復旧
+//				try {
+//					if( false == RunLoggerService.getLogStocker().recovery(this, data, false ) )
+//	//							if( false == RunLoggerService.getLogStocker().start(this,time) )
+//					{
+//						RunLoggerService.clearRunLogStocker();
+//						Toast.makeText(this, R.string.cant_recovery_because_error, Toast.LENGTH_LONG).show();
+//						break;
+//					}
+//				} catch (NotFoundException e) {
+//					// TODO Auto-generated catch block
+//					Log.e("recover","error notfoundexception");
 //					e.printStackTrace();
-//				}				
-				endWorkOutAndShowSaveDlg(true);
-				return false;
+//				}
+//				// Activityの種別を、テンポラリから設定し直す
+//				activityTypeButton.setTag(data.getActivityTypeCode());
+//				// TrackIconUtils.setIconSpinner(activityTypeIcon,data.getActivityTypeCode());
+//				//try {
+//					RunLoggerService.setActivityTypeCode(
+//							(Integer)activityTypeButton.getTag());//activityTypeIcon.getAdapter().getItem(0));
+////				} catch (RemoteException e) {
+////					e.printStackTrace();
+////				}				
+//				endWorkOutAndShowSaveDlg(true);
+//				return false;
+          case R.id.id_menu_setting:
+              Intent intent = new Intent();
+              intent.setClass(this, GGRRPreferenceActivity.class);
+              startActivity(intent);
+        	  break;
         }
         return super.onOptionsItemSelected(item);
       }

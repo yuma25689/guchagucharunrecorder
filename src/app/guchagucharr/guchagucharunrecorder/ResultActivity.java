@@ -4,6 +4,7 @@ package app.guchagucharr.guchagucharunrecorder;
 import java.text.SimpleDateFormat;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 //import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +17,7 @@ import android.graphics.Region;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -63,6 +65,9 @@ implements IPageViewController
 	Boolean bCancelBtnEnableRegionTouched = false;
 	int widthTmp = 0;
 	int heightTmp = 0;
+	
+    // 距離の単位
+	int mCurrentUnit = UnitConversions.DISTANCE_UNIT_KILOMETER;
 	
 	// private RelativeLayout lastSubLayout = null;
 	
@@ -127,6 +132,12 @@ implements IPageViewController
 
 	@Override
     protected void onResume() {
+		
+        // 設定をメモリに展開しておく
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		mCurrentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+				String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
+		
         handler.clearFlags();
         widthTmp = componentContainer.getWidth();
         heightTmp = componentContainer.getHeight();
@@ -595,7 +606,8 @@ implements IPageViewController
 					);//getString( R.string.default_activity_name ) ); 
 					//sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
 					//+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
-			txtDistance.setText( LapData.createDistanceFormatText( 
+			txtDistance.setText( LapData.createDistanceFormatText(
+					mCurrentUnit,
 					RunLoggerService.getLogStocker().getTotalDistance() ) );
 			// NOTICE:テスト用
 			String gpsLastTime = LapData.createTimeFormatText(
@@ -604,13 +616,14 @@ implements IPageViewController
 			txtTime.setText( LapData.createTimeFormatText(
 					RunLoggerService.getLogStocker().getTotalTime() ) + " " + gpsLastTime );
 			
-			txtSpeed.setText( LapData.createSpeedFormatText(
+			txtSpeed.setText( LapData.createSpeedFormatTextKmPerH(
+					mCurrentUnit,
 					RunLoggerService.getLogStocker().getTotalDistance() 
 					/ RunLoggerService.getLogStocker().getTotalTime() ) );
 					// RunLoggerService.getLogStocker().getTotalSpeed() ) );
-			txtSpeed2.setText( LapData.createSpeedFormatTextKmPerH( 
-					RunLoggerService.getLogStocker().getTotalDistance() 
-					/ RunLoggerService.getLogStocker().getTotalTime() ) );
+//			txtSpeed2.setText( LapData.createSpeedFormatText( 
+//					RunLoggerService.getLogStocker().getTotalDistance() 
+//					/ RunLoggerService.getLogStocker().getTotalTime() ) );
 					//RunLoggerService.getLogStocker().getTotalSpeed() ) );
 			if( 1 < RunLoggerService.getLogStocker().getStockedLapCount() )
 			{
@@ -654,9 +667,9 @@ implements IPageViewController
 					title[i] = String.valueOf( i + 1 );
 				}
 				String text[] = {
-						LapData.createDistanceFormatText( distance ),
+						LapData.createDistanceFormatText( mCurrentUnit, distance ),
 						LapData.createTimeFormatText( time ),
-						LapData.createSpeedFormatTextKmPerH( speed ),
+						LapData.createSpeedFormatTextKmPerH( mCurrentUnit, speed ),
 				};
 				DisplayBlock dispBlock = new DisplayBlock(
 						this,

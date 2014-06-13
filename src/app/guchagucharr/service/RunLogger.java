@@ -212,7 +212,7 @@ public class RunLogger {
 				new Intent(ctx, MainActivity.class), 0);
 		notification.setLatestEventInfo(ctx.getApplicationContext(),
 				"RunLoggerService", "位置情報ログ取得中", contentIntent);
-     	
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
     	NotificationManager manager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
     	manager.notify(RunLoggerService.NOTIF_ID, notification);    	
 		

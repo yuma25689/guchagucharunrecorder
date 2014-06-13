@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/display_settings">
+	    <!-- 
+		<EditTextPreference
+			android:key="edittext_key"
+			android:title="@string/edittext_title"
+			android:summary="@string/edittext_summary"
+			android:dialogTitle="@string/edittext_dialogtitle" />
+ 		-->			
+		<ListPreference
+			android:key="distance_unit_key"
+			android:title="@string/distance_unit"
+			android:summary="@string/distance_unit_summary"
+			android:dialogTitle="@string/choice_unit_dlg_title"
+			android:entries="@array/unit_list_entries"
+			android:entryValues="@array/unit_list_entryvalues" />
+	</PreferenceCategory>
+</PreferenceScreen>

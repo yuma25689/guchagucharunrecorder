@@ -16,14 +16,17 @@ import java.util.Vector;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
+import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
 import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 import app.guchagucharr.guchagucharunrecorder.RunNotificationSoundPlayer;
@@ -419,16 +422,24 @@ public class RunningLogStocker {
 		}
 		else
 		{
-		
+			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+			int currentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+					String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
+
+			// TODO 単位を比較する対象同士でそろえないと駄目
 			int iPrev =	(int)Math.floor(
 							CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
+									ctx,
+									currentUnit,
 									currentLapData.getDistance()));
-			
+
 			currentLapData.increaseDistance(prevLocation.distanceTo(location));
 			currentLapData.addSpeedData(location.getSpeed());
 
 			int iCurrent =	(int)Math.floor(
 					CurrentSettingUtil.getCurrentDefaultUnitDistanceFromMeter(
+							ctx,
+							currentUnit,
 							currentLapData.getDistance()));
 			if( iPrev < iCurrent )
 			{
@@ -436,7 +447,7 @@ public class RunningLogStocker {
 		        RunNotificationSoundPlayer.soundArrivalNotify(
 		        		ctx,
 		        		iCurrent - 1,
-		        		UnitConversions.DISTANCE_UNIT_KILOMETER
+		        		currentUnit//UnitConversions.DISTANCE_UNIT_KILOMETER
 		        		);
 			}
 		}

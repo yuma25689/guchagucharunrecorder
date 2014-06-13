@@ -3,6 +3,9 @@ package app.guchagucharr.guchagucharunrecorder.util;
 import java.text.SimpleDateFormat;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
 import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.SQLiteContract;
@@ -279,11 +282,19 @@ public class ColumnData {
 		}
 		else if( iEditMethod == ColumnData.EDIT_METHDO_DISTANCE )
 		{
-			return LapData.createDistanceFormatText( Double.parseDouble(text) );
+			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+			int currentUnit = pref.getInt(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+					UnitConversions.DISTANCE_UNIT_KILOMETER);
+			
+			return LapData.createDistanceFormatText( currentUnit, Double.parseDouble(text) );
 		}
 		else if( iEditMethod == ColumnData.EDIT_METHDO_SPEED )
 		{
-			return LapData.createSpeedFormatTextKmPerH( Double.parseDouble(text) );
+			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+			int currentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+					String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
+
+			return LapData.createSpeedFormatTextKmPerH( currentUnit, Double.parseDouble(text) );
 		}
 		return text;
 	}

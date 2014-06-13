@@ -12,9 +12,11 @@ import java.util.Vector;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.support.v4.view.ViewPager;
 //import android.text.format.Time;
@@ -212,9 +214,14 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	static final int MAIN_FIRST_PANEL_ID = 1500;
 	static final int SUB_FIRST_PANEL_ID = 100000;
 
+	int mCurrentUnit = UnitConversions.DISTANCE_UNIT_KILOMETER;
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		mCurrentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+				String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
+		
 		// Log.w("initControls"," " + dispInfo.isPortrait());
 //		int width = componentContainer.getWidth();
 //		int height = componentContainer.getHeight();
@@ -305,6 +312,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 							TrackIconUtils.getIconDrawable(
 									totalActData.getValue().getActivityTypeCode()),
 							LapData.createDistanceFormatText(
+									mCurrentUnit,
 									totalActData.getValue().getDistance() ) );
 					arrTextAndIcon.add(textAndIcon);
 				}
@@ -410,10 +418,12 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				lapCount = getString( R.string.LAP_COUNT_LABEL ) + data.getLapCount();
 			}
 			String text[] = {
-					LapData.createDistanceFormatText( distanceTotal ),
+					LapData.createDistanceFormatText( 
+							mCurrentUnit,
+							distanceTotal ),
 					LapData.createTimeFormatText( timeTotal ),
 					//LapData.createSpeedFormatText( speedTotal ),
-					LapData.createSpeedFormatTextKmPerH( speedTotal ),
+					LapData.createSpeedFormatTextKmPerH( mCurrentUnit, speedTotal ),
 					//gpxExists,
 					lapCount
 			};
@@ -476,12 +486,14 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 						TrackIconUtils.getIconDrawable(
 								totalActData.getValue().getActivityTypeCode()),
 						LapData.createDistanceFormatText(
+								mCurrentUnit,
 								totalActData.getValue().getDistance() ) );
 				textAndIcon.setIconId(
 						TrackIconUtils.getIconDrawable(
 								totalActData.getValue().getActivityTypeCode()));
 				textAndIcon.setText(
 						LapData.createDistanceFormatText( 
+								mCurrentUnit,
 								totalActData.getValue().getDistance() ));
 				arrTextAndIcon.add(textAndIcon);
 			}
@@ -675,9 +687,9 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				title[0] = getString(R.string.no_title);//getString(R.string.LAP_LABEL) + ( data.getLapIndex() + 1 );
 			}
 			String text[] = {
-					LapData.createDistanceFormatText( distance ),
+					LapData.createDistanceFormatText( mCurrentUnit, distance ),
 					LapData.createTimeFormatText( time ),
-					LapData.createSpeedFormatTextKmPerH( speed ),
+					LapData.createSpeedFormatTextKmPerH( mCurrentUnit, speed ),
 			};
 			DisplayBlock dispBlock = new DisplayBlock(
 					this, 
@@ -896,9 +908,10 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         	}
 	        text = name
 	        + titleDateTime + System.getProperty("line.separator")
-	        + getString(R.string.distance_label) + LapData.createDistanceFormatText( distanceTotal ) + System.getProperty("line.separator")
+	        + getString(R.string.distance_label) + LapData.createDistanceFormatText( 
+	        		mCurrentUnit, distanceTotal ) + System.getProperty("line.separator")
 	        + getString(R.string.time_label) + LapData.createTimeFormatText( timeTotal ) + System.getProperty("line.separator")
-	        + getString(R.string.speed_label) + LapData.createSpeedFormatTextKmPerH( speedTotal ) + System.getProperty("line.separator")
+	        + getString(R.string.speed_label) + LapData.createSpeedFormatTextKmPerH( mCurrentUnit, speedTotal ) + System.getProperty("line.separator")
 	        ;
 	        intent.putExtra(Intent.EXTRA_TEXT, text);
 	        startActivity(Intent.createChooser(

@@ -1,13 +1,17 @@
 package app.guchagucharr.guchagucharunrecorder.util;
 
+import android.content.Context;
+//import android.content.SharedPreferences;
+//import android.preference.PreferenceManager;
+//import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
+
 public class CurrentSettingUtil {
 
-	public static double getCurrentDefaultUnitDistanceFromMeter( double meter )
+	public static double getCurrentDefaultUnitDistanceFromMeter( Context ctx, int currentUnit, double meter )
 	{
 		double ret = meter;
 		
-		// TODO: ここは、設定から取得する
-		int currentUnit = UnitConversions.DISTANCE_UNIT_KILOMETER;
+		// int currentUnit = UnitConversions.DISTANCE_UNIT_KILOMETER;
 		
 		switch( currentUnit )
 		{

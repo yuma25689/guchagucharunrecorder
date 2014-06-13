@@ -29,7 +29,13 @@ limitations under the License.
     android:title="@string/menu_start_gps"/>
      -->
   <item
+    android:icon="@android:drawable/ic_menu_preferences"
+    android:id="@+id/id_menu_setting"
+    android:title="@string/menu_setting"/>
+  <!-- 
+  <item
     android:icon="@android:drawable/ic_popup_sync"
     android:id="@+id/id_menu_recovery"
     android:title="@string/menu_recovery"/>
+     -->
 </menu>

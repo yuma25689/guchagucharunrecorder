@@ -2,7 +2,11 @@ package app.guchagucharr.service;
 
 import java.util.Vector;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
+import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 
 public class LapData {
 	
@@ -144,42 +148,82 @@ public class LapData {
 	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
-	public static String createDistanceFormatText(double distance)
+	public static String createDistanceFormatText(int currentUnit, double distance)
 	{
 		String ret = null;
-		final double DISTANCE_KM = 1000;
-		// TODO: �ݒ�ɂ���āAm/s��km/hour��؂�ւ�
-		if( distance < DISTANCE_KM )
+		switch( currentUnit )
 		{
-			ret = String.format( "%.3f", distance ) 
-					+ ResourceAccessor.getInstance().IND_M;
+		case UnitConversions.DISTANCE_UNIT_KILOMETER:
+			if( distance < UnitConversions.KM_TO_M )
+			{
+				ret = String.format( "%.3f", distance ) 
+						+ ResourceAccessor.getInstance().IND_M;
+			}
+			else
+			{
+				// NOTICE:微妙な繰り上げ方
+				ret = String.format( "%.3f", distance * UnitConversions.M_TO_KM ) 
+						+ ResourceAccessor.getInstance().IND_KM;
+			}
+			break;
+		case UnitConversions.DISTANCE_UNIT_MILE:
+			double ft = distance * UnitConversions.M_TO_FT;
+			if( ft < UnitConversions.MI_TO_FT )
+			{
+				// 1mileに到達していなかったら、ftで表示？
+				ret = String.format( "%.3f", ft ) 
+						+ ResourceAccessor.getInstance().IND_FT;
+			}
+			else
+			{
+				// NOTICE:微妙な繰り上げ方
+				ret = String.format( "%.3f", ft * UnitConversions.FT_TO_MI ) 
+						+ ResourceAccessor.getInstance().IND_MILE;
+			}
+			break;
+			
 		}
-		else
-		{
-			// NOTICE:微妙な繰り上げ方
-			ret = String.format( "%.3f", distance / DISTANCE_KM ) 
-					+ ResourceAccessor.getInstance().IND_KM;
-		}
-		
 		return ret;
 	}
-	public static String createDistanceFormatText(double distance,double totalDistance)
+	public static String createDistanceFormatText(int currentUnit, double distance,double totalDistance)
 	{
 		String ret = null;
-		final double DISTANCE_KM = 1000;
-		// TODO: �ݒ�ɂ���āAm/s��km/hour��؂�ւ�
-		if( distance < DISTANCE_KM )
+		switch( currentUnit )
 		{
-			ret = String.format( "%.3f", distance ) 
-					+ "( / " + String.format( "%.3f", totalDistance )  + ")"
-					+ ResourceAccessor.getInstance().IND_M;
-		}
-		else
-		{
-			// NOTICE:微妙な繰り上げ方
-			ret = String.format( "%.3f", distance / DISTANCE_KM ) 
-					+ "( / " + String.format( "%.3f", totalDistance / DISTANCE_KM )  + ")"
-					+ ResourceAccessor.getInstance().IND_KM;
+		case UnitConversions.DISTANCE_UNIT_KILOMETER:
+			if( distance < UnitConversions.KM_TO_M )
+			{
+				ret = String.format( "%.3f", distance ) 
+						+ "( / " + String.format( "%.3f", totalDistance )  + ")"						
+						+ ResourceAccessor.getInstance().IND_M;
+			}
+			else
+			{
+				// NOTICE:微妙な繰り上げ方
+				ret = String.format( "%.3f", distance / UnitConversions.KM_TO_M ) 
+						+ "( / " + String.format( "%.3f", totalDistance / UnitConversions.KM_TO_M )  + ")"
+						+ ResourceAccessor.getInstance().IND_KM;
+			}
+			break;
+		case UnitConversions.DISTANCE_UNIT_MILE:
+			double ft = distance * UnitConversions.M_TO_FT;
+			double totalFt = totalDistance * UnitConversions.M_TO_FT;
+			if( ft < UnitConversions.MI_TO_FT )
+			{
+				// 1mileに到達していなかったら、ftで表示？
+				ret = String.format( "%.3f", ft )
+						+ "( / " + String.format( "%.3f", totalFt )  + ")"						
+						+ ResourceAccessor.getInstance().IND_FT;
+			}
+			else
+			{
+				// NOTICE:微妙な繰り上げ方
+				ret = String.format( "%.3f", ft * UnitConversions.FT_TO_MI )
+						+ "( / " + String.format( "%.3f", totalFt * UnitConversions.FT_TO_MI )  + ")"
+						+ ResourceAccessor.getInstance().IND_MILE;
+			}
+			break;
+			
 		}
 		
 		return ret;
@@ -223,22 +267,23 @@ public class LapData {
 		ret = strHour + strMin + strSecond;
 		return ret;
 	}
-	public static String createSpeedFormatText(double speed)
-	{
-		String ret = null;
-
-		// m/s
-		ret = String.format("%.2f", speed) + ResourceAccessor.getInstance().IND_MPERS;
-		return ret;
-	}
-	public static String createSpeedFormatTextKmPerH(double speed)
+	// 秒速〜メートルは廃止
+//	public static String createSpeedFormatText(double speed)
+//	{
+//		String ret = null;
+//
+//		// m/s
+//		ret = String.format("%.2f", speed) + ResourceAccessor.getInstance().IND_MPERS;
+//		return ret;
+//	}
+	// TODO: 距離の単位が設定されたものになるように修正必要
+	public static String createSpeedFormatTextKmPerH(int currentUnit, double speed)
 	{
 		String ret = null;
 		double meterperhour = speed * 60 * 60;
 		
 		ret = String.format("%.2f", meterperhour / 1000 ) + ResourceAccessor.getInstance().IND_KMPERHOUR;
 		return ret;
-		
 	}
 	/**
 	 * @return the gpxFilePath

@@ -78,7 +78,7 @@ implements LocationListener
 	private long mLastLocationStockTime = 0;
 	private static int iLocationIgnoreSerialCount = 0; 
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
-	private long requestLocationUpdatesTime = 500;	// 最速で0.5s?
+	private long requestLocationUpdatesTime = 100;	// 最速で0.2s?
 	private final ConnectionCallbacks connectionCallbacks = 
 		new ConnectionCallbacks() {
 	    @Override
@@ -476,10 +476,7 @@ implements LocationListener
 	@Override
 	public void onLocationChanged(Location location) {
 		Log.v("GPS","onLocationChanged");
-		// NOTICE: 受診毎に切断
 		synchronized(mode) {
-			// TODO: これでロックできているかは、要確認
-			// サービス再起動時の復旧処理を、ここに入れればうまく行きそうに感じる
 			if( mode == eMode.MODE_NORMAL )
 			{
 				// 復旧処理対応
@@ -532,7 +529,11 @@ implements LocationListener
 				// TODO: 精度は、設定に
 				// 50m以上の誤差がある場合は、切り捨てる
 				// ただし、30回以上連続無視の場合は、切り捨てない
-				if( 50 < location.getAccuracy() && iLocationIgnoreSerialCount < 30 )
+				// 2014/06/12 -> やっぱり、切り捨てる。
+				// TODO: この値を、設定に移動
+				// ただし、ユーザに設定させるという思想が好きではないので、
+				// ある意味このままでもいいかも
+				if( 30 < location.getAccuracy() || location.getAccuracy() == 0) //&& iLocationIgnoreSerialCount < 30 )
 				{
 					iLocationIgnoreSerialCount++;
 					Log.v("get location data but not stock","because over 50 accuracy");

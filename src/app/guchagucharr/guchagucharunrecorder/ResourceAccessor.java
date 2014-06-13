@@ -37,6 +37,8 @@ public final class ResourceAccessor {
 	public String IND_SEC = null;
 	public String IND_MINUTE = null;
 	public String IND_HOUR = null;
+	public String IND_MILE = null;
+	public String IND_FT = null;
 		
 	public static final long TIME_MINUTE = 60;
 	public static final long TIME_HOUR = 60 * 60;
@@ -83,7 +85,9 @@ public final class ResourceAccessor {
 		IND_SEC = getString(R.string.second);
 		IND_MINUTE = getString(R.string.minute);
 		IND_HOUR = getString(R.string.hour);
-		
+		IND_MILE = getString(R.string.mile);
+		IND_FT = getString(R.string.feet);
+
 	}
 	public static void CreateInstance( Activity activity )
 	{

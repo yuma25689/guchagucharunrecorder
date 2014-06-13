@@ -22,7 +22,7 @@
     <string name="dummy_content">ダミー\nコンテンツ</string>
     <string name="GPS_ON">GPSは有効に設定されています。</string>
     <string name="GPS_OFF">GPSは無効に設定されています。</string>
-    
+
     <string name="meter">メートル</string>
     <string name="killometer">キロ</string>
     <string name="second">秒</string>
@@ -30,6 +30,9 @@
     <string name="hour">時間</string>
     <string name="meterpersecond">メートル/秒</string>
     <string name="killoperhour">キロ/時間</string>
+    <string name="mph">マイル/時間</string>
+    <string name="mile">マイル</string>
+    <string name="feet">フィート</string>
     <string name="cant_get">取得不可</string>
     
     <string name="DLG_TITLE_EXPORT_PROGRESS">保存中</string>
@@ -54,7 +57,8 @@
     <string name="menu_share">共有</string>
 	<string name="menu_edit">編集</string>
 	<string name="menu_recovery">復元</string>
-	    
+	<string name="menu_setting">設定</string>
+		    
     <string name="GPX_EXISTS">GPXファイルあり</string>
     <string name="GPX_LOSE">GPXファイル紛失</string>
     <string name="LAP_COUNT_LABEL">ラップ数:</string>
@@ -128,5 +132,9 @@
 	<string name="ACTIVITY_TYPE_AIRPLANE">飛行機</string>
 	<string name="ACTIVITY_TYPE_SKI">スキー</string>
 	<string name="ACTIVITY_TYPE_SNOW_BOARDING">スノーボード</string>
-		
+	
+	<string name="display_settings">表示設定</string>
+	<string name="distance_unit">距離の単位</string>
+	<string name="distance_unit_summary">このアプリで使われる距離の単位を設定</string>
+	<string name="choice_unit_dlg_title">単位を選択してください。</string>
 </resources>

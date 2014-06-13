@@ -56,6 +56,9 @@
     <string name="hour">h</string>
     <string name="meterpersecond">m/s</string>
     <string name="killoperhour">km/h</string>
+    <string name="mph">mph</string>
+    <string name="mile">mile</string>
+    <string name="feet">feet</string>
     <string name="cant_get">--</string>
     
     <string name="DLG_TITLE_EXPORT_PROGRESS">Now saving</string>
@@ -82,7 +85,8 @@
     <string name="menu_share">Share</string>
     <string name="menu_edit">Edit</string>
 	<string name="menu_recovery">recovery</string>
-    
+	<string name="menu_setting">setting</string>
+	
     <string name="GPX_EXISTS">GPX exist</string>
     <string name="GPX_LOSE">GPX lost</string>
     <string name="LAP_COUNT_LABEL">Lap:</string>
@@ -508,5 +512,8 @@
 	<string name="ACTIVITY_TYPE_SNOW_BOARDING">Snow boarding</string>
 	<string name="ACTIVITY_TYPE_TRAIN">Train</string>
 	
-  		
+	<string name="display_settings">Display Settings</string>		
+	<string name="distance_unit">unit for distance</string>
+	<string name="distance_unit_summary">unit for distance of this app</string>
+	<string name="choice_unit_dlg_title">Please select the unit.</string>	
 </resources>
