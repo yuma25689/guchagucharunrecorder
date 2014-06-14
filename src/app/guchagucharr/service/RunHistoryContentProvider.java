@@ -29,7 +29,7 @@ public class RunHistoryContentProvider extends ContentProvider {
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
-    	private static int DB_VERSION = 8;
+    	private static int DB_VERSION = 9;
     	
         DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);

@@ -158,7 +158,7 @@ implements
         // create resource accessor
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
-        updateAssistGps();
+        // updateAssistGps();
 	}
 
 	private void updateAssistGps()
@@ -256,7 +256,7 @@ implements
 		RunLogger.sService.stopLog();
 		// ログ取得中でない場合は、完全に停止させる
 		// RunLogger.sService.clearGPS();
-		RunLogger.sService.clearLocationManager();					
+		RunLogger.sService.clearLocationManager();
 		// サービスの登録解除
 	    RunLogger.unbindFromService(mToken);
 	    // サービスの停止
@@ -417,17 +417,17 @@ implements
         		imgGPS.setBackgroundResource(R.drawable.gps_not_arrow);
         	}
         	// TODO: 値はここには書かない
-        	else if( 40 < location.getAccuracy() )
+			else if( 10 >= location.getAccuracy() )
 			{
-				imgGPS.setBackgroundResource(R.drawable.gps_bad);
+				imgGPS.setBackgroundResource(R.drawable.gps_good);
 			}
 			else if( 25 >= location.getAccuracy() )
 			{
 				imgGPS.setBackgroundResource(R.drawable.gps_soso);
 			}
-			else if( 10 >= location.getAccuracy() )
+        	else // ( 40 > location.getAccuracy() )
 			{
-				imgGPS.setBackgroundResource(R.drawable.gps_good);
+				imgGPS.setBackgroundResource(R.drawable.gps_bad);
 			}
         }
 	}
@@ -1418,6 +1418,7 @@ implements
 	public void clearGPS() {
 		// サービスのクリアGPS
 		try {
+			// 一応、ここでremoveLocationUpdates()が行われると思っている
 			RunLogger.sService.clearGPS();
 		} catch (RemoteException e) {
 			e.printStackTrace();

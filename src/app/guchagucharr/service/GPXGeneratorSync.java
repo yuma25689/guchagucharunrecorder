@@ -15,6 +15,8 @@ import java.util.TimeZone;
 import android.app.Activity;
 import android.location.Location;
 import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
+import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 
 /**
  * @author 25689
@@ -62,6 +64,8 @@ public class GPXGeneratorSync {
 	public static final String GPX_END_TAG 
 	= "</gpx>" + LINE_SEP;
 	
+	public static final String TAG_ACTIVITY_TYPE_FOR_MY_TRACKS = "<type><![CDATA[";
+	public static final String TAG_ACTIVITY_TYPE_FOR_MY_TRACKS_CLOSE = "]]></type>";	
 	public static final String TAG_LEFT_BLANCKET = "<";
 	public static final String TAG_LEFT_BLANCKET_OF_CLOSE = "</";
 	public static final String TAG_RIGHT_BLANCKET_OF_CLOSE = "/>" + LINE_SEP;
@@ -308,6 +312,7 @@ public class GPXGeneratorSync {
 		{			
 			String stg = XML_FORMAT + GPX_START_TAG; 
 			_bos.write( stg.getBytes() );
+			
 		}
 
 		public void endExport() throws IOException
@@ -378,7 +383,12 @@ public class GPXGeneratorSync {
 					+ TAG_LEFT_BLANCKET + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET 
 					+ String.valueOf( iLap + 1 )
 					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET
-					+ LINE_SEP					
+					+ LINE_SEP
+					+ TAG_ACTIVITY_TYPE_FOR_MY_TRACKS
+					+ TrackIconUtils.getActivityTypeNameFromCode(
+							ResourceAccessor.getInstance().getActivity(), RunLoggerService.getActivityTypeCode())
+					+ TAG_ACTIVITY_TYPE_FOR_MY_TRACKS_CLOSE
+					+ LINE_SEP
 					+ TAG_LEFT_BLANCKET + TAG_NAME_TRK_SEGMENT + TAG_RIGHT_BLANCKET
 					+ LINE_SEP
 					;

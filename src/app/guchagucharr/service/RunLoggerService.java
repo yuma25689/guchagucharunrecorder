@@ -76,16 +76,16 @@ implements LocationListener
 	private LocationClient locationClient;
 	private long mPrevTime = 0;
 	private long mLastLocationStockTime = 0;
-	private static int iLocationIgnoreSerialCount = 0; 
+	// private static int iLocationIgnoreSerialCount = 0; 
 	private float requestLocationUpdatesDistance = 0f;//0.1f;
-	private long requestLocationUpdatesTime = 100;	// 最速で0.2s?
+	private long requestLocationUpdatesTime = 500;	// 最速で0.5s?
 	private final ConnectionCallbacks connectionCallbacks = 
 		new ConnectionCallbacks() {
 	    @Override
 	    public void onDisconnected() {}
 
 	    @Override
-	    public void onConnected(Bundle bunlde) {
+	    public void onConnected(Bundle bundle) {
 	    	Log.w("onConnected","come");
 	      handler.post(new Runnable() {
 	        @Override
@@ -130,7 +130,6 @@ implements LocationListener
 						{
 							long lapTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getCurrentLapData().getStartTime();
-							
 							if( mPrevTime != 0 )
 							{
 								long prevMin = (long)Math.floor(
@@ -351,10 +350,12 @@ implements LocationListener
     {
 		if( locationClient != null )
 		{
-			if( false == locationClient.isConnected() )
-			{
-				locationClient.connect();
-			}
+	    	removeLocationUpdates(RunLoggerService.this);    	
+			locationClient.disconnect();
+			//if( false == locationClient.isConnected() )
+			//{
+			locationClient.connect();
+			//}
 		}
     	return 0;
     }
@@ -437,6 +438,7 @@ implements LocationListener
 	void clearGPS()
 	{
 	    if (locationClient != null) {
+	    	removeLocationUpdates(RunLoggerService.this);	    	
 	    	locationClient.disconnect();
 	    }
 	}
@@ -535,12 +537,12 @@ implements LocationListener
 				// ある意味このままでもいいかも
 				if( 30 < location.getAccuracy() || location.getAccuracy() == 0) //&& iLocationIgnoreSerialCount < 30 )
 				{
-					iLocationIgnoreSerialCount++;
+					// iLocationIgnoreSerialCount++;
 					Log.v("get location data but not stock","because over 50 accuracy");
 					return;
 				}
 				Log.v("add","location info");
-				iLocationIgnoreSerialCount = 0;
+				// iLocationIgnoreSerialCount = 0;
 				mLastLocationStockTime = getTimeInMillis();
 				m_nLocationCantGetSerialCount = 0;
 				// NOTICE: この関数でほとんど全てのログを取っているようなもの
