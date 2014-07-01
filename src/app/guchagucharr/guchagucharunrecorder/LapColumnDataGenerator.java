@@ -13,7 +13,8 @@ public class LapColumnDataGenerator implements IColumnDataGenerator {
 
 	@Override
 	public ColumnData[] generate(Activity activity, ActivityData data) {
-		// TODO Auto-generated method stub
+		// インタフェースで必須の関数なので、この関数がこのクラスにもあるが、
+		// これは本当はこのクラスには必要なしのダミー関数
 		return null;
 	}
 

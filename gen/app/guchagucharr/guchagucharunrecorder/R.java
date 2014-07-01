@@ -11708,22 +11708,23 @@ containing a value of this type.
         public static final int selector_am_button_image=0x7f0200a5;
         public static final int selector_camera_button_image=0x7f0200a6;
         public static final int selector_cancel_button_image=0x7f0200a7;
-        public static final int selector_edit_button_image=0x7f0200a8;
-        public static final int selector_gps_button_image=0x7f0200a9;
-        public static final int selector_history_button_image=0x7f0200aa;
-        public static final int selector_mainitem_panel_image=0x7f0200ab;
-        public static final int selector_next_button_image=0x7f0200ac;
-        public static final int selector_numberpicker_down_btn=0x7f0200ad;
-        public static final int selector_numberpicker_input=0x7f0200ae;
-        public static final int selector_numberpicker_up_btn=0x7f0200af;
-        public static final int selector_pm_button_image=0x7f0200b0;
-        public static final int selector_route_button_image=0x7f0200b1;
-        public static final int selector_runstart_button_image=0x7f0200b2;
-        public static final int selector_runstop_button_image=0x7f0200b3;
-        public static final int selector_save_button_image=0x7f0200b4;
-        public static final int selector_save_mini_button_image=0x7f0200b5;
-        public static final int selector_seekbar_image=0x7f0200b6;
-        public static final int selector_spinner_button_image=0x7f0200b7;
+        public static final int selector_chk_input_by_me_image=0x7f0200a8;
+        public static final int selector_edit_button_image=0x7f0200a9;
+        public static final int selector_gps_button_image=0x7f0200aa;
+        public static final int selector_history_button_image=0x7f0200ab;
+        public static final int selector_mainitem_panel_image=0x7f0200ac;
+        public static final int selector_next_button_image=0x7f0200ad;
+        public static final int selector_numberpicker_down_btn=0x7f0200ae;
+        public static final int selector_numberpicker_input=0x7f0200af;
+        public static final int selector_numberpicker_up_btn=0x7f0200b0;
+        public static final int selector_pm_button_image=0x7f0200b1;
+        public static final int selector_route_button_image=0x7f0200b2;
+        public static final int selector_runstart_button_image=0x7f0200b3;
+        public static final int selector_runstop_button_image=0x7f0200b4;
+        public static final int selector_save_button_image=0x7f0200b5;
+        public static final int selector_save_mini_button_image=0x7f0200b6;
+        public static final int selector_seekbar_image=0x7f0200b7;
+        public static final int selector_spinner_button_image=0x7f0200b8;
     }
     public static final class id {
         public static final int COLUMN_NAME_ID=0x7f070213;
@@ -12388,12 +12389,14 @@ containing a value of this type.
         public static final int LAP_COUNT_LABEL=0x7f080055;
         public static final int LAP_LABEL=0x7f080056;
         public static final int MSG_EXPORT_PROGRESS=0x7f08003e;
+        public static final int NO=0x7f0800dc;
         public static final int SaveError=0x7f08003f;
         public static final int SaveErrorDatabaseOnly=0x7f080042;
         public static final int SaveErrorGPX=0x7f080040;
         public static final int SaveErrorGPXOnly=0x7f080041;
         public static final int SaveOK=0x7f080043;
         public static final int Share=0x7f080059;
+        public static final int YES=0x7f0800db;
         /**  Activity Type 
          */
         public static final int activity_type_airplane=0x7f080085;
@@ -12561,6 +12564,7 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f080013;
+        public static final int confirm_cant_use_gps_message=0x7f0800da;
         public static final int data_not_updated=0x7f080084;
         public static final int data_updated=0x7f080083;
         public static final int date_button_caption=0x7f080080;
@@ -12696,6 +12700,7 @@ containing a value of this type.
         /**  Description of the button to increase the TimePicker's set PM value. [CHAR LIMIT=NONE] 
          */
         public static final int time_picker_increment_set_pm_button=0x7f080023;
+        public static final int title_confirm=0x7f0800d9;
         public static final int to=0x7f08005d;
         public static final int track_edit_activity_type_hint=0x7f0800ca;
         public static final int workouttime_display_format=0x7f08004c;

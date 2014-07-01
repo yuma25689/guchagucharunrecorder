@@ -28,7 +28,7 @@ public class RouteButton extends ImageButton {
 		@Override
 		public void onClick(View v) {
 			// GPXの共有を行う
-			// アストロと同じになっていると思う
+			// アストロファイルビューアと同じになっていると思う
 	        Intent intent = new Intent();
 	        intent.setAction(android.content.Intent.ACTION_VIEW);//SEND);//VIEW);
 	        intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -36,7 +36,7 @@ public class RouteButton extends ImageButton {
 	        try {
 		        ctx.startActivity(intent);
 	        } catch (ActivityNotFoundException e) {
-	        	// TODO エラー処理
+	        	// TODO エラーメッセージをユーザに処理
 	        	Log.e("ActivityNotFound", e.getMessage());
 	        }
 		}

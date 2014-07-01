@@ -27,7 +27,7 @@ import app.guchagucharr.guchagucharunrecorder.util.TextAndIcon;
 public class DisplayBlock extends RelativeLayout {
 
 	// ブロックに表示するデータ？
-	// 一応保持しているが、現在、使用していない。
+	// 一応保持しているが、現在、データの型の判定にしか使用していないので、丸ごと保持する必要はない
 	// ただし、メニューから使うかも。
 	Object data = null;
 	public void setData(Object data_)
