@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string-array name="default_activity_type_list_entries">
+	<item>Running</item>
+	<item>Walking</item>
+	<item>Driving</item>
+	<item>bike</item>
+	<item>Airplane</item>
+	<item>Ski</item>
+	<item>Snow boarding</item>
+	<item>Train</item>    
+</string-array>
+<string-array name="default_activity_type_list_entryvalues">
+	<item>0</item>
+	<item>1</item>
+	<item>2</item>
+	<item>3</item>
+	<item>5</item>
+	<item>6</item>
+	<item>7</item>
+	<item>8</item>
+</string-array>
+
 <string-array name="unit_list_entries">
 	<item>kilometer</item>
 	<item>mile</item>
 	<item>feet</item>
 </string-array>
 <string-array name="unit_list_entryvalues">
-	<item>2</item>
+    <item>2</item>
 	<item>3</item>
 	<item>4</item>
 </string-array>

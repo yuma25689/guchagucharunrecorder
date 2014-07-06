@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string-array name="default_activity_type_list_entries">
+	<item>ランニング</item>
+	<item>ウォーキング</item>
+	<item>ドライビング</item>
+	<item>自転車</item>
+	<item>飛行機</item>
+	<item>スキー</item>
+	<item>スノーボード</item>
+	<item>電車</item>    
+</string-array>
+<!--
+<string-array name="default_activity_type_list_entryvalues">
+	<item>0</item>
+	<item>1</item>
+	<item>2</item>
+	<item>3</item>
+	<item>5</item>
+	<item>6</item>
+	<item>7</item>
+	<item>8</item>
+</string-array>
+ -->
+    
 <string-array name="unit_list_entries">
 	<item>キロメートル</item>
 	<item>マイル</item>
 	<item>フィート</item>
 </string-array>
+<!--
 <string-array name="unit_list_entryvalues">
 	<item>2</item>
 	<item>3</item>
 	<item>4</item>
 </string-array>
+-->
 </resources>

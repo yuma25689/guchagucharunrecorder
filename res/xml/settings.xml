@@ -8,7 +8,7 @@
 			android:title="@string/edittext_title"
 			android:summary="@string/edittext_summary"
 			android:dialogTitle="@string/edittext_dialogtitle" />
- 		-->			
+ 		-->
 		<ListPreference
 			android:key="distance_unit_key"
 			android:title="@string/distance_unit"
@@ -16,5 +16,12 @@
 			android:dialogTitle="@string/choice_unit_dlg_title"
 			android:entries="@array/unit_list_entries"
 			android:entryValues="@array/unit_list_entryvalues" />
-	</PreferenceCategory>
+		<ListPreference
+			android:key="default_activity_type_key"
+			android:title="@string/default_activity_type_title"
+			android:summary="@string/default_activity_type_summary"
+			android:dialogTitle="@string/default_activity_type_dialog_title"
+			android:entries="@array/default_activity_type_list_entries"
+			android:entryValues="@array/default_activity_type_list_entryvalues" />
+		</PreferenceCategory>
 </PreferenceScreen>

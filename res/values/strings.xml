@@ -516,7 +516,11 @@
 	<string name="distance_unit">unit for distance</string>
 	<string name="distance_unit_summary">unit for distance of this app</string>
 	<string name="choice_unit_dlg_title">Please select the unit.</string>	
-
+	
+	<string name="default_activity_type_title">default activity type</string>
+	<string name="default_activity_type_summary">activity type when application launch.</string>
+	<string name="default_activity_type_dialog_title">Please select the default activity type.</string>	
+	
 	<string name="title_confirm">Confirmation</string>		
 	<string name="confirm_cant_use_gps_message">You can\'t use GPS because system setting don\'t apply to use GPS.Are you sure to record location without GPS?</string>
 	<string name="YES">YES</string>

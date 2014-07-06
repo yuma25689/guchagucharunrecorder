@@ -138,6 +138,10 @@
 	<string name="distance_unit_summary">このアプリで使われる距離の単位を設定</string>
 	<string name="choice_unit_dlg_title">単位を選択してください。</string>
 
+	<string name="default_activity_type_title">活動タイプ</string>
+	<string name="default_activity_type_summary">アプリ起動時の活動タイプ</string>
+	<string name="default_activity_type_dialog_title">活動タイプを設定してください。</string>	
+		
 	<string name="title_confirm">確認</string>		
 	<string name="confirm_cant_use_gps_message">現在GPSが使えない設定になっているので、GPS無しで位置情報を取得しますが、良いですか？</string>
 	<string name="YES">はい</string>

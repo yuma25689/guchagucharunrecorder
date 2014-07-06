@@ -283,8 +283,10 @@ public class ColumnData {
 		else if( iEditMethod == ColumnData.EDIT_METHDO_DISTANCE )
 		{
 			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ctx);
-			int currentUnit = pref.getInt(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
-					UnitConversions.DISTANCE_UNIT_KILOMETER);
+//			int currentUnit = pref.getInt(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+//					UnitConversions.DISTANCE_UNIT_KILOMETER);
+			int currentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
+					String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
 			
 			return LapData.createDistanceFormatText( currentUnit, Double.parseDouble(text) );
 		}

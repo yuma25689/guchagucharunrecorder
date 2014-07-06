@@ -40,7 +40,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.CheckBox;
+//import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
@@ -156,8 +156,11 @@ implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// TODO: 設定から取得
-		nActivityTypeDefaultIcon = TrackIconUtils.RUN;// getString(R.string.activity_type_running);
+		// 設定からデフォルトの活動タイプを取得
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);		
+		nActivityTypeDefaultIcon = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DEFAULT_ACTIVITY_TYPE_KEY,
+				String.valueOf( TrackIconUtils.RUN )));
+		//nActivityTypeDefaultIcon = TrackIconUtils.RUN;
 		nActivityTypeInitIcon = nActivityTypeDefaultIcon;
         // get the layout
         componentContainer = (RelativeLayout)findViewById(R.id.main_content);
@@ -272,7 +275,7 @@ implements
 	}
 	@Override
 	protected void onPause()
-	{		
+	{
 		// サービスのトークンを保持していれば
 		if(mToken != null)
 		{
@@ -302,14 +305,12 @@ implements
 			// どっちにしても、トークンをnullにする
 		    mToken = null;
 		}
-		
 		// レシーバの登録解除
         if( null != receiver )
         {
         	this.unregisterReceiver(receiver);
         	receiver = null;
         }
-		
         // clearGPS();
 		//android.R.drawable.ic_menu_mylocation
 		regionCenterBtn = null;
@@ -320,6 +321,13 @@ implements
         super.onPause();	
 	}
 //	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//	    super.onSaveInstanceState(outState);
+//	 	 
+//	    outState.putInt(ChooseActivityTypeDialogFragment.KEY_CATEGORY, (Integer)activityTypeButton.getTag() );
+//	}
+	
+//	@Override
 //	protected void onStop()
 //	{				
 //        super.onStop();
@@ -329,7 +337,6 @@ implements
 	{
 		// このタイミングで大丈夫なんだろうか・・・
 		SoundPlayer.releaseSound();
-		
 		// NOTICE: 本当に不要？
 //		if( RunLogger.sService.getMode() == RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 //		{
@@ -647,7 +654,7 @@ implements
 				// 計測中
 				iCenterButtonImageID = R.drawable.selector_runstop_button_image;
 				nActivityTypeInitIcon = RunLoggerService.getActivityTypeCode();
-			}			
+			}
 		} catch (RemoteException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -773,14 +780,14 @@ implements
 		if( activityTypeButton == null )
 		{
 			activityTypeButton = new ImageButton(this);
+		    // 種別はTagに設定
+		    activityTypeButton.setTag(nActivityTypeInitIcon);
 		}
 		activityTypeButton.setBackgroundResource(R.drawable.selector_spinner_button_image );
 	    Bitmap source = BitmapFactory.decodeResource(
 		        MainActivity.this.getResources(),
-		        TrackIconUtils.getIconDrawable(nActivityTypeInitIcon));
+		        TrackIconUtils.getIconDrawable((Integer)activityTypeButton.getTag()));
 	    activityTypeButton.setImageBitmap(source);
-	    // 種別はTagに設定
-	    activityTypeButton.setTag(nActivityTypeInitIcon);
 		
 		// activityTypeIcon.setBackgroundResource(R.drawable.selector_history_button_image );
 		//activityTypeIcon.setId(GPS_INDICATOR_ID);
@@ -802,23 +809,8 @@ implements
 
 		    @Override
 		    public void onClick(View v) {
+		    	chooseActivityType();
 		        //if (event.getAction() == MotionEvent.ACTION_UP) {
-		    	int iCurrentCd = nActivityTypeInitIcon;
-		    	try {
-		    		iCurrentCd = Integer.parseInt((String)activityTypeButton.getTag());
-		    	} catch( Exception ex )
-		    	{
-		    		iCurrentCd = nActivityTypeInitIcon;
-		    	}
-	        	ChooseActivityTypeDialogFragment act 
-	        	= ChooseActivityTypeDialogFragment.newInstance(
-	        		  //activityType.getText().toString()
-	        			activityTypeButton,
-	        			iCurrentCd//nActivityTypeInitIcon
-	        		  );
-	        	act.show(
-	        			getSupportFragmentManager(),
-	        			ChooseActivityTypeDialogFragment.CHOOSE_ACTIVITY_TYPE_DIALOG_TAG);
 		        //}
 		    	// activityTypeIcon.performClick();
 		    }
@@ -1762,12 +1754,11 @@ implements
 	{
     	int iCurrentCd = nActivityTypeInitIcon;
     	try {
-    		iCurrentCd = Integer.parseInt((String)activityTypeButton.getTag());
+    		iCurrentCd = (Integer)activityTypeButton.getTag();
     	} catch( Exception ex )
     	{
     		iCurrentCd = nActivityTypeInitIcon;
     	}
-		
     	ChooseActivityTypeDialogFragment act 
     	= ChooseActivityTypeDialogFragment.newInstance(
     		  //activityType.getText().toString()

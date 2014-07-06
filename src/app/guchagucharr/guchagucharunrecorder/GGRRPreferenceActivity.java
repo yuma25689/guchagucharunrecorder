@@ -6,7 +6,8 @@ import android.preference.PreferenceActivity;
 
 public class GGRRPreferenceActivity extends PreferenceActivity {
 	public static final String DISTANCE_UNIT_KEY = "distance_unit_key";
-	
+	public static final String DEFAULT_ACTIVITY_TYPE_KEY = "default_activity_type_key";
+
 	// TODO: 必要ならば、値の変更を監視する
 	@SuppressWarnings("deprecation")
 	@Override

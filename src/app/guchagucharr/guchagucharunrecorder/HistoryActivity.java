@@ -29,7 +29,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+//import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
@@ -57,7 +57,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	static final int CONTEXT_MENU_LAP_DELETE_ID = CONTEXT_MENU_DELETE_ID + CONTEXT_MENU_LAP_BASE_ID;
 	static final int CONTEXT_MENU_LAP_SHARE_ID = CONTEXT_MENU_SHARE_ID + CONTEXT_MENU_LAP_BASE_ID;
 	static final int CONTEXT_MENU_LAP_EDIT_ID = CONTEXT_MENU_EDIT_ID + CONTEXT_MENU_LAP_BASE_ID;
-	
+
 	class TotalData {
 		int nActivityTypeCode = -1;
 		double distance = 0;

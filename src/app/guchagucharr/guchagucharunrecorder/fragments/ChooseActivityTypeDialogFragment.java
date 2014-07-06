@@ -57,7 +57,7 @@ public class ChooseActivityTypeDialogFragment extends DialogFragment {
 
   public static final String CHOOSE_ACTIVITY_TYPE_DIALOG_TAG = "chooseActivityType";
 
-  private static final String KEY_CATEGORY = "category";
+  public static final String KEY_CATEGORY = "category";
 
   private static View lastParent = null;
   private ChooseActivityTypeCaller caller;
