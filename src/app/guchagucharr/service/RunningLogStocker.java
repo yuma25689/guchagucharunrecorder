@@ -23,7 +23,7 @@ import android.os.Environment;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.util.SparseArray;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
@@ -159,15 +159,15 @@ public class RunningLogStocker {
 		{
 			if( false == workOutDir.mkdirs() )
 			{
-				Log.e("workOutDir create error", dir);
+				LogWrapper.e("workOutDir create error", dir);
 				return false;
 			}
 		}
-    	Log.v("workOutDir created", dir);
+    	LogWrapper.v("workOutDir created", dir);
     	if( -1 == insertLogMetaInfo(activity,RunLoggerService.eMode.MODE_MEASURING.ordinal(),
     			time,dir,this) )
     	{
-    		Log.e("cant start because log start info insert failed","");
+    		LogWrapper.e("cant start because log start info insert failed","");
     		return false;
     	}
 		// GPX出力開始
@@ -192,7 +192,7 @@ public class RunningLogStocker {
 			importer = new GPXImporterSync(file,this);
 			if( false == importer.importData() )
 			{
-				Log.e("GpxImportError","perhaps recovery");
+				LogWrapper.e("GpxImportError","perhaps recovery");
 			}
 		}
 		
@@ -207,7 +207,7 @@ public class RunningLogStocker {
 				importer = new GPXImporterSync(strTmpGpxFilePath,this);
 				if( false == importer.importData() )
 				{
-					Log.e("GpxImportError","perhaps recovery");
+					LogWrapper.e("GpxImportError","perhaps recovery");
 					return -1;
 				}
 			}
@@ -245,11 +245,11 @@ public class RunningLogStocker {
     		// ここにくるのは、フォルダができていないということだが、できていなければおかしい
 			if( false == workOutDir.mkdirs() )
 			{
-				Log.e("workOutDir create error", data.getGpxDir());
+				LogWrapper.e("workOutDir create error", data.getGpxDir());
 				return false;
 			}
 		}
-    	Log.v("workOutDir created or exists", data.getGpxDir());
+    	LogWrapper.v("workOutDir created or exists", data.getGpxDir());
 
     	if( bWorkOutStart )
     	{
@@ -306,10 +306,10 @@ public class RunningLogStocker {
 					clearTmpGpxFile(activity);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
-					Log.e("FileCopy",e.getMessage());
+					LogWrapper.e("FileCopy",e.getMessage());
 				} catch (IOException e) {
 					e.printStackTrace();
-					Log.e("FileCopy",e.getMessage());
+					LogWrapper.e("FileCopy",e.getMessage());
 				}
 			}
 		}
@@ -379,10 +379,10 @@ public class RunningLogStocker {
 					ret = outputFilePath;
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
-					Log.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
+					LogWrapper.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
 				} catch (IOException e) {
 					e.printStackTrace();
-					Log.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
+					LogWrapper.e("FileCopy createRecoveryTmpGpxFile",e.getMessage());
 				}
 
 				// コピー後、さらにコピー先ファイルをXMLとして完成させる処理を行う
@@ -545,7 +545,6 @@ public class RunningLogStocker {
 		lapData.put(m_iLap, currentLapData);
 		deleteLogMetaInfo(activity);
 	}
-	
 	public ContentValues createContentValues(Activity activity, int tableID, 
 			long insertTime, String[] strExtra, long lngExtra, int iExtra )
 	{
@@ -603,7 +602,7 @@ public class RunningLogStocker {
 //			} catch (RemoteException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
-//				Log.e("Create Tempolary table value failed",e.getMessage());
+//				LogWrapper.e("Create Tempolary table value failed",e.getMessage());
 //			}
 			
 		}
@@ -716,7 +715,7 @@ public class RunningLogStocker {
     				,null);
         } catch(Exception e){
         	e.printStackTrace();
-        	Log.e("tempolary table delete failed!",e.getMessage());
+        	LogWrapper.e("tempolary table delete failed!",e.getMessage());
         	return false;
         } finally {
         	//db.endTransaction();
@@ -806,11 +805,11 @@ public class RunningLogStocker {
 	            	
 	            	if( uriRetLap != null)
 	            	{
-	            		Log.v("insert",uriRetLap.toString());
+	            		LogWrapper.v("insert",uriRetLap.toString());
 	            	}
 	            	else
 	            	{
-	            		Log.v("insert failed?","null");
+	            		LogWrapper.v("insert failed?","null");
 	            	}
 	            	insertCount++;
         		}

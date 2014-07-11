@@ -7,7 +7,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.util.SparseArray;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
@@ -65,6 +65,7 @@ public class RunHistoryLoader {
 		historyData.clear();
 		historyLapData.clear();
 	}
+	
 	public int load(Activity activity, boolean descOfInsertTime )
 	{
 		clear();
@@ -73,7 +74,7 @@ public class RunHistoryLoader {
 			// 親テーブルの検索
 			String history = RunHistoryTableContract.CONTENT_URI_STRING 
 					+ "/" + RunHistoryTableContract.HISTORY_TABLE_NAME;
-			Log.v("uri",history);
+			LogWrapper.v("uri",history);
 			String sortOrder = descOfInsertTime ? " desc" : " asc";
 			Cursor cursor = activity.getContentResolver().query(
 					Uri.parse( history ),
@@ -113,14 +114,14 @@ public class RunHistoryLoader {
 			cursor.close();
 		} catch( IllegalArgumentException ex ) {
 			ex.printStackTrace();
-			Log.e("Error",ex.getMessage());
+			LogWrapper.e("Error",ex.getMessage());
 			return -1;
 		}
 		try 
 		{
 			String historyLap = RunHistoryTableContract.CONTENT_URI_STRING 
 					+ "/" + RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;
-			Log.v("uri",historyLap);
+			LogWrapper.v("uri",historyLap);
 			Cursor cursorChild = activity.getContentResolver().query(
 					Uri.parse( historyLap ),
 				    null,//mProjection,
@@ -129,71 +130,107 @@ public class RunHistoryLoader {
 				    RunHistoryTableContract.PARENT_ID + "," 
 				    + RunHistoryTableContract.LAP_INDEX);//mSortOrder);
 			
-			// 全レコードループ
-			if( 0 < cursorChild.getCount() )
-			{
-				Vector<ActivityLapData> vLapData = new Vector<ActivityLapData>();
-				
-				cursorChild.moveToFirst();
-				int idIndex = cursorChild.getColumnIndexOrThrow(BaseColumns._ID);				
-				int startDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME);			
-				int insertDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME);			
-				int parentIdIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.PARENT_ID);			
-				int lapIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_INDEX);
-				int lapDistanceIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_DISTANCE);
-				int lapTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_TIME);
-				int lapSpeedIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_SPEED);
-				int lapFixedDistanceIndex = cursorChild.getColumnIndexOrThrow(
-						RunHistoryTableContract.LAP_FIXED_DISTANCE);
-				int lapFixedTimeIndex = cursorChild.getColumnIndexOrThrow(
-						RunHistoryTableContract.LAP_FIXED_TIME);
-				int lapNameIndex = cursorChild.getColumnIndexOrThrow(
-						RunHistoryTableContract.NAME);
-				int lapFixedSpeedIndex = cursorChild.getColumnIndexOrThrow(
-						RunHistoryTableContract.LAP_FIXED_SPEED);
-				int gpxIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
-				int gpxFixedIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
-				do {
-					ActivityLapData dataLap = new ActivityLapData();
-					dataLap.setId( cursorChild.getLong( idIndex ) );
-					dataLap.setStartDateTime( cursorChild.getLong( startDateTimeIndex ) );
-					dataLap.setInsertDateTime( cursorChild.getLong( insertDateTimeIndex ) );
-					dataLap.setParentId( cursorChild.getInt( parentIdIndex ) );
-					dataLap.setLapIndex( cursorChild.getLong( lapIndex ) );
-					dataLap.setDistance( cursorChild.getDouble( lapDistanceIndex ) );
-					dataLap.setTime( cursorChild.getLong( lapTimeIndex ) );
-					dataLap.setSpeed( cursorChild.getDouble( lapSpeedIndex ) );
-					dataLap.setFixedDistance( cursorChild.getDouble( lapFixedDistanceIndex ) );
-					dataLap.setFixedTime( cursorChild.getLong( lapFixedTimeIndex ) );
-					dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
-					dataLap.setName( cursorChild.getString( lapNameIndex ));
-					dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
-					dataLap.setGpxFixedFilePath( cursorChild.getString( gpxFixedIndex ) );				
-					
-					if( vLapData.isEmpty() == false
-					&& dataLap.getParentId() != vLapData.lastElement().getParentId() )
-					{
-						historyLapData.put( vLapData.lastElement().getParentId(), vLapData );
-						vLapData = new Vector<ActivityLapData>();
-						vLapData.add(dataLap);
-					}
-					else
-					{
-						vLapData.add(dataLap);
-					}
-				} while( cursorChild.moveToNext() );
-				historyLapData.put( vLapData.lastElement().getParentId(), vLapData );
-			}
-			if( cursorChild != null )
-			{
-				cursorChild.close();
-			}
+			// 全レコードをメモリに格納
+			storeLapData(cursorChild);
 		} catch( IllegalArgumentException ex ) {
 			ex.printStackTrace();
-			Log.e("Error",ex.getMessage());
+			LogWrapper.e("Error",ex.getMessage());
 			return -1;
 		}
 		
 		return 0;
 	}
+	
+	private void storeLapData(Cursor cursorChild)
+	{
+		if( cursorChild == null )
+		{
+			return;
+		}
+		// 全レコードをメモリに格納
+		if( 0 < cursorChild.getCount() )
+		{
+			Vector<ActivityLapData> vLapData = new Vector<ActivityLapData>();
+			
+			cursorChild.moveToFirst();
+			int idIndex = cursorChild.getColumnIndexOrThrow(BaseColumns._ID);				
+			int startDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME);			
+			int insertDateTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.INSERT_DATETIME);			
+			int parentIdIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.PARENT_ID);			
+			int lapIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_INDEX);
+			int lapDistanceIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_DISTANCE);
+			int lapTimeIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_TIME);
+			int lapSpeedIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.LAP_SPEED);
+			int lapFixedDistanceIndex = cursorChild.getColumnIndexOrThrow(
+					RunHistoryTableContract.LAP_FIXED_DISTANCE);
+			int lapFixedTimeIndex = cursorChild.getColumnIndexOrThrow(
+					RunHistoryTableContract.LAP_FIXED_TIME);
+			int lapNameIndex = cursorChild.getColumnIndexOrThrow(
+					RunHistoryTableContract.NAME);
+			int lapFixedSpeedIndex = cursorChild.getColumnIndexOrThrow(
+					RunHistoryTableContract.LAP_FIXED_SPEED);
+			int gpxIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
+			int gpxFixedIndex = cursorChild.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
+			do {
+				ActivityLapData dataLap = new ActivityLapData();
+				dataLap.setId( cursorChild.getLong( idIndex ) );
+				dataLap.setStartDateTime( cursorChild.getLong( startDateTimeIndex ) );
+				dataLap.setInsertDateTime( cursorChild.getLong( insertDateTimeIndex ) );
+				dataLap.setParentId( cursorChild.getInt( parentIdIndex ) );
+				dataLap.setLapIndex( cursorChild.getLong( lapIndex ) );
+				dataLap.setDistance( cursorChild.getDouble( lapDistanceIndex ) );
+				dataLap.setTime( cursorChild.getLong( lapTimeIndex ) );
+				dataLap.setSpeed( cursorChild.getDouble( lapSpeedIndex ) );
+				dataLap.setFixedDistance( cursorChild.getDouble( lapFixedDistanceIndex ) );
+				dataLap.setFixedTime( cursorChild.getLong( lapFixedTimeIndex ) );
+				dataLap.setFixedSpeed( cursorChild.getDouble( lapFixedSpeedIndex ) );
+				dataLap.setName( cursorChild.getString( lapNameIndex ));
+				dataLap.setGpxFilePath( cursorChild.getString( gpxIndex ) );				
+				dataLap.setGpxFixedFilePath( cursorChild.getString( gpxFixedIndex ) );				
+				
+				if( vLapData.isEmpty() == false
+				&& dataLap.getParentId() != vLapData.lastElement().getParentId() )
+				{
+					historyLapData.put( vLapData.lastElement().getParentId(), vLapData );
+					vLapData = new Vector<ActivityLapData>();
+					vLapData.add(dataLap);
+				}
+				else
+				{
+					vLapData.add(dataLap);
+				}
+			} while( cursorChild.moveToNext() );
+			historyLapData.put( vLapData.lastElement().getParentId(), vLapData );
+		}
+		if( cursorChild != null )
+		{
+			cursorChild.close();
+		}
+		
+	}
+	
+	public int loadPartialData(Activity activity, int parentId)
+	{
+		try 
+		{
+			String historyLap = RunHistoryTableContract.CONTENT_URI_STRING 
+					+ "/" + RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;
+			LogWrapper.v("uri",historyLap);
+			Cursor cursorChild = activity.getContentResolver().query(
+					Uri.parse( historyLap ),
+				    null,//mProjection,
+				    RunHistoryTableContract.PARENT_ID + "=" + parentId,//mSelectionClause,
+				    null,//mSeletionArgs,
+				    RunHistoryTableContract.PARENT_ID + "," 
+				    + RunHistoryTableContract.LAP_INDEX);//mSortOrder);
+			storeLapData(cursorChild);
+		} catch( IllegalArgumentException ex ) {
+			ex.printStackTrace();
+			LogWrapper.e("Error",ex.getMessage());
+			return -1;
+		}
+		
+		return 0;
+	}
+	
 }

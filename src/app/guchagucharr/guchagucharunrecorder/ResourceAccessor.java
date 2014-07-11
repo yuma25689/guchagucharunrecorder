@@ -20,7 +20,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.util.SparseArray;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityData;
 import app.guchagucharr.guchagucharunrecorder.util.ActivityLapData;
@@ -132,14 +132,14 @@ public final class ResourceAccessor {
 				ret = BitmapFactory.decodeResource(activity.getResources(), id, options);
 			} catch( OutOfMemoryError ex ) {
 				System.gc();
-				Log.e("Out of memory occur","bitmap create");
+				LogWrapper.e("Out of memory occur","bitmap create");
 				bMemErr = true;
 				ret = null;
 			}
 			if( ret == null )
 			{
 				String log = String.format("%X", id);
-				Log.e("decodeError",log);
+				LogWrapper.e("decodeError",log);
 				if( bMemErr == true )
 					ret = BitmapFactory.decodeResource(activity.getResources(), id, options);
 			}

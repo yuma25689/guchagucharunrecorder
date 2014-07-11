@@ -20,7 +20,7 @@ import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.support.v4.view.ViewPager;
 //import android.text.format.Time;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -157,7 +157,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        public void onGlobalLayout() {
 	            widthTmp = componentContainer.getWidth();
 	            heightTmp = componentContainer.getHeight();
-	        	Log.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
+	        	LogWrapper.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
 				Message msg = Message.obtain();
 				msg.what = MessageDef.MSG_INIT_SIZE_GET;
 				handler.sendMessage( msg );	            
@@ -189,7 +189,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 //	@Override
 //	public void onConfigurationChanged(Configuration newConfig) {
 //        super.onConfigurationChanged(newConfig);
-//        Log.w("onConfigurationChanged","come");
+//        LogWrapper.w("onConfigurationChanged","come");
 //        handler.clearFlags();
 //        
 //        dispInfo.init(HistoryActivity.this, componentContainer, handler, true);
@@ -198,7 +198,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	@Override
 	public int initPager()
 	{
-		// Log.w("initPager","come " + dispInfo.isPortrait());
+		// LogWrapper.w("initPager","come " + dispInfo.isPortrait());
         init();
         this.mViewPager = (ViewPager)this.findViewById(R.id.viewpager1);
         this.mViewPager.setAdapter(adapter);
@@ -222,7 +222,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		mCurrentUnit = Integer.valueOf(pref.getString(GGRRPreferenceActivity.DISTANCE_UNIT_KEY,
 				String.valueOf( UnitConversions.DISTANCE_UNIT_KILOMETER ) ) );
 		
-		// Log.w("initControls"," " + dispInfo.isPortrait());
+		// LogWrapper.w("initControls"," " + dispInfo.isPortrait());
 //		int width = componentContainer.getWidth();
 //		int height = componentContainer.getHeight();
 		if( position == 0 )
@@ -427,10 +427,10 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 					//gpxExists,
 					lapCount
 			};
-			//Log.w("test", " test" );
-//			Log.w("Width - Height", " W:" + widthTmp 
+			//LogWrapper.w("test", " test" );
+//			LogWrapper.w("Width - Height", " W:" + widthTmp 
 //			+ " H:" + heightTmp );
-//			Log.w("Width - Height", " W:" + dispInfo.getXNotConsiderDensity(componentContainer.getWidth()) 
+//			LogWrapper.w("Width - Height", " W:" + dispInfo.getXNotConsiderDensity(componentContainer.getWidth()) 
 //					+ " H:" + dispInfo.getYNotConsiderDensity(componentContainer.getHeight()) );
 			DisplayBlock dispBlock = new DisplayBlock(
 					this, 
@@ -966,7 +966,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
         				,null);
 	        } catch(Exception e){
 	        	e.printStackTrace();
-	        	Log.e("delete failed!",e.getMessage());
+	        	LogWrapper.e("delete failed!",e.getMessage());
 		        Toast.makeText(this, R.string.Delete_failed, Toast.LENGTH_LONG).show();
 	        	return false;
 	        } finally {
@@ -1093,7 +1093,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 		}
 		
 		// NOTICE:ここまで来た場合、ページを削除する?
-//		Log.v("page-delete", "page-delele");
+//		LogWrapper.v("page-delete", "page-delele");
 //		selectedActivityData = null;
 //		adapter.setCount(1);
 //		adapter.notifyDataSetChanged();

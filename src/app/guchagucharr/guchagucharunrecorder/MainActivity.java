@@ -30,7 +30,7 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -182,7 +182,7 @@ implements
 //        locationManager.sendExtraCommand("gps", "force_xtra_injection", null);
 //    	// NTPサーバから、現在時刻を更新してもらうのを促す？
 //        locationManager.sendExtraCommand("gps", "force_time_injection", null);
-//    	Log.v("a-gps reset","a-gps reset occur" );		
+//    	LogWrapper.v("a-gps reset","a-gps reset occur" );		
 //	}
 	
 	@Override
@@ -257,12 +257,12 @@ implements
 			RunLogger.sService.requestGPS();
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("requestGPS",e.getMessage());
+			LogWrapper.e("requestGPS",e.getMessage());
 		}
 	}
 	void stopService() throws RemoteException
 	{
-		Log.w("stopService","come");
+		LogWrapper.w("stopService","come");
 		clearGPS();
 		RunLogger.sService.stopLog();
 		// ログ取得中でない場合は、完全に停止させる
@@ -287,7 +287,7 @@ implements
 							== RunLoggerService.eMode.MODE_NORMAL.ordinal() )
 					{
 						// 今、計測中でなければ、サービスを止める
-						Log.w("onPause2Stopservice","come");
+						LogWrapper.w("onPause2Stopservice","come");
 						stopService();
 					}
 					else
@@ -299,7 +299,7 @@ implements
 				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
-				Log.e("onPause","RemoteException");
+				LogWrapper.e("onPause","RemoteException");
 			}
 			
 			// どっちにしても、トークンをnullにする
@@ -354,7 +354,7 @@ implements
 	 */
 	public void updateLogDisplay(double speed)
 	{
-		Log.v("updateLogDisplay - MainActivity", "come");
+		LogWrapper.v("updateLogDisplay - MainActivity", "come");
 		try {
 			if( false == RunLoggerService.isEmptyLogStocker() 
 			&& RunLogger.sService != null
@@ -395,7 +395,7 @@ implements
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("updateLogDisplay - MainActivity", e.getMessage());
+			LogWrapper.e("updateLogDisplay - MainActivity", e.getMessage());
 		}		
 	}
 	//@Override
@@ -405,7 +405,7 @@ implements
 	 */
 	public void onLocationChanged(Location location) {
 		//bGPSCanUse = true;
-		Log.v("onLocationChanged - MainActivity","come");
+		LogWrapper.v("onLocationChanged - MainActivity","come");
 		if( btnCenter != null && btnCenter.isEnabled() == false )
 		{
 			// 中央ボタンが使用不可だったら、位置情報を受信した時点で
@@ -414,14 +414,14 @@ implements
 		}
 		// 画面側では、サービスにストックされている位置情報の表示のみを行う
 		updateLogDisplay( location.getSpeed() );
-		Log.v("----------", "----------");
-        Log.v("Latitude", String.valueOf(location.getLatitude()));
-        Log.v("Longitude", String.valueOf(location.getLongitude()));
-        Log.v("Accuracy", String.valueOf(location.getAccuracy()));
-        Log.v("Altitude", String.valueOf(location.getAltitude()));
-        Log.v("Time", String.valueOf(location.getTime()));
-        Log.v("Speed", String.valueOf(location.getSpeed()));
-        Log.v("Bearing", String.valueOf(location.getBearing()));
+		LogWrapper.v("----------", "----------");
+        LogWrapper.v("Latitude", String.valueOf(location.getLatitude()));
+        LogWrapper.v("Longitude", String.valueOf(location.getLongitude()));
+        LogWrapper.v("Accuracy", String.valueOf(location.getAccuracy()));
+        LogWrapper.v("Altitude", String.valueOf(location.getAltitude()));
+        LogWrapper.v("Time", String.valueOf(location.getTime()));
+        LogWrapper.v("Speed", String.valueOf(location.getSpeed()));
+        LogWrapper.v("Bearing", String.valueOf(location.getBearing()));
 
         // 精度の表示
         if( imgGPS != null )
@@ -564,11 +564,11 @@ implements
 	@Override
 	public int initControls()
 	{
-		Log.v("initControls","come");
+		LogWrapper.v("initControls","come");
 		if( RunLogger.sService == null )
 		{
 			// CONFIRM:サービスができてからここにくる想定？
-			Log.w("sService","null");
+			LogWrapper.w("sService","null");
 			return -1;
 		}
 		try {
@@ -612,7 +612,7 @@ implements
 //				// ->前に落ちたと見なし、復帰処理に入る
 //					//if( RunLoggerService.isEmptyLogStocker() )
 //					//{				
-//				Log.v("recovery process","come");
+//				LogWrapper.v("recovery process","come");
 //					RunLoggerService.clearRunLogStocker();
 //					RunLoggerService.createLogStocker();
 //				//}
@@ -634,7 +634,7 @@ implements
 //			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("",e.getMessage());
+			LogWrapper.e("",e.getMessage());
 		}
 		// 全てのビューをクリアする
 		componentContainer.removeAllViews();
@@ -1146,7 +1146,7 @@ implements
 //			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("initControls",e.getMessage());
+			LogWrapper.e("initControls",e.getMessage());
 		}
 		// TODO: limit
 		Cursor c = getContentResolver().query(
@@ -1268,13 +1268,13 @@ implements
 						{
 							requestGPS();
 						}
-						Log.v("btnCancel","clicked");
+						LogWrapper.v("btnCancel","clicked");
 						finish();
 						return;
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
-					Log.e("btnCancel","clicked error");
+					LogWrapper.e("btnCancel","clicked error");
 				}
 			}			
 			else if( v == btnCamera )
@@ -1316,7 +1316,7 @@ implements
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
-					Log.e("btnCenter","clicked error");
+					LogWrapper.e("btnCenter","clicked error");
 				}
 			}
 		} finally {
@@ -1382,7 +1382,7 @@ implements
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Log.e("end work out","remoteexception");
+			LogWrapper.e("end work out","remoteexception");
 		}
 
 	}
@@ -1394,7 +1394,7 @@ implements
 			RunLogger.sService.clearGPS();
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			Log.e("clearGPS",e.getMessage());
+			LogWrapper.e("clearGPS",e.getMessage());
 		}
 	}
 
@@ -1404,13 +1404,13 @@ implements
 	public void onServiceConnected(ComponentName name, IBinder service)
 	{
 		// サービスが接続されたとき
-		Log.v("onServiceConnected",String.valueOf(name));
+		LogWrapper.v("onServiceConnected",String.valueOf(name));
 	}
 
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
 		// クラッシュ時くらいしかこなかったはず
-		Log.e("onServiceDisconnected",String.valueOf(name));
+		LogWrapper.e("onServiceDisconnected",String.valueOf(name));
 	}
 
 	@Override
@@ -1633,7 +1633,7 @@ implements
 //					}
 //				} catch (NotFoundException e) {
 //					// TODO Auto-generated catch block
-//					Log.e("recover","error notfoundexception");
+//					LogWrapper.e("recover","error notfoundexception");
 //					e.printStackTrace();
 //				}
 //				// Activityの種別を、テンポラリから設定し直す
@@ -1671,7 +1671,7 @@ implements
     		  RunLogger.sService.setActivityTypeCode(value);
     	  } catch (RemoteException e) {
     		  e.printStackTrace();
-    		  Log.e("setIcon to service","error");
+    		  LogWrapper.e("setIcon to service","error");
     	  }
       }
       

@@ -6,7 +6,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.View;
 //import android.view.ViewGroup;
 //import android.view.ViewParent;
@@ -118,7 +118,7 @@ public final class DroidDisplayInfo {
 					= ControlDefs.APP_BASE_HEIGHT;//(backgroundImgBase.getIntrinsicHeight()); /// metrics.density;
 				orgWidthOfBk 
 					= ControlDefs.APP_BASE_WIDTH;//(backgroundImgBase.getIntrinsicWidth());// / metrics.density;
-				Log.w("dispInfo", " width=" 
+				LogWrapper.w("dispInfo", " width=" 
 					+ metrics.widthPixels + "height=" + metrics.heightPixels);
 				if( isPortrait() )
 				{

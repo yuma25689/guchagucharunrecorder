@@ -6,7 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -37,7 +37,7 @@ public class RouteButton extends ImageButton {
 		        ctx.startActivity(intent);
 	        } catch (ActivityNotFoundException e) {
 	        	// TODO エラーメッセージをユーザに処理
-	        	Log.e("ActivityNotFound", e.getMessage());
+	        	LogWrapper.e("ActivityNotFound", e.getMessage());
 	        }
 		}
 		

@@ -1,9 +1,19 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,12 +34,11 @@ import android.net.Uri;
 //import android.content.IntentFilter;
 //import android.location.Criteria;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.BaseColumns;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -57,6 +66,7 @@ import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
+import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
 
 public class EditActivity extends FragmentActivity //Activity 
@@ -91,6 +101,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	//ColumnData mLastInputColumnData = null;
 	String mLastInputColumnName = null;
 	
+	
 	// 項目のID
 	static final int VALUE_INPUT_CONTROL_ID = 100;
 	int iValueInputControlID = VALUE_INPUT_CONTROL_ID;
@@ -106,6 +117,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	// private int iEditDataIndex = -1;
 	private IColumnDataGenerator dataGen = null;
 	private ColumnData[] clmnInfos = null;
+	private ColumnData[] clmnInfosOrg = null;
 	
 	private DisplayInfo dispInfo = DisplayInfo.getInstance();
 	//private ViewGroup componentContainer;
@@ -157,12 +169,14 @@ implements IEditViewController, OnClickListener, OnTouchListener
         else if( iEditDataType == EDIT_DATA_MAIN_TABLE )
         {
         	dataGen = new MainColumnDataGenerator();
-        	clmnInfos = dataGen.generate( this, ResourceAccessor.getInstance().getWorkOutDataTmp() );        	
+        	clmnInfos = dataGen.generate( this, ResourceAccessor.getInstance().getWorkOutDataTmp() );
+        	clmnInfosOrg = clmnInfos;
         }
         else if( iEditDataType == EDIT_DATA_LAP_TABLE )
         {
         	dataGen = new LapColumnDataGenerator();
         	clmnInfos = dataGen.generate( this, ResourceAccessor.getInstance().getLapDataTmp() );
+        	clmnInfosOrg = clmnInfos;
         }
 	}
 
@@ -354,7 +368,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						    	} catch( Exception ex )
 						    	{
 						    		iCurrentCd = TrackIconUtils.ACTIVITY_TYPE_NONE;
-						    	}						    	
+						    	}
 					        	ChooseActivityTypeDialogFragment act 
 					        	= ChooseActivityTypeDialogFragment.newInstance(
 					        			v,
@@ -455,8 +469,64 @@ implements IEditViewController, OnClickListener, OnTouchListener
 				// データ更新処理を行う
 				// TODO: まだテーブルに保存されていない時の処理
 				int iRetUpdate = updateData(this);
-				if( 0 < updateData(this) )
+				if( 0 < iRetUpdate )
 				{
+			        if( iEditDataType == EDIT_DATA_MAIN_TABLE 
+			        && isUpdateColumn( RunHistoryTableContract.ACTIVITY_TYPE ) )
+			    	{
+						// 活動タイプが編集されていたら、GPXファイルの活動タイプも編集する
+			        	boolean bGpxEditSuccess = false;
+			    		RunHistoryLoader loader = new RunHistoryLoader();
+			    		int id = Integer.parseInt(clmnInfos[0].getText());
+			    		loader.loadPartialData(this, id);
+			    		Vector<ActivityLapData> lapData = loader.getHistoryLapDatas(id);
+			    		
+			    		for( ActivityLapData data : lapData )
+			    		{
+			    			// 全てのラップデータをループ
+			    			// 対象のGPXは、ユーザが修正したものが格納されていたら、
+			    			// そっちを使うが、デフォルトは編集されていないものを使う
+			    			String targetGpx = data.getGpxFilePath();
+			    			if( data.getGpxFixedFilePath() != null
+			    			&& data.getGpxFixedFilePath() != data.getGpxFilePath() )
+			    			{
+			    				targetGpx = data.getGpxFixedFilePath();
+			    			}
+			    			
+			    			File fileObject = new File(targetGpx);
+			    			DocumentBuilder docBuilder;
+							try {
+								docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+								Document document = docBuilder.parse(fileObject);
+								document.normalize();
+
+								
+								
+								// 上書き
+//								FileWriter fileWriter = new FileWriter("hoge.xml");
+//								BufferedWriter bufferdWriter = new BufferedWriter(fileWriter);
+//								((XmlDocument)document).write(bufferdWriter, "Shift_JIS");
+//								bufferdWriter.flush();
+//								bufferdWriter.close();								
+								
+								
+							} catch (ParserConfigurationException e) {
+								e.printStackTrace();
+							} catch (SAXException e) {
+								e.printStackTrace();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+			    			
+							
+							// TODO:エラー処理
+							if( false == bGpxEditSuccess )
+							{
+								
+							}
+			    		}
+			    	}
+					
 	        		Toast.makeText(this, R.string.data_updated, 
 	        				Toast.LENGTH_LONG).show();
 	        		finish();
@@ -854,7 +924,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 					}
 				} catch (ParseException e) {
 					e.printStackTrace();
-					Log.e("parse error", "get lap data from edit");
+					LogWrapper.e("parse error", "get lap data from edit");
 				}
 				// lapDataを再設定
 				ResourceAccessor.getInstance().setLapDataTmp(lapData);
@@ -958,27 +1028,72 @@ implements IEditViewController, OnClickListener, OnTouchListener
         }
         return iCount;
 	}
+	/**
+	 * 指定されたカラムの値が、更新されているかどうかを調べる
+	 * @param clmnName
+	 * @return true:更新されている false:更新されていない、もしくはエラー？
+	 */
+	private boolean isUpdateColumn(String clmnName)
+	{
+    	ColumnData clmn = getColumnDataFromColumnName( clmnInfos, clmnName);
+    	ColumnData clmnOrg = getColumnDataFromColumnName( clmnInfosOrg, clmnName);
+    	if( clmn != null && clmnOrg != null )
+    	{
+    		if( clmn.getText() != null && clmn.getText().equals(clmnOrg.getText() ) )
+    		{
+    			return false;
+    		}
+    		else if( clmn.getText() == null && clmnOrg.getText() == null )
+    		{
+    			return false;
+    		}
+    		else
+    		{
+    			// ここに来たら、更新されているはず？
+    			return true;
+    		}
+    	}		
+		return false;
+	}
 
     private void setActivityTypeIcon(View parent,int value) {
+    	// コントロールの値を更新
     	Bitmap source = BitmapFactory.decodeResource(
     			this.getResources(),
     			TrackIconUtils.getIconDrawable(value));
-    	ImageButton parentButton = (ImageButton) parent;
+    	ImageButton parentButton = (ImageButton)parent;
     	parentButton.setImageBitmap(source);
     	parentButton.setTag(value);
     	
+    	// DB値との同期となるデータの更新
+    	// ボタンから、そのカラム名を取得
     	String clmnName = (String) parentButton.getTag(R.id.COLUMN_NAME_ID);
-		for( ColumnData clmn : clmnInfos )
+    	ColumnData clmn = getColumnDataFromColumnName( clmnInfos, clmnName);
+    	if( clmn != null )
+    	{
+    		clmn.setText( String.valueOf(value) );
+    	}
+    }
+    /**
+     * 対象のカラム配列から、指定された名前のカラムを取得する
+     * @param clmnArray
+     * @param name
+     * @return null:なし ColumnData:検索されたカラム
+     */
+    ColumnData getColumnDataFromColumnName( ColumnData[] clmnArray, String name )
+    {
+    	if( name == null ) return null;
+		for( ColumnData clmn : clmnArray )
 		{
-			if( clmnName.equals( clmn.getColumnName() ) )
+			// カラム名から、対象カラムを検索、見つかったらその値を更新
+			if( name.equals( clmn.getColumnName() ) )
 			{
-				clmn.setText( String.valueOf(value) );
-				break;
+				return clmn;
 			}
 		}
-    	
+		return null;
     }
-	
+    
 	@Override
 	public void onChooseActivityTypeDone(View parent,int iconValue) {
 		setActivityTypeIcon(parent,iconValue);

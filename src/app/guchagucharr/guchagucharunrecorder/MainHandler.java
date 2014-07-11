@@ -3,7 +3,7 @@ package app.guchagucharr.guchagucharunrecorder;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-//import android.util.Log;
+//import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 //import android.widget.Toast;
 import app.guchagucharr.interfaces.IMainViewController;
 

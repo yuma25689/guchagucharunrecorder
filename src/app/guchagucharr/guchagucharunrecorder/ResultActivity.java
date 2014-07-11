@@ -21,7 +21,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -121,7 +121,7 @@ implements IPageViewController
 	        public void onGlobalLayout() {
 	            widthTmp = componentContainer.getWidth();
 	            heightTmp = componentContainer.getHeight();
-	        	Log.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
+	        	LogWrapper.w("onGlobalLayout","width = "+ widthTmp + "height = " + heightTmp);
 				Message msg = Message.obtain();
 				msg.what = MessageDef.MSG_INIT_SIZE_GET;
 				handler.sendMessage( msg );	            
@@ -175,11 +175,14 @@ implements IPageViewController
   	  ImageButton parentButton = (ImageButton) parent;
   	  parentButton.setImageBitmap(source);
   	  parentButton.setTag(value);
-  	  try {
-  		  RunLogger.sService.setActivityTypeCode(value);
-  	  } catch (RemoteException e) {
-  		  e.printStackTrace();
-  		  Log.e("setIcon to service","error");
+  	  if( RunLogger.sService != null )
+  	  {
+	  	  try {
+	  		  RunLogger.sService.setActivityTypeCode(value);
+	  	  } catch (RemoteException e) {
+	  		  e.printStackTrace();
+	  		  LogWrapper.e("setIcon to service","error");
+	  	  }
   	  }
     }
     
@@ -228,7 +231,7 @@ implements IPageViewController
 	@Override
 	public int initPager()
 	{
-		Log.w("initPager","come");
+		LogWrapper.w("initPager","come");
 		
 		if( dispInfo.isPortrait() )
 		{
@@ -264,7 +267,7 @@ implements IPageViewController
 	@Override
 	public int initControls( int position, RelativeLayout rl )
 	{
-		Log.w("initControls","come");
+		LogWrapper.w("initControls","come");
 //		int width = componentContainer.getWidth();
 //		int height = componentContainer.getHeight();
 		
@@ -727,7 +730,7 @@ implements IPageViewController
 			{
 				String providers = Settings.Secure.getString(
 						getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-				Log.v("GPS", "Location Providers = " + providers);
+				LogWrapper.v("GPS", "Location Providers = " + providers);
 				if(providers.indexOf("gps", 0) < 0) {
 					Toast.makeText(getApplicationContext(), R.string.GPS_OFF, Toast.LENGTH_LONG).show();
 				} else {
@@ -764,7 +767,7 @@ implements IPageViewController
 //					}
 //				}				
 				mViewPager.arrowScroll(View.FOCUS_RIGHT);
-				Log.v("imgDetail","click");
+				LogWrapper.v("imgDetail","click");
 			}
 		} finally {
 			if( v != null )

@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import android.app.Activity;
+//import android.app.Activity;
 import android.location.Location;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
+import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 
@@ -24,18 +25,12 @@ import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
  */
 public class GPXGeneratorSync {
 	// public static final String EXPORT_FILE_DIR = "/sdcard/patiman/export";
+	// ファイルの拡張子
 	public static final String EXPORT_FILE_EXT = ".gpx";
-	public static final String LAP_TEXT = "Lap";
+	// 一時ファイル名
 	public static final String GPX_TEMP_FILE_NAME = "gpx.tmp";
-	
-//	private static final String[][] ESC_CHRS = {
-//		{"&","&amp;"},
-//		{"'","&apos;"},
-//		{"<","&lt;"},
-//		{">","&gt;"},
-//		{"\"","&quot;"}
-//	};
-	
+
+	// エクスポーター
 	private Exporter _exporter = null;
 
 	/*
@@ -52,8 +47,15 @@ public class GPXGeneratorSync {
 </trkseg></trk></gpx> 
 	 */
 	
+	// ===== ファイルの内容
+	// ラップ
+	public static final String LAP_TEXT = "Lap";
+	// 改行コード
 	public static final String LINE_SEP = System.getProperty("line.separator");
+	// ヘッダ
+	// xml宣言
 	public static final String XML_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + LINE_SEP;
+	// gpxタグ
 	public static final String GPX_START_TAG 
 	= "<gpx version=\"1.1\"" + LINE_SEP
 	+ "creator=\"GuchaGuchaRunRecorder\"" + LINE_SEP
@@ -61,6 +63,7 @@ public class GPXGeneratorSync {
 	+ "xmlns=\"http://www.topografix.com/GPX/1/0\"" + LINE_SEP
 	+ "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">"
 	+ LINE_SEP;
+	// gpx終了タグ
 	public static final String GPX_END_TAG 
 	= "</gpx>" + LINE_SEP;
 	
@@ -82,44 +85,53 @@ public class GPXGeneratorSync {
 	
 //	public static final String ATTR_NAME_LATITUDE_EQUAL = "lat=";
 //	public static final String ATTR_NAME_LONGITUDE_EQUAL = "lon=";
-
 	public static final String ATTR_LAT_AND_LONGITUDE = " lat=\"%.15f\" lon=\"%.15f\"";
 	
-	
+	// エラーコード
 	public static final int NG_ERROR_UNKNOWN = -1;
 	public static final int RETURN_OK = 0;
-	
-	// SparseArray<LapData> lapData = null;
 
+	// SparseArray<LapData> lapData = null;
 	File gpxFile = null;
     FileOutputStream fOut =  null;
     //BufferedOutputStream bos = null;
 	int iCurrentOutputLap = -1;
 
     public GPXGeneratorSync()
-    //Vector<Location> vData_, Handler hdr_ )//SparseArray<LapData> lapData_, Handler hdr_)
 	{
-    	clearCurrentBuf();	// 無意味だが、一応
+    	// コンストラクタ
+    	// 無意味だが、一応クリア
+    	clearCurrentBuf();
 		// lapData = lapData_;
 	}
 
     public void clearCurrentBuf()
     {
+    	// Fileクラスを解放
     	gpxFile = null;
+    	// 出力のストリームを解放？
         fOut =  null;
     }
 
+    /**
+     * GPXファイルのストリームを開く
+     * @param file
+     * @param append
+     * @return
+     */
     public BufferedOutputStream openGPXFileStream(File file,boolean append)
     {
     	BufferedOutputStream bos = null;
         //FileOutputStream fOut;
 		try {
+			// 引数で指定されたファイルを、引数で指定されたappendフラグで開く
 			FileOutputStream fOut = new FileOutputStream(file,append);
 	        bos = new BufferedOutputStream( fOut );    	
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// 開いたストリームを返す
 		return bos;
     }
     
@@ -142,7 +154,7 @@ public class GPXGeneratorSync {
             gpxFile.createNewFile();
             BufferedOutputStream bos = openGPXFileStream(gpxFile,false);
 
-            openGPXFile( bos );
+            createGPXFileExporter( bos );
 			_exporter.startExport();
 		}
 		catch ( Exception e)
@@ -186,13 +198,13 @@ public class GPXGeneratorSync {
 			fr.close();
 		} catch( IOException ex ) {
 			ex.printStackTrace();
-			Log.e("RecoveryFileInput failed","");
+			LogWrapper.e("RecoveryFileInput failed","");
 			return -1;
 		}        	
 		catch ( Exception e)
 		{
 			e.printStackTrace();
-			Log.e("RecoveryFileInput failed","");
+			LogWrapper.e("RecoveryFileInput failed","");
 			return -1;
 		}
 		
@@ -229,7 +241,7 @@ public class GPXGeneratorSync {
 		}
 	}
 	/**
-	 * start creating GPX file
+	 * start recovering GPX file
 	 * @param activity
 	 * @param gpxFilePath
 	 * @return
@@ -243,13 +255,13 @@ public class GPXGeneratorSync {
 		try
 		{
 			File gpxFile = new File( gpxFilePath );
-			// 続きから
+			// startCreateGPXFileと違って、続きから
             BufferedOutputStream bos = openGPXFileStream(gpxFile,true);
 
             // 少なくとも最初のラップ開始の表記はファイルに書かれているものとするので、
             // 最初のラップの表記が書かれた直後から書けるように、iCurrentOutputLapを-1から0に更新しておく
             iCurrentOutputLap = 0;
-            openGPXFile( bos );
+            createGPXFileExporter( bos );
 		}
 		catch ( Exception e)
 		{
@@ -263,23 +275,14 @@ public class GPXGeneratorSync {
         	_exporter.exportLoc( loc );
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.e("addLocationToCurrentGPXFile",e.getMessage());
+			LogWrapper.e("addLocationToCurrentGPXFile",e.getMessage());
 		}
     }
-    public void openGPXFile(BufferedOutputStream bos)
+    public void createGPXFileExporter(BufferedOutputStream bos)
     {
 		_exporter = new Exporter(bos);    	
     }
-//    public void openGPXStream()
-//    {
-//        try {
-//			_exporter.endExport();
-//			_exporter.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			Log.e("addLocationToCurrentGPXFile",e.getMessage());
-//		}
-//    }
+
     public void endCreateGPXFile()
     {
         try {
@@ -287,7 +290,7 @@ public class GPXGeneratorSync {
 			_exporter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.e("addLocationToCurrentGPXFile",e.getMessage());
+			LogWrapper.e("addLocationToCurrentGPXFile",e.getMessage());
 		}
     }
 	
@@ -312,7 +315,6 @@ public class GPXGeneratorSync {
 		{			
 			String stg = XML_FORMAT + GPX_START_TAG; 
 			_bos.write( stg.getBytes() );
-			
 		}
 
 		public void endExport() throws IOException
@@ -347,26 +349,25 @@ public class GPXGeneratorSync {
 		 */
 		private void exportLoc( Location loc ) throws IOException
 		{
-			// NOTICE:
+			// NOTICE: Bearingを無理やりラップ数に利用中
 			int iLapOfLocation = (int)loc.getBearing();
 			if( iCurrentOutputLap != iLapOfLocation )
 			{
-//				if( iCurrentOutputLap != -1 )
-//				{
-//					_exporter.endLap();
-//				}
 				_exporter.startLap(iLapOfLocation);
 				iCurrentOutputLap = iLapOfLocation;
 			}
-
 			_exporter.startLoc(loc);
-
 			_exporter.endLoc();
-
 		}
 
 		public void startLap( int iLap ) throws IOException
 		{
+			Date date = new Date();
+			// TODO: リソースに移す
+			SimpleDateFormat dateFormatForName = new SimpleDateFormat(
+					ResourceAccessor.getInstance().getActivity().getString(
+							R.string.datetime_display_format_full));
+			String strName = dateFormatForName.format(date);
 			/*
 			<trk>
 			<name>莉吩ｺｺ繝ｶ蟯ｳ</name>
@@ -376,8 +377,9 @@ public class GPXGeneratorSync {
 			String stg = 
 					TAG_LEFT_BLANCKET + TAG_NAME_TRACK + TAG_RIGHT_BLANCKET
 					+ LINE_SEP
-					+ TAG_LEFT_BLANCKET + TAG_NAME_NAME + TAG_RIGHT_BLANCKET 
-					+ LAP_TEXT + String.valueOf( iLap + 1 )
+					+ TAG_LEFT_BLANCKET + TAG_NAME_NAME + TAG_RIGHT_BLANCKET
+					+ strName
+					//+ LAP_TEXT + String.valueOf( iLap + 1 )
 					+ TAG_LEFT_BLANCKET_OF_CLOSE + TAG_NAME_NAME + TAG_RIGHT_BLANCKET
 					+ LINE_SEP					
 					+ TAG_LEFT_BLANCKET + TAG_NAME_NUMBER + TAG_RIGHT_BLANCKET 

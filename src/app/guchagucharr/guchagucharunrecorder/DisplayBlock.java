@@ -400,7 +400,7 @@ public class DisplayBlock extends RelativeLayout {
 			height = 0;
 			if( dispInfo.isPortrait() )
 			{
-				// Log.w("portrait","dispblock-horizontal");				
+				// LogWrapper.w("portrait","dispblock-horizontal");				
 				// 倍率の調整
 				if( sizeType == eSizeType.MODE_ONE_SIXTH )
 				{
@@ -424,7 +424,7 @@ public class DisplayBlock extends RelativeLayout {
 			}
 			else
 			{
-				// Log.w("horizontal","dispblock-horizontal");				
+				// LogWrapper.w("horizontal","dispblock-horizontal");				
 				// 倍率の調整
 				if( sizeType == eSizeType.MODE_ONE_SIXTH )
 				{

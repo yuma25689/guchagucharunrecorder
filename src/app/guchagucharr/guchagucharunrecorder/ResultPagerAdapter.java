@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +64,7 @@ public class ResultPagerAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         ViewPager viewPager = (ViewPager)container;
         viewPager.removeView((View)object);
-        Log.i("<<<<destroyItem", "POS: " + position);
+        LogWrapper.i("<<<<destroyItem", "POS: " + position);
     }
  
     /**

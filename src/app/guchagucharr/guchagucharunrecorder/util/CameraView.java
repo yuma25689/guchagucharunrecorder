@@ -24,7 +24,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images.Media;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -64,7 +64,7 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 //			//p.setPreviewFormat(format);
 //			// getSupportedPictureSizesは必ず１つしかサイズを返さないとドキュメントには書いてある
 //			p.setPreviewSize(supportedSizes.get(0).width,supportedSizes.get(0).height);
-//			Log.v("getSupportedPictureSizes", "width=" 
+//			LogWrapper.v("getSupportedPictureSizes", "width=" 
 //			+ supportedSizes.get(0).width  + " height=" + supportedSizes.get(0).height);
 //
 //			// ジオタグの設定
@@ -79,12 +79,12 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 ////				p.setGpsLongitude(location.getLongitude());
 ////				p.setGpsTimestamp(location.getTime());
 ////				p.setPictureFormat(ImageFormat.JPEG);
-////				Log.v("geotag","geotag set");
+////				LogWrapper.v("geotag","geotag set");
 ////			}
 //			try{
 //				camera.setParameters(p);
 //			} catch( Exception e ) {
-//				Log.e("setParameters",e.getMessage());
+//				LogWrapper.e("setParameters",e.getMessage());
 //				return;
 //			}
 	       // カメラに設定されているサポートされているサイズを一通りチェックする
@@ -139,7 +139,7 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 		        camera.setPreviewDisplay(holder);
 		    } catch (IOException e) {
 		        e.printStackTrace();
-		        Log.e("setPreviewDisplay",e.getMessage());
+		        LogWrapper.e("setPreviewDisplay",e.getMessage());
 		    }
 		}
 	}
@@ -225,7 +225,7 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 				//p.setPreviewFormat(format);
 				// getSupportedPictureSizesは必ず１つしかサイズを返さないとドキュメントには書いてある
 				p.setPreviewSize(supportedSizes.get(0).width,supportedSizes.get(0).height);
-				Log.v("getSupportedPictureSizes", "width=" 
+				LogWrapper.v("getSupportedPictureSizes", "width=" 
 				+ supportedSizes.get(0).width  + " height=" + supportedSizes.get(0).height);
 
 				// ジオタグの設定
@@ -240,12 +240,12 @@ public class CameraView extends SurfaceView implements Callback, PictureCallback
 					p.setGpsLongitude(location.getLongitude());
 					p.setGpsTimestamp(location.getTime());
 					//p.setPictureFormat(ImageFormat.JPEG);
-					Log.v("geotag","geotag set");
+					LogWrapper.v("geotag","geotag set");
 				}
 				try{
 					camera.setParameters(p);
 				} catch( Exception e ) {
-					Log.e("setParameters",e.getMessage());
+					LogWrapper.e("setParameters",e.getMessage());
 				}
 				camera.takePicture(null,null,this);
 			}

@@ -19,7 +19,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.location.Location;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 
 /**
  * @author 25689
@@ -105,15 +105,15 @@ public class GPXImporterSync {
             xmlReader.setContentHandler( new ImportSaxHandler() );
 			xmlReader.parse( uri.toURL().toExternalForm() );
 		} catch (SAXException e) {
-			Log.w("sax_error =>" + _path, e.getMessage());
+			LogWrapper.w("sax_error =>" + _path, e.getMessage());
 			// strErr = e.getMessage();
 			bRet = false;
 		} catch (IOException e) {
-			Log.w("sax_parse_error =>" + _path, e.getMessage());
+			LogWrapper.w("sax_parse_error =>" + _path, e.getMessage());
 			//strErr = e.getMessage();
 			bRet = false;
 		} catch (ParserConfigurationException e) {
-			Log.w("sax_parser_creation_error", e.getMessage());
+			LogWrapper.w("sax_parser_creation_error", e.getMessage());
 			//strErr = e.getMessage();
 			bRet = false;
 		}
@@ -282,7 +282,7 @@ public class GPXImporterSync {
 					currentData.setTime(date.getTime());
 				} catch (ParseException e) {
 					e.printStackTrace();
-					Log.e("cant parse gmt time from xml","recovery");
+					LogWrapper.e("cant parse gmt time from xml","recovery");
 				}				
 				break;
 			case ID_NONE:

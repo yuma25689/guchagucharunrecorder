@@ -2,7 +2,7 @@ package app.guchagucharr.guchagucharunrecorder;
 
 import android.app.Activity;
 import android.os.Handler;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.view.View;
 //import android.widget.RelativeLayout;
 import android.view.ViewGroup.LayoutParams;
@@ -203,7 +203,7 @@ public final class DisplayInfo {
 		else
 		{
 			widthCorrect = getCorrectionXConsiderDensity(width);
-			//Log.i("width convert", width +"=>" + widthCorrect); 
+			//LogWrapper.i("width convert", width +"=>" + widthCorrect); 
 		}
 		int heightCorrect = 0;
 		if( height == LayoutParams.MATCH_PARENT
@@ -214,7 +214,7 @@ public final class DisplayInfo {
 		else
 		{
 			heightCorrect = getCorrectionYConsiderDensity(height);
-			//Log.i("height convert", height +"=>" + heightCorrect); 
+			//LogWrapper.i("height convert", height +"=>" + heightCorrect); 
 		}
 		
 		RelativeLayout.LayoutParams lp = null;

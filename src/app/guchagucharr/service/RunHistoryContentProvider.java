@@ -29,7 +29,7 @@ public class RunHistoryContentProvider extends ContentProvider {
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
-    	private static int DB_VERSION = 9;
+    	private static int DB_VERSION = 10;
     	
         DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -128,14 +128,16 @@ public class RunHistoryContentProvider extends ContentProvider {
     			int newVersion) {
     		db.beginTransaction();
     		try {
-    			// NOTICE 一時テーブルの復旧は行わない
+    			// 更新対象のテーブルの一覧
     			int tblId[] = {
     					RunHistoryTableContract.HISTORY_TABLE_ID,
-    					RunHistoryTableContract.HISTORY_LAP_TABLE_ID 
+    					RunHistoryTableContract.HISTORY_LAP_TABLE_ID,
+    					RunHistoryTableContract.TEMPOLARY_INFO_TABLE_ID
     			};
     			String tblInf[] = {
     					RunHistoryTableContract.HISTORY_TABLE_NAME,
-    					RunHistoryTableContract.HISTORY_LAP_TABLE_NAME 
+    					RunHistoryTableContract.HISTORY_LAP_TABLE_NAME,
+    					RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME
     			};
     			for( int i=0; i < tblInf.length; i++ )
     			{

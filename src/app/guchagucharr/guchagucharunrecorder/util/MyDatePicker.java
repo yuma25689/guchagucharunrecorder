@@ -25,7 +25,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -599,7 +599,7 @@ public class MyDatePicker extends FrameLayout {
             outDate.setTime(mDateFormat.parse(date));
             return true;
         } catch (ParseException e) {
-            Log.w(LOG_TAG, "Date: " + date + " not in format: " + DATE_FORMAT);
+            LogWrapper.w(LOG_TAG, "Date: " + date + " not in format: " + DATE_FORMAT);
             return false;
         }
     }

@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 //import android.os.Parcel;
 import android.os.RemoteException;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 //import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.guchagucharunrecorder.RunNotificationSoundPlayer;
@@ -70,7 +70,7 @@ public class RunLogger {
             if (mCallback != null) {
                mCallback.onServiceDisconnected(className);
             }
-            Log.e("onServiceDisconnected","come");
+            LogWrapper.e("onServiceDisconnected","come");
             sService = null;
         }
     }
@@ -101,32 +101,32 @@ public class RunLogger {
         if( sService == null )
         {
 	        serviceName = cw.startService(new Intent(cw, app.guchagucharr.service.RunLoggerService.class));
-	        Log.v("componentName"," " + serviceName);
+	        LogWrapper.v("componentName"," " + serviceName);
         }
         // サービスとActivityを接続
         ServiceBinder sb = new ServiceBinder(callback);
         if (cw.bindService((new Intent()).setClass(cw, app.guchagucharr.service.RunLoggerService.class), sb, 0 )) { 
         		//Context.BIND_AUTO_CREATE)) {
-            Log.v("bindService","come");
+            LogWrapper.v("bindService","come");
             sConnectionMap.put(cw, sb);
             return new ServiceToken(cw);
         }
-        Log.e("RunLogger", "Failed to bind to service");
+        LogWrapper.e("RunLogger", "Failed to bind to service");
         return null;
     }
     public static void unbindFromService(ServiceToken token) 
     {
         if (token == null) {
-            Log.e("RunLogger", "Trying to unbind with null token");
+            LogWrapper.e("RunLogger", "Trying to unbind with null token");
             return;
         }
         ContextWrapper cw = token.mWrappedContext;
         ServiceBinder sb = sConnectionMap.remove(cw);
         if (sb == null) {
-            Log.e("RunLogger", "Trying to unbind for unknown Context");
+            LogWrapper.e("RunLogger", "Trying to unbind for unknown Context");
             return;
         }
-        Log.v("unbindService","come");                
+        LogWrapper.v("unbindService","come");                
         cw.unbindService(sb);
     }
 	public static void stopService(Context ctx) {
@@ -140,16 +140,16 @@ public class RunLogger {
 			{
 				// 登録されていないサービスに対してUnbindの場合等にここにくるはず
 				// その場合は、エラーにはせずにスルーする
-				Log.e("unbindService - error", ex.getMessage() );
+				LogWrapper.e("unbindService - error", ex.getMessage() );
 			}
-			Log.v("unbindService","come" + entry.getKey().getClass());   
+			LogWrapper.v("unbindService","come" + entry.getKey().getClass());   
 		}
 		sConnectionMap.clear();
-		Log.w("stopService","mapclear");   
+		LogWrapper.w("stopService","mapclear");   
 		
 		ctx.stopService(new Intent(ctx, RunLoggerService.class));
 		serviceName = null;
-        Log.v("stopService","come");		
+        LogWrapper.v("stopService","come");		
 		sService = null;
 	}
 	@SuppressWarnings("deprecation")
@@ -291,7 +291,7 @@ public class RunLogger {
 //            }
 //		} catch( IOException ex ) {
 //			ex.printStackTrace();
-//			Log.e("ModeFileInput failed","");
+//			LogWrapper.e("ModeFileInput failed","");
 //			return -1;
 //		}        	
 //		catch ( Exception e)

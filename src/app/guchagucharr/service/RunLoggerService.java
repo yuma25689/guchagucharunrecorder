@@ -31,7 +31,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 //import android.provider.Settings;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 import android.widget.Toast;
 import app.guchagucharr.guchagucharunrecorder.MainActivity;
 import app.guchagucharr.guchagucharunrecorder.R;
@@ -86,7 +86,7 @@ implements LocationListener
 
 	    @Override
 	    public void onConnected(Bundle bundle) {
-	    	Log.w("onConnected","come");
+	    	LogWrapper.w("onConnected","come");
 	      handler.post(new Runnable() {
 	        @Override
 	        public void run() {
@@ -117,7 +117,7 @@ implements LocationListener
 	{
 	     @Override
 	     public void run() {
-	    	 Log.v("UpdateTimeDisplayTask","come");
+	    	 LogWrapper.v("UpdateTimeDisplayTask","come");
 	         // mHandler through UI Thread to queueing
 	    	 handler.post( new Runnable() {
 	             @Override
@@ -174,7 +174,7 @@ implements LocationListener
 								// TODO: LocationClientを作成し直してみる？
 						        clearGPS();
 						        requestGPS();
-						        Log.v("recreate locationclient","come");
+						        LogWrapper.v("recreate locationclient","come");
 						        // 音声でユーザにGPSが取得できていないのを通知
 						        RunNotificationSoundPlayer.soundCantGetLocationLongTime(getApplicationContext());
 						        // TODO:バイブも必要
@@ -198,7 +198,7 @@ implements LocationListener
 						}
 					} catch (RemoteException e) {
 						e.printStackTrace();
-						Log.e("UpdateTimeDisplayTask",e.getMessage());						
+						LogWrapper.e("UpdateTimeDisplayTask",e.getMessage());						
 					}
 	             }
 		     });
@@ -286,7 +286,7 @@ implements LocationListener
     public void onCreate() {
         super.onCreate();
         // コンストラクタ
-        Log.w("RunLoggerService-onCreate","come");
+        LogWrapper.w("RunLoggerService-onCreate","come");
         // ロケーションクライアントの作成
         // NOTICE:タイミング的には、サービスができた瞬間から計測開始という感じになるかもしれない
 	    locationClient = new LocationClient(this, connectionCallbacks, onConnectionFailedListener);
@@ -297,12 +297,12 @@ implements LocationListener
     @Override
     public void onStart(Intent intent, int startID) 
     {
-        Log.w("RunLoggerService-onStart","come");        
+        LogWrapper.w("RunLoggerService-onStart","come");        
     }
 
     @Override
     public void onDestroy() {
-        Log.w("RunLoggerService-onDestroy","come");    	
+        LogWrapper.w("RunLoggerService-onDestroy","come");    	
 //        mWakeLock.release();
 //		NotificationManager mNotificationManager =
 //				(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -328,7 +328,7 @@ implements LocationListener
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //mServiceStartId = startId;
-        Log.w("RunLoggerService-onStartCommand","come");
+        LogWrapper.w("RunLoggerService-onStartCommand","come");
         // TODO:サービスが強制終了==>再起動と来た場合、ここで復旧するのもいいかもしれない
         // ただし、どちらかというと、onLocationChangedで復旧した方がいいかも？
         // (テストした感じサービス再起動が起こっても、メンバ変数が全てクリアされてしまうだけで、
@@ -405,18 +405,18 @@ implements LocationListener
 		@Override
 		public void startLog() throws RemoteException {
 			mService.get().startLog();
-			Log.v("startLog","come");
+			LogWrapper.v("startLog","come");
 		}
 
 		@Override
 		public void stopLog() throws RemoteException {
 			mService.get().stopLog();
-			Log.v("stopLog","come");
+			LogWrapper.v("stopLog","come");
 		}
 
 		@Override
 		public long getTimeInMillis() throws RemoteException {
-			//Log.v("getTimeInMillis","come");
+			//LogWrapper.v("getTimeInMillis","come");
 			return mService.get().getTimeInMillis();
 		}
 
@@ -463,7 +463,7 @@ implements LocationListener
 	}
 	void stopLog()
 	{
-		Log.v("stopLog","come");
+		LogWrapper.v("stopLog","come");
 	    if(mTimer != null){
 	        mTimer.cancel();
 	        mTimer = null;
@@ -477,7 +477,7 @@ implements LocationListener
 	}
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.v("GPS","onLocationChanged");
+		LogWrapper.v("GPS","onLocationChanged");
 		synchronized(mode) {
 			if( mode == eMode.MODE_NORMAL )
 			{
@@ -538,10 +538,10 @@ implements LocationListener
 				if( 30 < location.getAccuracy() || location.getAccuracy() == 0) //&& iLocationIgnoreSerialCount < 30 )
 				{
 					// iLocationIgnoreSerialCount++;
-					Log.v("get location data but not stock","because over 50 accuracy");
+					LogWrapper.v("get location data but not stock","because over 50 accuracy");
 					return;
 				}
-				Log.v("add","location info");
+				LogWrapper.v("add","location info");
 				// iLocationIgnoreSerialCount = 0;
 				mLastLocationStockTime = getTimeInMillis();
 				m_nLocationCantGetSerialCount = 0;

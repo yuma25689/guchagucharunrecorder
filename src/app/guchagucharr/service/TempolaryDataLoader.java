@@ -6,7 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
+import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
 
 public class TempolaryDataLoader {
 	
@@ -29,7 +29,7 @@ public class TempolaryDataLoader {
 			// 親テーブルの検索
 			String tempTblUri = RunHistoryTableContract.CONTENT_URI_STRING 
 					+ "/" + RunHistoryTableContract.TEMPOLARY_INFO_TABLE_NAME;
-			Log.v("uri",tempTblUri);			
+			LogWrapper.v("uri",tempTblUri);			
 			Cursor cursor = context.getContentResolver().query(
 					Uri.parse( tempTblUri ),
 				    null,//mProjection,
@@ -64,7 +64,7 @@ public class TempolaryDataLoader {
 			cursor.close();
 		} catch( IllegalArgumentException ex ) {
 			ex.printStackTrace();
-			Log.e("Tempolary table load Error",ex.getMessage());
+			LogWrapper.e("Tempolary table load Error",ex.getMessage());
 			return -1;
 		}
 		
