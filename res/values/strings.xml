@@ -506,7 +506,7 @@
 	<string name="ACTIVITY_TYPE_WALK">Walking</string>
 	<string name="ACTIVITY_TYPE_DRIVE">Driving</string>
 	<string name="ACTIVITY_TYPE_MOTORBIKE">Driving</string>
-	<string name="ACTIVITY_TYPE_BIKE">bike</string>
+	<string name="ACTIVITY_TYPE_BIKE">cycling</string>
 	<string name="ACTIVITY_TYPE_AIRPLANE">Airplane</string>
 	<string name="ACTIVITY_TYPE_SKI">Ski</string>
 	<string name="ACTIVITY_TYPE_SNOW_BOARDING">Snow boarding</string>

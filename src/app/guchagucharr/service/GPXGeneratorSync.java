@@ -170,7 +170,7 @@ public class GPXGeneratorSync {
 	 */
 	public static int checkCommitedGpxFile(String gpxFilePath)
 	{
-		final int CONFIRM_LINE_CNT = 3;		
+		final int CONFIRM_LINE_CNT = 3;
 		ArrayList<String> buf = new ArrayList<String>();
 		// ファイルを開くが、ただ単に、ファイルの最後に書かれているのが、
 		// このアプリで吐かれたGPXの終了部分と一致するかどうかを調べる

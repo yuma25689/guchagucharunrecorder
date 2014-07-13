@@ -125,8 +125,8 @@
 
 	<string name="ACTIVITY_TYPE_UNKNOWN">不明</string>	
 	<string name="ACTIVITY_TYPE_RUN">ランニング</string>
-	<string name="ACTIVITY_TYPE_WALK">徒歩</string>
-	<string name="ACTIVITY_TYPE_DRIVE">ドライブ</string>
+	<string name="ACTIVITY_TYPE_WALK">ウォーキング</string>
+	<string name="ACTIVITY_TYPE_DRIVE">ドライビング</string>
 	<string name="ACTIVITY_TYPE_MOTORBIKE">バイク</string>
 	<string name="ACTIVITY_TYPE_BIKE">自転車</string>
 	<string name="ACTIVITY_TYPE_AIRPLANE">飛行機</string>

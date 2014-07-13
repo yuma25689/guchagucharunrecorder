@@ -1,6 +1,8 @@
 package app.guchagucharr.guchagucharunrecorder;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,8 +13,17 @@ import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import android.app.Activity;
@@ -64,10 +75,12 @@ import app.guchagucharr.guchagucharunrecorder.util.MyDatePicker;
 import app.guchagucharr.guchagucharunrecorder.util.MyTimePicker;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
+import app.guchagucharr.guchagucharunrecorder.util.XmlUtil;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
+import app.guchagucharr.service.RunLoggerService;
 
 public class EditActivity extends FragmentActivity //Activity 
 implements IEditViewController, OnClickListener, OnTouchListener
@@ -170,13 +183,13 @@ implements IEditViewController, OnClickListener, OnTouchListener
         {
         	dataGen = new MainColumnDataGenerator();
         	clmnInfos = dataGen.generate( this, ResourceAccessor.getInstance().getWorkOutDataTmp() );
-        	clmnInfosOrg = clmnInfos;
+        	clmnInfosOrg = dataGen.generate( this, ResourceAccessor.getInstance().getWorkOutDataTmp() );
         }
         else if( iEditDataType == EDIT_DATA_LAP_TABLE )
         {
         	dataGen = new LapColumnDataGenerator();
         	clmnInfos = dataGen.generate( this, ResourceAccessor.getInstance().getLapDataTmp() );
-        	clmnInfosOrg = clmnInfos;
+        	clmnInfosOrg = dataGen.generate( this, ResourceAccessor.getInstance().getLapDataTmp() );
         }
 	}
 
@@ -322,7 +335,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 						edt.setInputType(EditorInfo.TYPE_CLASS_NUMBER);
 						edt.addTextChangedListener(new UITextWatcher(clmn.getColumnName()));
 						ll.addView(edt);
-
 					}
 				}
 				// Activity Type設定用コントロールは特別にする
@@ -456,7 +468,6 @@ implements IEditViewController, OnClickListener, OnTouchListener
 		return ret;
 	}
     
-
 	@Override
 	public void onClick(View v) {
 		try {
@@ -500,15 +511,34 @@ implements IEditViewController, OnClickListener, OnTouchListener
 								Document document = docBuilder.parse(fileObject);
 								document.normalize();
 
-								
+								Element doc = document.getDocumentElement();
+								// ノード名がtype
+								NodeList docChildren = doc.getElementsByTagName("type");
+								for( int i=0; i<docChildren.getLength();i++ )
+								{
+									Node n = docChildren.item(i);
+									
+									if( n.getFirstChild() != null 
+									&&( n.getFirstChild().getNodeType() == Node.TEXT_NODE
+									|| n.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE ) )
+									{
+										// 子のテキストOR CDATAのノードがあれば
+										// 指定されたtypeの値を取得
+										ColumnData clmn = getColumnDataFromColumnName(
+												clmnInfos, RunHistoryTableContract.ACTIVITY_TYPE );
+										// typeを文字列に変換
+										String sActivityTypeName = 
+												TrackIconUtils.getActivityTypeNameFromCode(this,
+														Integer.parseInt(clmn.getText()));
+										// そのCDATAセクションノードを作成
+										Node newNode = document.createCDATASection(sActivityTypeName);
+										// 現在のノードと入れ替え
+										n.replaceChild(newNode, n.getFirstChild());
+									}
+								}
 								
 								// 上書き
-//								FileWriter fileWriter = new FileWriter("hoge.xml");
-//								BufferedWriter bufferdWriter = new BufferedWriter(fileWriter);
-//								((XmlDocument)document).write(bufferdWriter, "Shift_JIS");
-//								bufferdWriter.flush();
-//								bufferdWriter.close();								
-								
+								XmlUtil.writeXML(fileObject,document);								
 								
 							} catch (ParserConfigurationException e) {
 								e.printStackTrace();
