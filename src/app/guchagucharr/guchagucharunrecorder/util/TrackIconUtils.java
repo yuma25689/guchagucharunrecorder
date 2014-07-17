@@ -55,8 +55,8 @@ public class TrackIconUtils {
 	public static final int DRIVE = 3;
 	public static final int MOTORBIKE = 4;
 	public static final int AIRPLANE = 5;
-	public static final int SNOW_BOARDING = 6;
-	public static final int SKI = 7;
+	public static final int SNOW_BOARDING = 7;
+	public static final int SKI = 6;
 	public static final int TRAIN = 8;
 
 	public static final int[] ActivityTypeNameIds = {

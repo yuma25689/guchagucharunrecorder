@@ -128,7 +128,7 @@
 	<string name="ACTIVITY_TYPE_WALK">ウォーキング</string>
 	<string name="ACTIVITY_TYPE_DRIVE">ドライビング</string>
 	<string name="ACTIVITY_TYPE_MOTORBIKE">バイク</string>
-	<string name="ACTIVITY_TYPE_BIKE">自転車</string>
+	<string name="ACTIVITY_TYPE_BIKE">サイクリング</string>
 	<string name="ACTIVITY_TYPE_AIRPLANE">飛行機</string>
 	<string name="ACTIVITY_TYPE_SKI">スキー</string>
 	<string name="ACTIVITY_TYPE_SNOW_BOARDING">スノーボード</string>
