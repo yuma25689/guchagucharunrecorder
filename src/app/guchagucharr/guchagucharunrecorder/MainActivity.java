@@ -474,11 +474,11 @@ implements
 
 	//static final int TIME_TEXTVIEW_WIDTH = 150;
 	//static final int TIME_TEXTVIEW_HEIGHT = 60;
-	static final int TIME_TEXTVIEW_FONT_SIZE = 30;
+	static final int TIME_TEXTVIEW_FONT_SIZE = 35;
 
 	//static final int DISTANCE_TEXTVIEW_WIDTH = 150;
 	//static final int DISTANCE_TEXTVIEW_HEIGHT = 60;
-	static final int DISTANCE_TEXTVIEW_FONT_SIZE = 25;
+	static final int DISTANCE_TEXTVIEW_FONT_SIZE = 30;
 
 	//static final int SPEED_TEXTVIEW_WIDTH = 150;
 	//static final int SPEED_TEXTVIEW_HEIGHT = 60;
@@ -1750,7 +1750,7 @@ implements
 		
 	}
 
-	boolean chooseActivityType()
+	int getCurrentActivityTypeCode()
 	{
     	int iCurrentCd = nActivityTypeInitIcon;
     	try {
@@ -1759,11 +1759,16 @@ implements
     	{
     		iCurrentCd = nActivityTypeInitIcon;
     	}
+    	return iCurrentCd;
+	}
+	
+	boolean chooseActivityType()
+	{
     	ChooseActivityTypeDialogFragment act 
     	= ChooseActivityTypeDialogFragment.newInstance(
     		  //activityType.getText().toString()
     			activityTypeButton,
-    			iCurrentCd//nActivityTypeInitIcon
+    			getCurrentActivityTypeCode() //nActivityTypeInitIcon
     		  );
     	act.show(
     			getSupportFragmentManager(),
@@ -1774,7 +1779,17 @@ implements
 	
 	boolean startMeasuring()
 	{
-		chooseActivityType();
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+		int nActTypeDefIcon = Integer.valueOf(pref.getString(
+				GGRRPreferenceActivity.DEFAULT_ACTIVITY_TYPE_KEY,
+				String.valueOf( TrackIconUtils.RUN )));
+
+		if( nActTypeDefIcon == getCurrentActivityTypeCode() )
+		{
+			// デフォルトが使われている場合、計測前にアクティビティ種別設定ダイアログを出力
+			// TODO: 要設定化
+			chooseActivityType();
+		}
 		// 計測前の場合
 		// 位置情報を全てクリアする
 		RunLoggerService.clearRunLogStocker();
