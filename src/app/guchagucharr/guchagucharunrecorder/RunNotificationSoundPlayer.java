@@ -96,9 +96,9 @@ public class RunNotificationSoundPlayer {
 	
 	public static void soundArrivalNotify( Context ctx, int arrivalDistance, int unitType )
 	{
-		if( arrivalDistance < 1)
+		if( arrivalDistance < 0)
 		{
-			// 到達した距離が1より小さい場合、まだ通知できないものとする
+			// 到達した距離が0より小さい場合、まだ通知できないものとする
 			return;
 		}
 		switch( unitType )
