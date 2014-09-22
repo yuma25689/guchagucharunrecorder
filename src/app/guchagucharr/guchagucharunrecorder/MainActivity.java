@@ -1,9 +1,7 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-//import android.app.Notification;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-// import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,12 +10,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-//import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-// import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-//import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -40,7 +35,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-//import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
@@ -56,6 +50,7 @@ import app.guchagucharr.guchagucharunrecorder.util.SoundPlayer;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.interfaces.IMainViewController;
+import app.guchagucharr.service.GPXGeneratorSync;
 import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLogger;
@@ -1666,9 +1661,23 @@ implements
 	    	//activityTypeIcon.getAdapter().getItem(0).toString()));
     	  ImageButton parentButton = (ImageButton) parent;
     	  parentButton.setImageBitmap(source);
+    	  Integer iPrev = (Integer)parentButton.getTag();
     	  parentButton.setTag(value);
     	  try {
     		  RunLogger.sService.setActivityTypeCode(value);
+    		  if( RunLogger.sService.getMode() 
+  				== RunLoggerService.eMode.MODE_MEASURING.ordinal()	  
+  				&& iPrev != value )
+    		  {
+    			  // 計測中
+    			  // 前のコードと変わっていたら
+    			  // GPXファイルの更新を試みる
+	    		  if( false == GPXGeneratorSync.updateActivityType(
+	    				  this, RunningLogStocker.getTmpGpxFilePath(this), value) )
+	    		  {
+	    			  LogWrapper.w("updateActivityType", "edit失敗");
+	    		  }
+    		  }
     	  } catch (RemoteException e) {
     		  e.printStackTrace();
     		  LogWrapper.e("setIcon to service","error");

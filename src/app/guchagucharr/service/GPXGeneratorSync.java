@@ -12,9 +12,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import android.content.Context;
 //import android.app.Activity;
 import android.location.Location;
+import app.guchagucharr.guchagucharunrecorder.util.ColumnData;
 import app.guchagucharr.guchagucharunrecorder.util.LogWrapper;
+import app.guchagucharr.guchagucharunrecorder.util.XmlUtil;
 import app.guchagucharr.guchagucharunrecorder.R;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
@@ -24,6 +37,8 @@ import app.guchagucharr.guchagucharunrecorder.util.TrackIconUtils;
  *
  */
 public class GPXGeneratorSync {
+	// ロック用オブジェクト
+	public static Object mFileWriteLock= new Object();
 	// public static final String EXPORT_FILE_DIR = "/sdcard/patiman/export";
 	// ファイルの拡張子
 	public static final String EXPORT_FILE_EXT = ".gpx";
@@ -313,8 +328,11 @@ public class GPXGeneratorSync {
 
 		public void startExport() throws IOException
 		{			
-			String stg = XML_FORMAT + GPX_START_TAG; 
-			_bos.write( stg.getBytes() );
+			String stg = XML_FORMAT + GPX_START_TAG;
+			synchronized( mFileWriteLock )
+			{
+				_bos.write( stg.getBytes() );
+			}
 		}
 
 		public void endExport() throws IOException
@@ -326,12 +344,17 @@ public class GPXGeneratorSync {
 					+ LINE_SEP
 					;					
 			
-			_bos.write( out.getBytes() );
-			
+			synchronized( mFileWriteLock )
+			{
+				_bos.write( out.getBytes() );
+			}
 			// </gpx>
 			String stg = GPX_END_TAG;
 			
-			_bos.write( stg.getBytes() );
+			synchronized( mFileWriteLock )
+			{
+				_bos.write( stg.getBytes() );
+			}
 		}
 		/**
 		 * 竊灘ｽ｢蠑�
@@ -395,7 +418,10 @@ public class GPXGeneratorSync {
 					+ LINE_SEP
 					;
 					
-			_bos.write( stg.getBytes() );
+			synchronized( mFileWriteLock )
+			{
+				_bos.write( stg.getBytes() );
+			}
 		}
 
 //		public void endLap() throws IOException
@@ -461,14 +487,71 @@ public class GPXGeneratorSync {
 			builder.append( TAG_RIGHT_BLANCKET );
 			builder.append( LINE_SEP );
 			
-			_bos.write( builder.toString().getBytes() );
+			synchronized( mFileWriteLock )
+			{
+				_bos.write( builder.toString().getBytes() );
+			}
 		}
 
 		public void endLoc() throws IOException
-		{			
-			//_bos.write( END_ROW.getBytes() );
-			// NOTICE:いちいちflushする？大丈夫かな？
-			_bos.flush();
+		{
+			synchronized( mFileWriteLock )
+			{
+				//_bos.write( END_ROW.getBytes() );
+				// NOTICE:いちいちflushする？大丈夫かな？
+				_bos.flush();
+			}
+		}
+	}
+	
+	public static boolean updateActivityType(Context ctx, String targetGpx, int activityTypeCode)
+	{
+		synchronized( mFileWriteLock )
+		{		
+			boolean bRet = true;
+			File fileObject = new File(targetGpx);
+			DocumentBuilder docBuilder;
+			try {
+				docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				Document document = docBuilder.parse(fileObject);
+				document.normalize();
+	
+				Element doc = document.getDocumentElement();
+				// ノード名がtype
+				NodeList docChildren = doc.getElementsByTagName("type");
+				for( int i=0; i<docChildren.getLength();i++ )
+				{
+					Node n = docChildren.item(i);
+					
+					if( n.getFirstChild() != null 
+					&&( n.getFirstChild().getNodeType() == Node.TEXT_NODE
+					|| n.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE ) )
+					{
+						// 子のテキストOR CDATAのノードがあれば
+						// typeを文字列に変換
+						String sActivityTypeName = 
+								TrackIconUtils.getActivityTypeNameFromCode(ctx,activityTypeCode);
+						// そのCDATAセクションノードを作成
+						Node newNode = document.createCDATASection(sActivityTypeName);
+						// 現在のノードと入れ替え
+						n.replaceChild(newNode, n.getFirstChild());
+					}
+				}
+				
+				// 上書き
+				XmlUtil.writeXML(fileObject,document);								
+				
+			} catch (ParserConfigurationException e) {
+				LogWrapper.e("ParserConfigurationException",e.getMessage());
+				bRet = false;
+			} catch (SAXException e) {
+				LogWrapper.e("SAXException",e.getMessage());
+				bRet = false;
+			} catch (IOException e) {
+				LogWrapper.e("IOException",e.getMessage());
+				bRet = false;
+			}
+			return bRet;
 		}
 	}
 	

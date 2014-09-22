@@ -220,23 +220,23 @@ public class RunLogger {
 	}
 	
 	
-	/**
-	 * ファイルをストリームとして開く
-	 * ==>共通化できるなら、共通化を行う
-	 * @param file
-	 * @return
-	 */
-    private static BufferedOutputStream openFileStream(File file)
-    {
-    	BufferedOutputStream bos = null;
-		try {
-			FileOutputStream fOut = new FileOutputStream(file);
-	        bos = new BufferedOutputStream( fOut );    	
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return bos;
-    }
+//	/**
+//	 * ファイルをストリームとして開く
+//	 * ==>共通化できるなら、共通化を行う
+//	 * @param file
+//	 * @return
+//	 */
+//    private static BufferedOutputStream openFileStream(File file)
+//    {
+//    	BufferedOutputStream bos = null;
+//		try {
+//			FileOutputStream fOut = new FileOutputStream(file);
+//	        bos = new BufferedOutputStream( fOut );    	
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		return bos;
+//    }
 //	public static void writeModeToTmpFile(Activity activity, eMode mode)
 //	{
 //		// フォルダ取得

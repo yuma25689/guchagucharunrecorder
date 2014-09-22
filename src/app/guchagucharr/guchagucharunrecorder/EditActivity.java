@@ -78,6 +78,7 @@ import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 import app.guchagucharr.guchagucharunrecorder.util.XmlUtil;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
+import app.guchagucharr.service.GPXGeneratorSync;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLoggerService;
@@ -504,55 +505,17 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			    				targetGpx = data.getGpxFixedFilePath();
 			    			}
 			    			
-			    			File fileObject = new File(targetGpx);
-			    			DocumentBuilder docBuilder;
-							try {
-								docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-								Document document = docBuilder.parse(fileObject);
-								document.normalize();
-
-								Element doc = document.getDocumentElement();
-								// ノード名がtype
-								NodeList docChildren = doc.getElementsByTagName("type");
-								for( int i=0; i<docChildren.getLength();i++ )
-								{
-									Node n = docChildren.item(i);
-									
-									if( n.getFirstChild() != null 
-									&&( n.getFirstChild().getNodeType() == Node.TEXT_NODE
-									|| n.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE ) )
-									{
-										// 子のテキストOR CDATAのノードがあれば
-										// 指定されたtypeの値を取得
-										ColumnData clmn = getColumnDataFromColumnName(
-												clmnInfos, RunHistoryTableContract.ACTIVITY_TYPE );
-										// typeを文字列に変換
-										String sActivityTypeName = 
-												TrackIconUtils.getActivityTypeNameFromCode(this,
-														Integer.parseInt(clmn.getText()));
-										// そのCDATAセクションノードを作成
-										Node newNode = document.createCDATASection(sActivityTypeName);
-										// 現在のノードと入れ替え
-										n.replaceChild(newNode, n.getFirstChild());
-									}
-								}
-								
-								// 上書き
-								XmlUtil.writeXML(fileObject,document);								
-								
-							} catch (ParserConfigurationException e) {
-								e.printStackTrace();
-							} catch (SAXException e) {
-								e.printStackTrace();
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
+							ColumnData clmn = getColumnDataFromColumnName(
+									clmnInfos, RunHistoryTableContract.ACTIVITY_TYPE );
+							// typeを文字列に変換
+							Integer activityTypeCode = 
+											Integer.parseInt(clmn.getText());
 			    			
-							
+							bGpxEditSuccess = GPXGeneratorSync.updateActivityType(this,targetGpx,activityTypeCode);
 							// TODO:エラー処理
 							if( false == bGpxEditSuccess )
 							{
-								
+								LogWrapper.e("ActivityType EditError","ActivityType EditError Occured");
 							}
 			    		}
 			    	}
