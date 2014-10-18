@@ -50,10 +50,12 @@ public class TempolaryDataLoader {
 					int startDatetimeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.START_DATETIME );
 					int gpxDirIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_DIR);
 					int activityTypeCodeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.ACTIVITY_TYPE);
+					int noGpsModeIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.NO_GPS_MODE);
 					data.setCurrentMode( cursor.getInt( currentModeIndex ) );
 					data.setStartDateTime( cursor.getLong( startDatetimeIndex ) );
 					data.setGpxDir( cursor.getString( gpxDirIndex ) );
 					data.setActivityTypeCode( cursor.getInt( activityTypeCodeIndex ) );
+					data.setIsNoGPSMode( cursor.getInt( noGpsModeIndex ) );
 					//int gpxIndex = cursor.getColumnIndexOrThrow(RunHistoryTableContract.GPX_FILE_PATH);
 					//data.setGpxFilePath( cursor.getString( gpxIndex ) );
 								
@@ -79,6 +81,7 @@ public class TempolaryDataLoader {
 		String gpxDir;
 		int currentMode;
 		int activityTypeCode;
+		int isNoGPSMode;
 		/**
 		 * @return the id
 		 */
@@ -138,6 +141,18 @@ public class TempolaryDataLoader {
 		 */
 		public void setActivityTypeCode(int activityTypeCode) {
 			this.activityTypeCode = activityTypeCode;
+		}
+		/**
+		 * @return the isNoGPSMode
+		 */
+		public int getIsNoGPSMode() {
+			return isNoGPSMode;
+		}
+		/**
+		 * @param isNoGPSMode the isNoGPSMode to set
+		 */
+		public void setIsNoGPSMode(int isNoGPSMode) {
+			this.isNoGPSMode = isNoGPSMode;
 		}
 	};
 

@@ -29,7 +29,7 @@ public class RunHistoryContentProvider extends ContentProvider {
     
     private static class DatabaseHelper extends SQLiteOpenHelper {
         
-    	private static int DB_VERSION = 10;
+    	private static int DB_VERSION = 11;
     	
         DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -85,7 +85,8 @@ public class RunHistoryContentProvider extends ContentProvider {
 //                        + RunHistoryTableContract.LAP_FIXED_TIME + " INTEGER,"
 //                        + RunHistoryTableContract.LAP_FIXED_SPEED + " REAL,"
                         + RunHistoryTableContract.GPX_FILE_DIR + " TEXT,"
-                        + RunHistoryTableContract.ACTIVITY_TYPE + " INTEGER"
+                        + RunHistoryTableContract.ACTIVITY_TYPE + " INTEGER,"
+                        + RunHistoryTableContract.NO_GPS_MODE + " INTEGER"
                         + ");"
                         ;
         	}

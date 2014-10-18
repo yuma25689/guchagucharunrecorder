@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
@@ -99,7 +101,7 @@ implements
 	// NOTICE:タイマー処理の一部はサービスに移す案もある
 	// private Timer mTimer = null;	
 	
-	boolean bUseGPS = true;
+	// boolean bUseGPS = true;
 	// contorls
 	// center button
 	ImageButton btnCenter = null;
@@ -139,7 +141,7 @@ implements
 	ImageButton activityTypeButton = null;
 	// Spinner activityTypeIcon = null;
 	// 自分で入力するかどうかを表示するチェックボックス
-	//CheckBox chkInputByMe = null;
+	CheckBox chkInputByMe = null;
 	
 	/**
 	 * Activityができたとき
@@ -709,24 +711,31 @@ implements
 		addViewToCompContainer(imgGPS);
 
 		// Check input by me
-//		if( chkInputByMe == null )
-//		{
-//			chkInputByMe = new CheckBox(this);
-//		}
-//		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.chk_input_by_me_normal);
-//		RelativeLayout.LayoutParams rlChkInputByMe
-//		= dispInfo.createLayoutParamForNoPosOnBk(
-//				bmpoptions.outWidth, bmpoptions.outHeight, true );
-//		rlChkInputByMe.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-//		rlChkInputByMe.rightMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
-//		rlChkInputByMe.addRule(RelativeLayout.BELOW, GPS_INDICATOR_ID);
-//		chkInputByMe.setText("");
-//		// TODO:これでちゃんと設定されるかは要確認
-//		chkInputByMe.setButtonDrawable( R.drawable.selector_chk_input_by_me_image );
-//		
-//		chkInputByMe.setOnCheckedChangeListener(this);
-//		chkInputByMe.setLayoutParams(rlChkInputByMe);
-//		addViewToCompContainer(chkInputByMe);
+		if( chkInputByMe == null )
+		{
+			chkInputByMe = new CheckBox(this);
+		}
+//		bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(
+//				R.drawable.chk_input_by_me_normal);
+		
+		Drawable drawable = getResources().getDrawable( R.drawable.selector_chk_input_by_me_image );
+		RelativeLayout.LayoutParams rlChkInputByMe
+		= dispInfo.createLayoutParamForNoPosOnBk(
+				//RelativeLayout.LayoutParams.WRAP_CONTENT,
+				//RelativeLayout.LayoutParams.WRAP_CONTENT,
+				drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(),
+				//bmpoptions.outWidth, bmpoptions.outHeight,
+				true );
+		rlChkInputByMe.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		rlChkInputByMe.rightMargin = RIGHT_TOP_CTRL_1_RIGHT_MARGIN;
+		rlChkInputByMe.addRule(RelativeLayout.BELOW, GPS_INDICATOR_ID);
+		chkInputByMe.setText("");
+		// TODO:これでちゃんと設定されるかは要確認
+		chkInputByMe.setButtonDrawable( R.drawable.selector_chk_input_by_me_image );
+		
+		chkInputByMe.setOnCheckedChangeListener(this);
+		chkInputByMe.setLayoutParams(rlChkInputByMe);
+		addViewToCompContainer(chkInputByMe);
 
 		// CONFIRM: これの存在は割と微妙
 		// location count label
@@ -1231,7 +1240,11 @@ implements
 						// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 						// logging end
 						RunLogger.sService.stopLog();
+						boolean noGpsMode = RunLogger.sService.getNoGpsMode() == 1;
+						//if(noGpsMode == false)
+						//{
 						clearGPS();
+						//}
 						// Notifyの消去
 						NotificationManager mNotificationManager =
 						(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -1240,7 +1253,8 @@ implements
 
 						RunningLogStocker.setRunHistorySaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 			            RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
-						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(),false);//new Date().getTime());
+						RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(),false,
+								noGpsMode);//new Date().getTime());
 						
 						btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
 						setVisibleByMode( eMode.MODE_NORMAL.ordinal() );
@@ -1259,7 +1273,7 @@ implements
 						
 						resetGpsIndicator();
 						//imgGPS.setBackgroundResource(R.drawable.gps_no_responce);
-						if( bUseGPS )
+						if( noGpsMode == false )
 						{
 							requestGPS();
 						}
@@ -1289,7 +1303,8 @@ implements
 						// もしもGPSがONではなかったら、GPSがONではなく、
 						// あまり精確ではないかもしれないという確認or警告ダイアログの出力
 						// TODO:できたら、通常のものでなく、フリーのライブラリのメッセージボックスを利用
-						if( false == isArrowGPSSetting() )
+						if( this.chkInputByMe.isChecked() == false 
+						&& false == isArrowGPSSetting() )
 						{
 					        AlertDialog.Builder adb=new AlertDialog.Builder(this);
 					        adb.setTitle(R.string.title_confirm);
@@ -1333,7 +1348,11 @@ implements
 			// RunLogger.writeModeToTmpFile(this,eMode.MODE_NORMAL);						
 			// logging end
 			RunLogger.sService.stopLog();
+			boolean bNoGpsMode = RunLogger.sService.getNoGpsMode() == 1;
+			//if( bNoGpsMode == false )
+			//{
 			clearGPS();
+			//}
 			// Notifyの消去
 			NotificationManager mNotificationManager =
 			(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -1343,11 +1362,13 @@ implements
 	        RunningLogStocker.setOutputGPXSaveResult(RunningLogStocker.SAVE_NOT_TRY,RunLoggerService.getLogStocker());
 	        if( false == recoveryMode )
 	        {
-	        	RunLoggerService.getLogStocker().stop(this, RunLogger.sService.getTimeInMillis(), recoveryMode);//new Date().getTime());
+	        	RunLoggerService.getLogStocker().stop(
+	        			this, RunLogger.sService.getTimeInMillis(), recoveryMode, bNoGpsMode);//new Date().getTime());
 	        }
 	        else
 	        {
-	        	RunLoggerService.getLogStocker().stop(this, RunLoggerService.getLogStocker().getCurrentLocation().getTime(), recoveryMode);	        	
+	        	RunLoggerService.getLogStocker().stop(
+	        			this, RunLoggerService.getLogStocker().getCurrentLocation().getTime(), recoveryMode, bNoGpsMode);	        	
 	        }
 			
 			btnCenter.setBackgroundResource(R.drawable.selector_runstart_button_image);
@@ -1365,13 +1386,14 @@ implements
 //			btnCamera.setVisibility(View.GONE);
 //			btnCancel.setVisibility(View.GONE);
 
-			if( RunLoggerService.getLogStocker().getLocationDataCount() <= 0 )
+			if( bNoGpsMode == false && RunLoggerService.getLogStocker().getLocationDataCount() <= 0 )
 			{
 				return;
 			}
 			// launch activity for save
 			Intent intent = new Intent( this, ResultActivity.class );
 			intent.putExtra(ResultActivity.WORK_OUT_END, 1);
+			intent.putExtra(ResultActivity.NO_GPS_MODE, bNoGpsMode);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);	 
 	        startActivity(intent);
 		} catch (RemoteException e) {
@@ -1694,14 +1716,43 @@ implements
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//		if( buttonView == chkInputByMe )
-//		{
-//			// 自力で入力チェックボックス
-//			if( chkInputByMe.isChecked() )
-//			{
-//				// チェックされていたら、自力で距離を入力するモードにする
-//			}
-//		}
+		if( buttonView == chkInputByMe )
+		{
+			// 自力で入力チェックボックス
+			if( chkInputByMe.isChecked() )
+			{
+				// チェックされていたら、自力で距離を入力するモードにする
+				btnGPS.setVisibility(View.INVISIBLE);
+				imgGPS.setVisibility(View.INVISIBLE);
+				clearGPS();
+				try {
+					if( RunLogger.sService != null
+					&& RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
+					{
+						btnCenter.setEnabled(true);
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+			}
+			else
+			{
+				btnGPS.setVisibility(View.VISIBLE);
+				imgGPS.setVisibility(View.VISIBLE);
+				try {
+					if( false == RunLoggerService.isEmptyLogStocker() 
+					&& RunLogger.sService.getMode() == eMode.MODE_NORMAL.ordinal() )
+					{
+						btnCenter.setEnabled(false);
+						requestGPS();
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+					Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+			}
+		}
 		
 	}
 
@@ -1723,12 +1774,47 @@ implements
 			txtLap.setVisibility(View.GONE);
 			btnCenter.setEnabled(false);
 			txtLocationCount.setVisibility(View.GONE);
+			chkInputByMe.setEnabled(true);
+			chkInputByMe.setVisibility( View.VISIBLE );
 		}
 		else if( mode == eMode.MODE_MEASURING.ordinal() )
 		{
-			txtDistance.setVisibility(View.VISIBLE);
-			txtSpeed.setVisibility(View.VISIBLE);
-			// txtSpeed2.setVisibility(View.VISIBLE);
+			// 自分で入力チェックボックスを使用不可、または消去
+			if( chkInputByMe.isChecked() )
+			{
+				chkInputByMe.setEnabled(false);
+				btnCenter.setEnabled(true);
+				chkInputByMe.setVisibility( View.VISIBLE );
+				txtDistance.setVisibility( View.GONE );
+				txtSpeed.setVisibility( View.GONE );
+				txtLocationCount.setVisibility( View.GONE );
+			}
+			else
+			{
+				chkInputByMe.setEnabled(false);
+				chkInputByMe.setVisibility(View.INVISIBLE);
+				txtDistance.setVisibility( View.VISIBLE );
+				txtSpeed.setVisibility( View.VISIBLE );
+				txtLocationCount.setVisibility( View.VISIBLE );
+				if( false == RunLoggerService.isEmptyLogStocker()
+				&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
+				{
+					txtLap.setVisibility(View.VISIBLE);
+					txtTimeOfLap.setVisibility(View.VISIBLE);
+					txtDistanceOfLap.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					txtLap.setVisibility(View.GONE);
+					txtTimeOfLap.setVisibility(View.GONE);
+					txtDistanceOfLap.setVisibility(View.GONE);					
+				}
+				
+			}
+			
+//			txtDistance.setVisibility(View.VISIBLE);
+//			txtSpeed.setVisibility(View.VISIBLE);
+//			// txtSpeed2.setVisibility(View.VISIBLE);
 			txtTime.setVisibility(View.VISIBLE);		
 			btnLap.setVisibility(View.VISIBLE);
 			btnCamera.setVisibility(View.VISIBLE);
@@ -1736,25 +1822,12 @@ implements
 			btnCamera.setEnabled(true);
 			btnCancel.setEnabled(true);
 
-			if( false == RunLoggerService.isEmptyLogStocker()
-			&& 0 < RunLoggerService.getLogStocker().getStockedLapCount() )
-			{
-				txtLap.setVisibility(View.VISIBLE);
-				txtTimeOfLap.setVisibility(View.VISIBLE);
-				txtDistanceOfLap.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				txtLap.setVisibility(View.GONE);
-				txtTimeOfLap.setVisibility(View.GONE);
-				txtDistanceOfLap.setVisibility(View.GONE);					
-			}
 			if( false == RunLoggerService.isEmptyLogStocker() 
 			&& 0 < RunLoggerService.getLogStocker().getLocationDataCount() )//getLocationData().isEmpty() == false )
 			{
 				updateLogDisplay(RunLoggerService.getLogStocker().getCurrentLocation().getSpeed() );//getLocationData().lastElement().getSpeed());//0);
 			}
-			txtLocationCount.setVisibility(View.VISIBLE);
+			//txtLocationCount.setVisibility(View.VISIBLE);
 		}
 		
 	}
@@ -1810,9 +1883,8 @@ implements
 		long time;
 		try {
 			time = RunLogger.sService.getTimeInMillis();
-		
 			// 位置情報取得開始
-			if( 0 != RunLogger.startLog(this,time) )
+			if( 0 != RunLogger.startLog(this,time,chkInputByMe.isChecked()) )
 			{
 				// ログ取得開始に失敗したら、ログをクリアして戻る
 				RunLoggerService.clearRunLogStocker();

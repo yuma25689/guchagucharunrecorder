@@ -153,12 +153,12 @@ public class RunLogger {
 		sService = null;
 	}
 	@SuppressWarnings("deprecation")
-	public static int startLog(Activity activity,long time) throws RemoteException
+	public static int startLog(Activity activity,long time,boolean noGpsMode) throws RemoteException
 	{
 		int iRet = 0;
 		
 		// 位置情報取得開始
-		if( false == RunLoggerService.getLogStocker().start(activity,time) )
+		if( false == RunLoggerService.getLogStocker().start(activity,time,noGpsMode) )
 		{
 			// ログ取得開始に失敗したら、ログをクリアして戻る
 			// RunLoggerService.clearRunLogStocker();
@@ -168,6 +168,10 @@ public class RunLogger {
 		// Notificationの表示
 		Notification notif = SetLoggingNotification(activity);
 		RunLoggerService.setNotification(notif);
+		
+		// サービスへNo GPS Modeの設定
+		sService.setNoGpsMode(noGpsMode ? 1 : 0);
+
 		// サービスの方でも、ログ取得開始？
 		sService.startLog();
 		
@@ -190,6 +194,7 @@ public class RunLogger {
 		sService.startLog();
 		// モードを計測中に設定
 		sService.setMode( eMode.MODE_MEASURING.ordinal() );
+		sService.setNoGpsMode(data.getIsNoGPSMode());
 		// モードをファイルに書き込み
 		// writeModeToTmpFile(activity,eMode.MODE_MEASURING);
 		// Notificationの表示

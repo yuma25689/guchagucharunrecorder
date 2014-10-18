@@ -155,38 +155,42 @@ implements LocationListener
 								totalTime = getTimeInMillis()//new Date().getTime() 
 									- RunLoggerService.getLogStocker().getLapData(0).getStartTime();
 							}
-							long diffTime = 0;
-
-							int nWarnSecond = m_nFirstWarningSecond;
-							if( m_nLocationCantGetSerialCount == 0 )
+							// GPSを使用するモードの場合、長い間GPSが取得できていなかったら警告する
+							if( m_nNoGPSMode == 0 ) 
 							{
-								diffTime = getTimeInMillis() - mLastLocationStockTime;
-							}
-							else
-							{
-								diffTime = getTimeInMillis() - m_nLastWarnTime;
-								nWarnSecond = m_nWarningSecondOnContinue;
-							}
 							
-							if( nWarnSecond * UnitConversions.S_TO_MS < diffTime )
-							{
-								// 1分以上音沙汰なし
-								// TODO: LocationClientを作成し直してみる？
-						        clearGPS();
-						        requestGPS();
-						        LogWrapper.v("recreate locationclient","come");
-						        // 音声でユーザにGPSが取得できていないのを通知
-						        RunNotificationSoundPlayer.soundCantGetLocationLongTime(getApplicationContext());
-						        // TODO:バイブも必要
-						        m_nLocationCantGetSerialCount++;
-								// 最後に警告を出力した時刻
-						        m_nLastWarnTime = getTimeInMillis();
+								long diffTime = 0;
+	
+								int nWarnSecond = m_nFirstWarningSecond;
+								if( m_nLocationCantGetSerialCount == 0 )
+								{
+									diffTime = getTimeInMillis() - mLastLocationStockTime;
+								}
+								else
+								{
+									diffTime = getTimeInMillis() - m_nLastWarnTime;
+									nWarnSecond = m_nWarningSecondOnContinue;
+								}
+								
+								if( nWarnSecond * UnitConversions.S_TO_MS < diffTime )
+								{
+									// 1分以上音沙汰なし
+									// TODO: LocationClientを作成し直してみる？
+							        clearGPS();
+							        requestGPS();
+							        LogWrapper.v("recreate locationclient","come");
+							        // 音声でユーザにGPSが取得できていないのを通知
+							        RunNotificationSoundPlayer.soundCantGetLocationLongTime(getApplicationContext());
+							        // TODO:バイブも必要
+							        m_nLocationCantGetSerialCount++;
+									// 最後に警告を出力した時刻
+							        m_nLastWarnTime = getTimeInMillis();
+								}
+								//clearGPS();
+								// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
+								//requestGPS();
+								//RunLogger.sService.requestGPS();
 							}
-							//clearGPS();
-							// NOTICE: 微妙なところだが、ここでタイマーごとにリクエストする?
-							//requestGPS();
-							//RunLogger.sService.requestGPS();
-		
 					        // Send intent to activity
 					        Intent activityNotifyIntent = new Intent();
 					        activityNotifyIntent.putExtra( MainActivity.CURRENT_DURATION, LapData.createTimeFormatText( lapTime ));
@@ -223,9 +227,12 @@ implements LocationListener
 		MODE_MEASURING//,
 		// MODE_SAVE_OR_CLEAR
 	};
-	//static eMode mode2; 
+	//static eMode mode2;
+	// 2014/10/18 今まであまり意識していなかったが、androidではstatic変数は
+	// いきなりActivityやサービスが落とされて消える可能性があるので永続的な値だと思ってると基本的にやばい・・・？
 	private static eMode mode = eMode.MODE_NORMAL;
 	private static int m_iActivityTypeCode = 0;
+	private static int m_nNoGPSMode = 0;
 
 	private static Notification notif = null;
 	public static void setNotification( Notification notif_ )
@@ -430,6 +437,16 @@ implements LocationListener
 				throws RemoteException {
 			mService.get().setActivityTypeCode(activityTypeCode);
 		}
+
+		@Override
+		public void setNoGpsMode(int noGpsModeFlg) throws RemoteException {
+			mService.get().setNoGpsMode(noGpsModeFlg);
+		}
+
+		@Override
+		public int getNoGpsMode() throws RemoteException {
+			return mService.get().getNoGpsMode();
+		}
 		
     }
     
@@ -443,6 +460,12 @@ implements LocationListener
 	    }
 	}
 	
+	public int getNoGpsMode() {
+		return m_nNoGPSMode;
+	}
+	public void setNoGpsMode(int noGpsModeFlg) {
+		m_nNoGPSMode = noGpsModeFlg;
+	}
 	void startLog()
 	{		
 	    //if(mTimer == null){
@@ -451,10 +474,13 @@ implements LocationListener
         timerTask = new UpdateTimeDisplayTask();
         mTimer = new Timer(true);
         mTimer.scheduleAtFixedRate( timerTask, 1000, 1000);
-        //clearGPS();
-        requestGPS();
-	    //}
-        //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
+        if( m_nNoGPSMode == 0 )
+        {
+        	// GPSを使用するモードの場合
+	        //clearGPS();
+	        requestGPS();
+        }
+	    //writeModeToTmpFile( activity, eMode.MODE_MEASURING );
         // NOTICE:サービスが落ちないように、Foreground化する。
         // あまりこれで絶対大丈夫という感じもないが・・・テストした感じでは、落ちなくなった。
         // TODO: 復旧のテスト用にコメント化中 2014/04/06

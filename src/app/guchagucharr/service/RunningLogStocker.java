@@ -141,7 +141,7 @@ public class RunningLogStocker {
 	public RunningLogStocker()//long time)
 	{
 	}
-	public boolean start(Activity activity, long time)
+	public boolean start(Activity activity, long time, boolean noGpsMode)
 	{
 		clear();
 		totalStartTime = time;
@@ -170,11 +170,14 @@ public class RunningLogStocker {
     		LogWrapper.e("cant start because log start info insert failed","");
     		return false;
     	}
-		// GPX出力開始
-		gpxGen = new GPXGeneratorSync();
-		// ファイル作成
-		resetTmpGpxFile(activity);
-		
+    	if( noGpsMode == false )
+    	{
+    		// GPSを使用するモードならば
+			// GPX出力開始
+			gpxGen = new GPXGeneratorSync();
+			// ファイル作成
+			resetTmpGpxFile(activity);
+    	}
 		return true;
 	}
 	public int recoveryLogToMemoryFromGpx(String strGpxFolder,String strTmpGpxFilePath)
@@ -532,11 +535,11 @@ public class RunningLogStocker {
 			prevLocation = null;
 		}
 	}
-	public void stop( Activity activity, long time, boolean bRecoveryMode )
+	public void stop( Activity activity, long time, boolean bRecoveryMode, boolean noGpsMode )
 	{		
 		totalStopTime = time;
 		currentLapData.setStopTime(time);
-		if( false == bRecoveryMode )
+		if( false == bRecoveryMode && false == noGpsMode)
 		{
 			// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
 			String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
@@ -839,36 +842,7 @@ public class RunningLogStocker {
 	public void save(Activity activity, String name, boolean bSaveGPX )
 	{
 		mActivityWhenSave = activity;
-    	//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.US);
-    	// Date date = new Date();
-//    	String strDateTime = null;
-//		try {
-//			strDateTime = sdf.format( RunLogger.sService.getTimeInMillis() );
-//		} catch (RemoteException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		// NOTICE: ここでこのフラグを立てることで、次のif文の上のフローには入らない
-		// なぜなら、ここではGPXを保存せず、常に保存し続ける処理に変更になった。
 		outputGPXSaveResult = SAVE_OK;
-    	// it's retry process too
-		// gpx　out
-//		if( bSaveGPX
-//		&& ( outputGPXSaveResult == SAVE_NOT_TRY 
-//		||  outputGPXSaveResult != SAVE_OK )
-//		)
-//		{
-//			outputGPXSaveResult = SAVING;
-//			runHistorySaveResult = SAVING;			
-//	    	// TODO: SDカードにつなげない時の処理
-//	    	String dir = Environment.getExternalStorageDirectory() 
-//	    			+ "/" + activity.getPackageName()
-//	    			+ "/" + strDateTime;
-//	    	FileOutputProcessor outFileProc = new FileOutputProcessor();
-//			outFileProc.outputGPX(activity, this, name, dir, //strDateTime, dir, 
-//					strDateTime + GPXGenerator.EXPORT_FILE_EXT );
-//		}
-		//else 
 		if( runHistorySaveResult == SAVE_NOT_TRY 
 		||  runHistorySaveResult != SAVE_OK )
 		{

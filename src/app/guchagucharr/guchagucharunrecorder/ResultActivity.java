@@ -58,7 +58,10 @@ implements IPageViewController
 {
 	static final int CONTEXT_MENU_EDIT_ID = 0;
 	public static final String WORK_OUT_END = "workoutend";
+	public static final String NO_GPS_MODE = "nogpsmode";
 
+	private boolean m_bNoGpsMode = false;
+	
 	Region regionCenterBtn = null;
 	Boolean bCenterBtnEnableRegionTouched = false;
 	Region regionCancelBtn = null;
@@ -102,13 +105,16 @@ implements IPageViewController
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_viewpager_only);
 		
-		if( getIntent() != null && getIntent().getIntExtra(ResultActivity.WORK_OUT_END,0) == 1 )
-		{
-			// 最初に来たフラグクリア
-			getIntent().putExtra( ResultActivity.WORK_OUT_END,0 );
-			// WorkOut終了時二ここに来たときのみ、ユーザに音声通知
-			// タイミング微妙だが、終了ボタン押下時に下のActivityでやったらうまくいかなかった・・・
-			RunNotificationSoundPlayer.soundActivityFinish(getApplicationContext());
+		if( getIntent() != null ) {
+			if( getIntent().getIntExtra(ResultActivity.WORK_OUT_END,0) == 1 )
+			{
+				// 最初に来たフラグクリア
+				getIntent().putExtra( ResultActivity.WORK_OUT_END,0 );
+				// WorkOut終了時にここに来たときのみ、ユーザに音声通知
+				// タイミング微妙だが、終了ボタン押下時に下のActivityでやったらうまくいかなかった・・・
+				RunNotificationSoundPlayer.soundActivityFinish(getApplicationContext());
+			}
+			m_bNoGpsMode = getIntent().getBooleanExtra(NO_GPS_MODE, false);
 		}
 
         handler = new PagerHandler( this, this );
@@ -307,6 +313,10 @@ implements IPageViewController
 			btnGPS.setLayoutParams(rlBtnGps);
 			btnGPS.setScaleType(ScaleType.FIT_XY);
 			btnGPS.setOnClickListener(this);
+			if( m_bNoGpsMode )
+			{
+				btnGPS.setVisibility(View.INVISIBLE);
+			}
 			//rl.addView(btnGPS);
 			addViewToCompContainer(rl,btnGPS);
 			
@@ -394,107 +404,109 @@ implements IPageViewController
 			btnCancel.setOnTouchListener(this);
 			addViewToCompContainer(rl,btnCancel);
 			
-			// ����
-			txtDistance = new TextView(this);
-			txtDistance.setId(DISTANCE_TEXT_ID);
-			RelativeLayout.LayoutParams rlTxtDistance
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-	//		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
-	//		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
-	//		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-	        if( true == dispInfo.isPortrait() )
-	        {
-	        	// 縦向き
-	        	rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-	        	rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-	        	rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
-	        }
-	        else
-	        {
-	        	// 横向き
-	        	rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-	        	rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-	    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-	        }
-			
-//			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-//			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-//			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			txtTime.setLayoutParams(rlTxtTime);
-			txtDistance.setLayoutParams(rlTxtDistance);
-			txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-			//txtDistance.setText("42.5353 km");
-			txtDistance.setSingleLine();
-			txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
-			// rl.addView(txtDistance);
-			addViewToCompContainer(rl,txtDistance);
-			
-	
-			// ���x
-			txtSpeed = new TextView(this);
-			txtSpeed.setId(SPEED_TEXT_ID);
-			RelativeLayout.LayoutParams rlTxtSpeed
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-	        if( true == dispInfo.isPortrait() )
-	        {
-	        	// 縦向き
-	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-	    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
-	        }
-	        else
-	        {
-	        	// 横向き
-	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-	    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-	    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-	        }
-			
-//			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-//			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			txtSpeed.setLayoutParams(rlTxtSpeed);
-			txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-			txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
-			txtSpeed.setSingleLine();
-			//txtSpeed.setText("12.5 km/h");
-			txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			//rl.addView(txtSpeed);
-			addViewToCompContainer(rl,txtSpeed);
-	
-			
-			// speed
-			txtSpeed2 = new TextView(this);
-			RelativeLayout.LayoutParams rlTxtSpeed2
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-			
-	        if( true == dispInfo.isPortrait() )
-	        {
-	        	// 縦向き
-	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-	    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
-	        }
-	        else
-	        {
-	        	// 横向き
-	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-	    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-	    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-	        }
-			
-//			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-//			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			txtSpeed2.setLayoutParams(rlTxtSpeed2);
-			txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-			txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
-			txtSpeed2.setSingleLine();
-			//txtSpeed.setText("12.5 km/h");
-			txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-			//rl.addView(txtSpeed2);
-			addViewToCompContainer(rl,txtSpeed2);
-			
+			if( false == m_bNoGpsMode )
+			{
+				
+				// ����
+				txtDistance = new TextView(this);
+				txtDistance.setId(DISTANCE_TEXT_ID);
+				RelativeLayout.LayoutParams rlTxtDistance
+				= dispInfo.createLayoutParamForNoPosOnBk( 
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		//		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
+		//		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
+		//		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+		        if( true == dispInfo.isPortrait() )
+		        {
+		        	// 縦向き
+		        	rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+		        	rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+		        	rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		        }
+		        else
+		        {
+		        	// 横向き
+		        	rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+		        	rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+		    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+		        }
+				
+	//			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+	//			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+	//			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				txtDistance.setLayoutParams(rlTxtDistance);
+				txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+				//txtDistance.setText("42.5353 km");
+				txtDistance.setSingleLine();
+				txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+				txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
+				// rl.addView(txtDistance);
+				addViewToCompContainer(rl,txtDistance);
+				
+		
+				// ���x
+				txtSpeed = new TextView(this);
+				txtSpeed.setId(SPEED_TEXT_ID);
+				RelativeLayout.LayoutParams rlTxtSpeed
+				= dispInfo.createLayoutParamForNoPosOnBk( 
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+		        if( true == dispInfo.isPortrait() )
+		        {
+		        	// 縦向き
+		    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+		    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		        }
+		        else
+		        {
+		        	// 横向き
+		    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+		    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+		    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+		        }
+				
+	//			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+	//			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				txtSpeed.setLayoutParams(rlTxtSpeed);
+				txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+				txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+				txtSpeed.setSingleLine();
+				//txtSpeed.setText("12.5 km/h");
+				txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+				//rl.addView(txtSpeed);
+				addViewToCompContainer(rl,txtSpeed);
+		
+				
+				// speed
+				txtSpeed2 = new TextView(this);
+				RelativeLayout.LayoutParams rlTxtSpeed2
+				= dispInfo.createLayoutParamForNoPosOnBk( 
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+				
+		        if( true == dispInfo.isPortrait() )
+		        {
+		        	// 縦向き
+		    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+		    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+		        }
+		        else
+		        {
+		        	// 横向き
+		    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+		    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+		    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+		        }
+				
+	//			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+	//			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				txtSpeed2.setLayoutParams(rlTxtSpeed2);
+				txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+				txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+				txtSpeed2.setSingleLine();
+				//txtSpeed.setText("12.5 km/h");
+				txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+				//rl.addView(txtSpeed2);
+				addViewToCompContainer(rl,txtSpeed2);
+			}
 			
 			// lap label
 			txtLap = new TextView(this);
@@ -585,22 +597,24 @@ implements IPageViewController
 //			addViewToCompContainer(activityTypeIcon);
 			addViewToCompContainer(rl,activityTypeButton);
 			
-			// 画像でいいかと思ったが、押したら反応するようにする
-			imgDetailExists = new ImageButton(this);
-			//imgDetailExists.setId(GPS_INDICATOR_ID);
-			imgDetailExists.setBackgroundResource( R.drawable.ind_detail_exist );
-			bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.ind_detail_exist);
-			RelativeLayout.LayoutParams rlIndDetail
-			= dispInfo.createLayoutParamForNoPosOnBk( 
-					bmpoptions.outWidth, bmpoptions.outHeight, true );
-			rlIndDetail.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
-			rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
-			rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
-			imgDetailExists.setLayoutParams(rlIndDetail);
-			imgDetailExists.setScaleType(ScaleType.FIT_XY);
-			imgDetailExists.setOnClickListener(this);			
-			rl.addView(imgDetailExists);
-
+			if( m_bNoGpsMode == false )
+			{
+				// 画像でいいかと思ったが、押したら反応するようにする
+				imgDetailExists = new ImageButton(this);
+				//imgDetailExists.setId(GPS_INDICATOR_ID);
+				imgDetailExists.setBackgroundResource( R.drawable.ind_detail_exist );
+				bmpoptions = ResourceAccessor.getInstance().getBitmapSizeFromMineType(R.drawable.ind_detail_exist);
+				RelativeLayout.LayoutParams rlIndDetail
+				= dispInfo.createLayoutParamForNoPosOnBk( 
+						bmpoptions.outWidth, bmpoptions.outHeight, true );
+				rlIndDetail.leftMargin = RIGHT_CENTER_CTRL_MARGIN;
+				rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_RIGHT );
+				rlIndDetail.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM );
+				imgDetailExists.setLayoutParams(rlIndDetail);
+				imgDetailExists.setScaleType(ScaleType.FIT_XY);
+				imgDetailExists.setOnClickListener(this);			
+				rl.addView(imgDetailExists);
+			}
 			SimpleDateFormat sdfDateTime = new SimpleDateFormat(
 					getString(R.string.datetime_display_format));
 			editName.setText( 
@@ -609,25 +623,31 @@ implements IPageViewController
 					);//getString( R.string.default_activity_name ) ); 
 					//sdfDateTime.format(RunLoggerService.getLogStocker().getLapData(0).getStartTime()) 
 					//+ "-" + sdfDateTime.format(RunLoggerService.getLogStocker().getLastLapData().getStopTime()));//RunLogger.sService.getTimeInMillis()));
-			txtDistance.setText( LapData.createDistanceFormatText(
-					mCurrentUnit,
-					RunLoggerService.getLogStocker().getTotalDistance() ) );
-			// NOTICE:テスト用
-			String gpsLastTime = LapData.createTimeFormatText(
-					RunLoggerService.getLogStocker().getCurrentLocation().getTime() 
-					- RunLoggerService.getLogStocker().getLapData(0).getStartTime() );
+			// NOTICE:テスト用			
+			String gpsLastTime = "";
+			
+			if( false == m_bNoGpsMode ) {
+				
+				txtDistance.setText( LapData.createDistanceFormatText(
+						mCurrentUnit,
+						RunLoggerService.getLogStocker().getTotalDistance() ) );
+				txtSpeed.setText( LapData.createSpeedFormatTextKmPerH(
+						mCurrentUnit,
+						RunLoggerService.getLogStocker().getTotalDistance() 
+						/ RunLoggerService.getLogStocker().getTotalTime() ) );
+						// RunLoggerService.getLogStocker().getTotalSpeed() ) );
+//				txtSpeed2.setText( LapData.createSpeedFormatText( 
+//						RunLoggerService.getLogStocker().getTotalDistance() 
+//						/ RunLoggerService.getLogStocker().getTotalTime() ) );
+						//RunLoggerService.getLogStocker().getTotalSpeed() ) );
+				gpsLastTime = LapData.createTimeFormatText(
+						RunLoggerService.getLogStocker().getCurrentLocation().getTime() 
+						- RunLoggerService.getLogStocker().getLapData(0).getStartTime() );				
+			}
+			
 			txtTime.setText( LapData.createTimeFormatText(
 					RunLoggerService.getLogStocker().getTotalTime() ) + " " + gpsLastTime );
 			
-			txtSpeed.setText( LapData.createSpeedFormatTextKmPerH(
-					mCurrentUnit,
-					RunLoggerService.getLogStocker().getTotalDistance() 
-					/ RunLoggerService.getLogStocker().getTotalTime() ) );
-					// RunLoggerService.getLogStocker().getTotalSpeed() ) );
-//			txtSpeed2.setText( LapData.createSpeedFormatText( 
-//					RunLoggerService.getLogStocker().getTotalDistance() 
-//					/ RunLoggerService.getLogStocker().getTotalTime() ) );
-					//RunLoggerService.getLogStocker().getTotalSpeed() ) );
 			if( 1 < RunLoggerService.getLogStocker().getStockedLapCount() )
 			{
 				txtLap.setText(getString(R.string.LAP_COUNT_LABEL) 

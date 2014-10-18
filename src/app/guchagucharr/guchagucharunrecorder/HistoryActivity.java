@@ -282,7 +282,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 				// Distanceとtimeは、ラップから求める
 				distanceTotal += lapData.getFixedDistance() == 0 
 						? lapData.getDistance() : lapData.getFixedDistance();
-				timeTotal += lapData.getTime();
+				timeTotal += lapData.getFixedTime() == 0 
+						? lapData.getTime() : lapData.getFixedTime(); 
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
 			}

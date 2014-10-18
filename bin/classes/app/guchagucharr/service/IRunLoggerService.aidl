@@ -7,6 +7,8 @@ interface IRunLoggerService
 	int requestGPS();
 	int getMode();
 	void setMode(int mode);
+	int getNoGpsMode();
+	void setNoGpsMode(int noGpsModeFlg);
 	int getActivityTypeCode();
 	void setActivityTypeCode(int activityTypeCode);
 	void clearGPS();
