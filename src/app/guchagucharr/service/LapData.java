@@ -2,9 +2,6 @@ package app.guchagucharr.service;
 
 import java.util.Vector;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import app.guchagucharr.guchagucharunrecorder.GGRRPreferenceActivity;
 import app.guchagucharr.guchagucharunrecorder.ResourceAccessor;
 import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 
@@ -339,4 +336,37 @@ public class LapData {
 	public void setFixedDistance(double fixedDistance) {
 		this.fixedDistance = fixedDistance;
 	}
+	
+	/**
+	 * 適切な距離を返却(ユーザ入力の距離があれば、それを。そうでなければ、計測されたものを)
+	 * @return
+	 */
+	public double getAppropriteDistance()
+	{
+		if( fixedDistance == 0 )
+		{
+			return distance;
+		}
+		else
+		{
+			return fixedDistance;
+		}
+	}
+
+	/**
+	 * 適切な時間を返却(ユーザ入力の時間があれば、それを。そうでなければ、計測されたものを)
+	 * @return
+	 */
+	public long getAppropriteTime()
+	{
+		if( fixedTime == 0 )
+		{
+			return totalTime;
+		}
+		else
+		{
+			return fixedTime;
+		}
+	}
+
 }

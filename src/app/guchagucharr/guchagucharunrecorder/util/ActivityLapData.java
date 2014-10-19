@@ -205,5 +205,36 @@ public class ActivityLapData {
 	public void setGpxFixedFilePath(String gpxFixedFilePath) {
 		this.gpxFixedFilePath = gpxFixedFilePath;
 	}
+	/**
+	 * 適切な距離を返却(ユーザ入力の距離があれば、それを。そうでなければ、計測されたものを)
+	 * @return
+	 */
+	public double getAppropriteDistance()
+	{
+		if( fixedDistance == 0 )
+		{
+			return distance;
+		}
+		else
+		{
+			return fixedDistance;
+		}
+	}
+
+	/**
+	 * 適切な時間を返却(ユーザ入力の時間があれば、それを。そうでなければ、計測されたものを)
+	 * @return
+	 */
+	public long getAppropriteTime()
+	{
+		if( fixedTime == 0 )
+		{
+			return time;
+		}
+		else
+		{
+			return fixedTime;
+		}
+	}
 	
 };

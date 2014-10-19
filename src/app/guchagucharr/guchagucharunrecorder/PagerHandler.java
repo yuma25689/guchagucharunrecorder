@@ -18,14 +18,13 @@ public class PagerHandler extends Handler {
 		mViewController = vCtrl;
 	}
 	
-	void clearFlags()
+	public void clearFlags()
 	{
 		bSizeGet = false;
 		bInitEnd = false;
 		bInitControlsEnd = false;
 	}
 	
-    //���b�Z�[�W��M
     @Override
 	public void handleMessage(Message message) {
     	if( mActivity == null )

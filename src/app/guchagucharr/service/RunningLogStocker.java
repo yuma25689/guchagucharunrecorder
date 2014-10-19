@@ -38,6 +38,7 @@ import app.guchagucharr.guchagucharunrecorder.util.UnitConversions;
 
 public class RunningLogStocker {
 
+	private static final String TAG = "RunningLogStocker";
 	GPXGeneratorSync gpxGen = null;
 	
 	//public static String KEY_LAP_INDEX = "KEY_LAP_INDEX";
@@ -65,8 +66,7 @@ public class RunningLogStocker {
 		double ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(i).getFixedDistance() == 0 
-					? lapData.get(i).getDistance() : lapData.get(i).getFixedDistance();
+			ret += lapData.get(i).getAppropriteDistance();
 		}
 		
 		//ret += getCurrentLapData().getDistance();
@@ -77,8 +77,7 @@ public class RunningLogStocker {
 		long ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(i).getFixedTime() == 0 
-					? lapData.get(i).getTotalTime() : lapData.get(i).getFixedTime();
+			ret += lapData.get(i).getAppropriteTime();
 		}
 		return ret;
 	}
@@ -923,6 +922,11 @@ public class RunningLogStocker {
 		}
 	}
 	public void overwriteLapData(int index, LapData data) {
+		LogWrapper.v(TAG, "overwriteLapData distance = " 
+			+ data.getAppropriteDistance()
+			+ " time = "
+			+ data.getAppropriteTime()
+			);
 		lapData.setValueAt(index, data);
 	}
 }
