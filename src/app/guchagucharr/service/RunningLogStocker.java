@@ -65,7 +65,8 @@ public class RunningLogStocker {
 		double ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(i).getDistance();
+			ret += lapData.get(i).getFixedDistance() == 0 
+					? lapData.get(i).getDistance() : lapData.get(i).getFixedDistance();
 		}
 		
 		//ret += getCurrentLapData().getDistance();
@@ -76,7 +77,8 @@ public class RunningLogStocker {
 		long ret = 0;
 		for( int i=0; i<getStockedLapCount(); i++ )
 		{
-			ret += lapData.get(i).getTotalTime();
+			ret += lapData.get(i).getFixedTime() == 0 
+					? lapData.get(i).getTotalTime() : lapData.get(i).getFixedTime();
 		}
 		return ret;
 	}
@@ -223,13 +225,15 @@ public class RunningLogStocker {
 		clear();
 		// totalStartTime = data.getStartDateTime();
 
-		// 一時フォルダのGPXファイルがあれば、それをカレントとしてリカバリ
-		String gpxTmp = createRecoveryTmpGpxFile(ctx);
-
-		// lapData
-		// ==>現在のラップデータをメモリに設定し直す
-		recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
-
+		if( data.getIsNoGPSMode() == 0 )
+		{
+			// 一時フォルダのGPXファイルがあれば、それをカレントとしてリカバリ
+			String gpxTmp = createRecoveryTmpGpxFile(ctx);
+	
+			// lapData
+			// ==>現在のラップデータをメモリに設定し直す
+			recoveryLogToMemoryFromGpx(data.getGpxDir(),gpxTmp);
+		}
 		if( 0 < lapData.size() )
 		{
 			totalStartTime = lapData.get(0).getStartTime();
@@ -254,7 +258,7 @@ public class RunningLogStocker {
 		}
     	LogWrapper.v("workOutDir created or exists", data.getGpxDir());
 
-    	if( bWorkOutStart )
+    	if( bWorkOutStart && ( data.getIsNoGPSMode() == 0 ))
     	{
 	    	File tmpGpx = new File( getTmpGpxFilePath(ctx) );
 			// GPX出力開始
@@ -490,29 +494,34 @@ public class RunningLogStocker {
 		iLocationDataCount++;
 		prevLocation = new Location(location);
 	}
-	public void nextLap(Activity activity, Long time)
+	public void nextLap(Activity activity, Long time, boolean bNoGpsMode)
 	{
 		// TODO: コピーすべき？
 		currentLapData.setStopTime(time);
-		// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
-		String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
-		currentLapData.setGpxFilePath(strGpxFile);
-		resetTmpGpxFile(activity);
-
+		if( bNoGpsMode == false )
+		{
+			// 作成中のGPXを閉じて、保存場所にコピー後、データとしてそのパスを保存する
+			String strGpxFile = commitTmpGpxFile(activity,currentLapData.getStartTime());
+			currentLapData.setGpxFilePath(strGpxFile);
+			resetTmpGpxFile(activity);
+		}
 		LapData saveLapData = new LapData(currentLapData);
 		lapData.put(m_iLap, saveLapData);
 		m_iLap++;
 		currentLapData.clear();
 		currentLapData.setStartTime(time);
 		
-		if( 0 < iLocationDataCount )//vLocation.size() )
+		if( bNoGpsMode == false )
 		{
-			prevLocation = new Location( currentLocation );//vLocation.lastElement() );
-			prevLocation.setTime(time);
-		}
-		else
-		{
-			prevLocation = null;
+			if( 0 < iLocationDataCount )//vLocation.size() )
+			{
+				prevLocation = new Location( currentLocation );//vLocation.lastElement() );
+				prevLocation.setTime(time);
+			}
+			else
+			{
+				prevLocation = null;
+			}
 		}
 	}
 	public void nextLapNoFileProcess(int iLap,Long time,String path)
@@ -578,8 +587,8 @@ public class RunningLogStocker {
             ret.put( RunHistoryTableContract.LAP_DISTANCE, lapData.get(iExtra).getDistance() );
             ret.put( RunHistoryTableContract.LAP_TIME, lapData.get(iExtra).getTotalTime() );
             ret.put( RunHistoryTableContract.LAP_SPEED, lapData.get(iExtra).getSpeed() );
-            ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, 0 );
-            ret.put( RunHistoryTableContract.LAP_FIXED_TIME, 0 );
+            ret.put( RunHistoryTableContract.LAP_FIXED_DISTANCE, lapData.get(iExtra).getFixedDistance() );
+            ret.put( RunHistoryTableContract.LAP_FIXED_TIME, lapData.get(iExtra).getFixedTime() );
             ret.put( RunHistoryTableContract.LAP_FIXED_SPEED, 0 );
             if( strExtra != null)
             {
@@ -912,5 +921,8 @@ public class RunningLogStocker {
 			stocker.clear();
 			mActivityWhenSave.finish();
 		}
+	}
+	public void overwriteLapData(int index, LapData data) {
+		lapData.setValueAt(index, data);
 	}
 }

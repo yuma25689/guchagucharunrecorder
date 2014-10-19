@@ -404,109 +404,108 @@ implements IPageViewController
 			btnCancel.setOnTouchListener(this);
 			addViewToCompContainer(rl,btnCancel);
 			
-			if( false == m_bNoGpsMode )
-			{
-				
-				// ����
-				txtDistance = new TextView(this);
-				txtDistance.setId(DISTANCE_TEXT_ID);
-				RelativeLayout.LayoutParams rlTxtDistance
-				= dispInfo.createLayoutParamForNoPosOnBk( 
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-		//		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
-		//		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
-		//		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-		        if( true == dispInfo.isPortrait() )
-		        {
-		        	// 縦向き
-		        	rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-		        	rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-		        	rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		        }
-		        else
-		        {
-		        	// 横向き
-		        	rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-		        	rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-		    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
-		        }
-				
-	//			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
-	//			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
-	//			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				txtDistance.setLayoutParams(rlTxtDistance);
-				txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-				//txtDistance.setText("42.5353 km");
-				txtDistance.setSingleLine();
-				txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-				txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
-				// rl.addView(txtDistance);
-				addViewToCompContainer(rl,txtDistance);
-				
-		
-				// ���x
-				txtSpeed = new TextView(this);
-				txtSpeed.setId(SPEED_TEXT_ID);
-				RelativeLayout.LayoutParams rlTxtSpeed
-				= dispInfo.createLayoutParamForNoPosOnBk( 
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-		        if( true == dispInfo.isPortrait() )
-		        {
-		        	// 縦向き
-		    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-		    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		        }
-		        else
-		        {
-		        	// 横向き
-		    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-		    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-		    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-		        }
-				
-	//			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
-	//			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				txtSpeed.setLayoutParams(rlTxtSpeed);
-				txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-				txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
-				txtSpeed.setSingleLine();
-				//txtSpeed.setText("12.5 km/h");
-				txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-				//rl.addView(txtSpeed);
-				addViewToCompContainer(rl,txtSpeed);
-		
-				
-				// speed
-				txtSpeed2 = new TextView(this);
-				RelativeLayout.LayoutParams rlTxtSpeed2
-				= dispInfo.createLayoutParamForNoPosOnBk( 
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
-				
-		        if( true == dispInfo.isPortrait() )
-		        {
-		        	// 縦向き
-		    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-		    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
-		        }
-		        else
-		        {
-		        	// 横向き
-		    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-		    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
-		    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
-		        }
-				
-	//			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
-	//			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				txtSpeed2.setLayoutParams(rlTxtSpeed2);
-				txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
-				txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
-				txtSpeed2.setSingleLine();
-				//txtSpeed.setText("12.5 km/h");
-				txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
-				//rl.addView(txtSpeed2);
-				addViewToCompContainer(rl,txtSpeed2);
-			}
+//			if( false == m_bNoGpsMode )
+//			{
+			
+			// ����
+			txtDistance = new TextView(this);
+			txtDistance.setId(DISTANCE_TEXT_ID);
+			RelativeLayout.LayoutParams rlTxtDistance
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+	//		rlTxtDistance.addRule(RelativeLayout.LEFT_OF, CENTER_BUTTON_ID);
+	//		rlTxtDistance.rightMargin = LEFT_CENTER_CTRL_MARGIN;
+	//		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	        	rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+	        	rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+	        	rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+	        	rlTxtDistance.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	        	rlTxtDistance.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	    		rlTxtDistance.addRule(RelativeLayout.CENTER_VERTICAL);
+	        }
+			
+//			rlTxtDistance.addRule(RelativeLayout.BELOW, CENTER_BUTTON_ID);
+//			rlTxtDistance.topMargin = CENTER_BELOW_CTRL_MARGIN;
+//			rlTxtDistance.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			txtDistance.setLayoutParams(rlTxtDistance);
+			txtDistance.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+			//txtDistance.setText("42.5353 km");
+			txtDistance.setSingleLine();
+			txtDistance.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+			txtDistance.setTextSize(DISTANCE_TEXTVIEW_FONT_SIZE);
+			// rl.addView(txtDistance);
+			addViewToCompContainer(rl,txtDistance);
+			
+	
+			// ���x
+			txtSpeed = new TextView(this);
+			txtSpeed.setId(SPEED_TEXT_ID);
+			RelativeLayout.LayoutParams rlTxtSpeed
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+	    		rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	        }
+	        else
+	        {
+	        	// 横向き
+	    		rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+	    		rlTxtSpeed.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	    		rlTxtSpeed.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	        }
+			
+//			rlTxtSpeed.addRule(RelativeLayout.BELOW, DISTANCE_TEXT_ID);
+//			rlTxtSpeed.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			txtSpeed.setLayoutParams(rlTxtSpeed);
+			txtSpeed.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+			txtSpeed.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+			txtSpeed.setSingleLine();
+			//txtSpeed.setText("12.5 km/h");
+			txtSpeed.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+			//rl.addView(txtSpeed);
+			addViewToCompContainer(rl,txtSpeed);
+	
+			
+			// speed
+			txtSpeed2 = new TextView(this);
+			RelativeLayout.LayoutParams rlTxtSpeed2
+			= dispInfo.createLayoutParamForNoPosOnBk( 
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true );
+			
+	        if( true == dispInfo.isPortrait() )
+	        {
+	        	// 縦向き
+	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+	    		rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);        	
+	        }
+	        else
+	        {
+	        	// 横向き
+	    		rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+	    		rlTxtSpeed2.addRule(RelativeLayout.RIGHT_OF, CENTER_BUTTON_ID);
+	    		rlTxtSpeed2.leftMargin = CENTER_RIGHT_CTRL_MARGIN;
+	        }
+			
+//			rlTxtSpeed2.addRule(RelativeLayout.BELOW, SPEED_TEXT_ID);
+//			rlTxtSpeed2.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			txtSpeed2.setLayoutParams(rlTxtSpeed2);
+			txtSpeed2.setBackgroundColor(ResourceAccessor.getInstance().getColor(R.color.theme_color_cantedit));
+			txtSpeed2.setTextSize(SPEED_TEXTVIEW_FONT_SIZE);
+			txtSpeed2.setSingleLine();
+			//txtSpeed.setText("12.5 km/h");
+			txtSpeed2.setTextColor(ResourceAccessor.getInstance().getColor(R.color.text_color_important));		
+			//rl.addView(txtSpeed2);
+			addViewToCompContainer(rl,txtSpeed2);
 			
 			// lap label
 			txtLap = new TextView(this);
@@ -644,6 +643,17 @@ implements IPageViewController
 						RunLoggerService.getLogStocker().getCurrentLocation().getTime() 
 						- RunLoggerService.getLogStocker().getLapData(0).getStartTime() );				
 			}
+			else
+			{
+				txtDistance.setText( LapData.createDistanceFormatText(
+						mCurrentUnit,
+						RunLoggerService.getLogStocker().getTotalDistance() ) );
+				txtSpeed.setText( LapData.createSpeedFormatTextKmPerH(
+						mCurrentUnit,
+						RunLoggerService.getLogStocker().getTotalDistance() 
+						/ RunLoggerService.getLogStocker().getTotalTime() ) );
+				
+			}
 			
 			txtTime.setText( LapData.createTimeFormatText(
 					RunLoggerService.getLogStocker().getTotalTime() ) + " " + gpsLastTime );
@@ -680,8 +690,10 @@ implements IPageViewController
 				double distance = 0;
 				double speed = 0;
 				long time = 0;
-				distance = lapData.getDistance();
-				time = lapData.getTotalTime();				
+				distance = lapData.getFixedDistance() == 0 ? 
+						lapData.getDistance() : lapData.getFixedDistance();
+				time = lapData.getFixedTime() == 0 ?
+						lapData.getTotalTime() : lapData.getFixedTime();
 				speed = distance / ( time * UnitConversions.MS_TO_S ); 
 				
 				// DisplayBlock追加
@@ -916,6 +928,8 @@ implements IPageViewController
 			// データをそのままどこかに格納する？
 			// TODO: その場合、LapDataから、テーブル用のデータに変換してから設定する
 			// intent.set
+			intent.putExtra(EditActivity.KEY_EDIT_MODE, EditActivity.EDIT_DATA_NOT_SAVED_DATA);
+			intent.putExtra(EditActivity.KEY_LAP_INDEX, item.getItemId());
 			intent.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
 			// TODO:編集データ識別子の設定 向こう側で取得できれば何でもいいが、案外悩みどころ
 			// intent.putExtra(EditActivity.KEY_CLMN_DATA_INDEX, item.getItemId());

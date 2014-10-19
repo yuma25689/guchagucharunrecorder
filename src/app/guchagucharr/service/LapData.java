@@ -20,6 +20,8 @@ public class LapData {
 		stopTime = data_.getStopTime();
 		totalTime = data_.getTotalTime();
 		distance = data_.getDistance();
+		fixedTime = data_.getFixedTime();
+		fixedDistance = data_.getFixedDistance();
 		speed = data_.getSpeed();
 		name = data_.getName();
 		gpxFilePath = data_.getGpxFilePath();
@@ -31,6 +33,8 @@ public class LapData {
 		stopTime = 0;
 		totalTime = 0;
 		distance = 0;
+		fixedTime = 0;
+		fixedDistance = 0;
 		speed = 0;
 		name = null;
 		gpxFilePath = null;
@@ -40,6 +44,8 @@ public class LapData {
 	long stopTime = 0;
 	long totalTime = 0;
 	double distance = 0;
+	long fixedTime = 0;
+	double fixedDistance = 0;
 	double speed = 0;
 	String name = null;
 	String gpxFilePath = null;
@@ -308,5 +314,29 @@ public class LapData {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+	/**
+	 * @return the fixedTime
+	 */
+	public long getFixedTime() {
+		return fixedTime;
+	}
+	/**
+	 * @param fixedTime the fixedTime to set
+	 */
+	public void setFixedTime(long fixedTime) {
+		this.fixedTime = fixedTime;
+	}
+	/**
+	 * @return the fixedDistance
+	 */
+	public double getFixedDistance() {
+		return fixedDistance;
+	}
+	/**
+	 * @param fixedDistance the fixedDistance to set
+	 */
+	public void setFixedDistance(double fixedDistance) {
+		this.fixedDistance = fixedDistance;
 	}
 }

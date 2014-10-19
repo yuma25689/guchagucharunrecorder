@@ -228,7 +228,7 @@ implements
 		regionLapBtn = null;
 		regionCancelBtn = null;
         dispInfo.init(this, componentContainer, handler, false);
-
+        
         super.onResume();
     }
 	// TODO onResumeよりもっと下位のイベントがあれば、それを設定して、
@@ -1204,7 +1204,8 @@ implements
 				}
 				// 次のラップへ
 				try {
-					RunLoggerService.getLogStocker().nextLap(this,RunLogger.sService.getTimeInMillis());
+					RunLoggerService.getLogStocker().nextLap(
+							this,RunLogger.sService.getTimeInMillis(),RunLogger.sService.getNoGpsMode() == 1);
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1772,7 +1773,14 @@ implements
 			btnCamera.setVisibility(View.GONE);
 			btnCancel.setVisibility(View.GONE);
 			txtLap.setVisibility(View.GONE);
-			btnCenter.setEnabled(false);
+			if( chkInputByMe.isChecked() )
+			{
+				btnCenter.setEnabled(true);
+			}
+			else
+			{
+				btnCenter.setEnabled(false);
+			}
 			txtLocationCount.setVisibility(View.GONE);
 			chkInputByMe.setEnabled(true);
 			chkInputByMe.setVisibility( View.VISIBLE );

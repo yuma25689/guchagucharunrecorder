@@ -1,30 +1,11 @@
 package app.guchagucharr.guchagucharunrecorder;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -79,6 +60,7 @@ import app.guchagucharr.guchagucharunrecorder.util.XmlUtil;
 import app.guchagucharr.interfaces.IColumnDataGenerator;
 import app.guchagucharr.interfaces.IEditViewController;
 import app.guchagucharr.service.GPXGeneratorSync;
+import app.guchagucharr.service.LapData;
 import app.guchagucharr.service.RunHistoryLoader;
 import app.guchagucharr.service.RunHistoryTableContract;
 import app.guchagucharr.service.RunLoggerService;
@@ -114,13 +96,16 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	TextView mLastInputDateTimeLabel = null;
 	//ColumnData mLastInputColumnData = null;
 	String mLastInputColumnName = null;
-	
+	int mEditMode = EDIT_DATA_NOT_SAVED_DATA;
 	
 	// 項目のID
 	static final int VALUE_INPUT_CONTROL_ID = 100;
 	int iValueInputControlID = VALUE_INPUT_CONTROL_ID;
 	
 	public static final String KEY_CLMN_DATA_GEN = "KeyOfColumnDataGenerator";
+	public static final String KEY_EDIT_MODE = "KeyEditMode";
+	public static final String KEY_LAP_INDEX = "KeyLapIndex";
+	
 	// データは、ResourceAccessorから取得するものとするので、データのインデックスは不要
 	//public static final String KEY_CLMN_DATA_INDEX = "KeyOfColumnDataIndex";
 	public static final int EDIT_DATA_NONE = -1;
@@ -128,6 +113,8 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	public static final int EDIT_DATA_LAP_TABLE = 2;
 	private int iEditDataType = EDIT_DATA_LAP_TABLE;
 	private static final int LABEL_PADDING_HORZ = 3;
+	public static final int EDIT_DATA_NOT_SAVED_DATA = 1;
+	public static final int EDIT_DATA_ALREADY_SAVED = 2;
 	// private int iEditDataIndex = -1;
 	private IColumnDataGenerator dataGen = null;
 	private ColumnData[] clmnInfos = null;
@@ -144,6 +131,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
 	Boolean bSaveBtnEnableRegionTouched = false;
 	Region regionCancelBtn = null;
 	Boolean bCancelBtnEnableRegionTouched = false;
+	private int mLapIndex = -1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +151,7 @@ implements IEditViewController, OnClickListener, OnTouchListener
         Intent intent = getIntent();
         if( intent == null )
         {
-        	// TODO: 設定情報が取得できない時点でエラーなので、起動させたくない
+        	// !!!: 設定情報が取得できない時点でエラーなので、起動させたくない
         	finish();
         }
         else
@@ -172,11 +160,13 @@ implements IEditViewController, OnClickListener, OnTouchListener
         	// 投げる側に、データジェネレータを設定してもらう
         	iEditDataType = intent.getIntExtra(KEY_CLMN_DATA_GEN, EDIT_DATA_NONE);
         	// iEditDataIndex = intent.getIntExtra(KEY_CLMN_DATA_INDEX, -1);
+        	mEditMode = intent.getIntExtra(KEY_EDIT_MODE, EDIT_DATA_NOT_SAVED_DATA);
+        	mLapIndex = intent.getIntExtra(KEY_LAP_INDEX, -1);
         }
         if( iEditDataType == EDIT_DATA_NONE ) 
         //|| iEditDataIndex == -1 )
         {
-        	// TODO: 設定情報が取得できない時点でエラーなので、起動させたくない
+        	// !!!: 設定情報が取得できない時点でエラーなので、起動させたくない
         	Toast.makeText(this, R.string.edit_error_cant_launch, Toast.LENGTH_LONG).show();
         	finish();
         }
@@ -479,55 +469,86 @@ implements IEditViewController, OnClickListener, OnTouchListener
 			if( v == btnSave )
 			{
 				// データ更新処理を行う
-				// TODO: まだテーブルに保存されていない時の処理
-				int iRetUpdate = updateData(this);
-				if( 0 < iRetUpdate )
+				if( mEditMode == EDIT_DATA_NOT_SAVED_DATA )
 				{
-			        if( iEditDataType == EDIT_DATA_MAIN_TABLE 
-			        && isUpdateColumn( RunHistoryTableContract.ACTIVITY_TYPE ) )
-			    	{
-						// 活動タイプが編集されていたら、GPXファイルの活動タイプも編集する
-			        	boolean bGpxEditSuccess = false;
-			    		RunHistoryLoader loader = new RunHistoryLoader();
-			    		int id = Integer.parseInt(clmnInfos[0].getText());
-			    		loader.loadPartialData(this, id);
-			    		Vector<ActivityLapData> lapData = loader.getHistoryLapDatas(id);
-			    		
-			    		for( ActivityLapData data : lapData )
-			    		{
-			    			// 全てのラップデータをループ
-			    			// 対象のGPXは、ユーザが修正したものが格納されていたら、
-			    			// そっちを使うが、デフォルトは編集されていないものを使う
-			    			String targetGpx = data.getGpxFilePath();
-			    			if( data.getGpxFixedFilePath() != null
-			    			&& data.getGpxFixedFilePath() != data.getGpxFilePath() )
-			    			{
-			    				targetGpx = data.getGpxFixedFilePath();
-			    			}
-			    			
-							ColumnData clmn = getColumnDataFromColumnName(
-									clmnInfos, RunHistoryTableContract.ACTIVITY_TYPE );
-							// typeを文字列に変換
-							Integer activityTypeCode = 
-											Integer.parseInt(clmn.getText());
-			    			
-							bGpxEditSuccess = GPXGeneratorSync.updateActivityType(this,targetGpx,activityTypeCode);
-							// TODO:エラー処理
-							if( false == bGpxEditSuccess )
-							{
-								LogWrapper.e("ActivityType EditError","ActivityType EditError Occured");
-							}
-			    		}
-			    	}
+					// TODO: まだテーブルに保存されていない時の処理
+					int tableID = -1;
+					String tableName = null;
+			        if( iEditDataType == EDIT_DATA_LAP_TABLE )
+			        {
+			    		tableID = RunHistoryTableContract.HISTORY_LAP_TABLE_ID;
+			    		tableName = RunHistoryTableContract.HISTORY_LAP_TABLE_NAME;        	
+			        }
 					
-	        		Toast.makeText(this, R.string.data_updated, 
-	        				Toast.LENGTH_LONG).show();
-	        		finish();
+					// メモリのデータを上書きする
+					if( updateMemoryData(this,tableID) )
+					{
+						// 成功
+		        		Toast.makeText(this, R.string.data_updated, 
+		        				Toast.LENGTH_LONG).show();
+		        		finish();						
+					}
+					else
+					{
+						// 失敗
+		        		Toast.makeText(this, R.string.data_not_updated,
+		        				Toast.LENGTH_LONG).show();						
+					}
+					
+					
+					
 				}
-				else if(iRetUpdate == 0)
+				else if(mEditMode == EDIT_DATA_ALREADY_SAVED)
 				{
-	        		Toast.makeText(this, R.string.data_not_updated,
-	        				Toast.LENGTH_LONG).show();					
+					int iRetUpdate = updateData(this);
+					if( 0 < iRetUpdate )
+					{
+				        if( iEditDataType == EDIT_DATA_MAIN_TABLE 
+				        && isUpdateColumn( RunHistoryTableContract.ACTIVITY_TYPE ) )
+				    	{
+							// 活動タイプが編集されていたら、GPXファイルの活動タイプも編集する
+				        	boolean bGpxEditSuccess = false;
+				    		RunHistoryLoader loader = new RunHistoryLoader();
+				    		int id = Integer.parseInt(clmnInfos[0].getText());
+				    		loader.loadPartialData(this, id);
+				    		Vector<ActivityLapData> lapData = loader.getHistoryLapDatas(id);
+				    		
+				    		for( ActivityLapData data : lapData )
+				    		{
+				    			// 全てのラップデータをループ
+				    			// 対象のGPXは、ユーザが修正したものが格納されていたら、
+				    			// そっちを使うが、デフォルトは編集されていないものを使う
+				    			String targetGpx = data.getGpxFilePath();
+				    			if( data.getGpxFixedFilePath() != null
+				    			&& data.getGpxFixedFilePath() != data.getGpxFilePath() )
+				    			{
+				    				targetGpx = data.getGpxFixedFilePath();
+				    			}
+				    			
+								ColumnData clmn = getColumnDataFromColumnName(
+										clmnInfos, RunHistoryTableContract.ACTIVITY_TYPE );
+								// typeを文字列に変換
+								Integer activityTypeCode = 
+												Integer.parseInt(clmn.getText());
+				    			
+								bGpxEditSuccess = GPXGeneratorSync.updateActivityType(this,targetGpx,activityTypeCode);
+								// TODO:エラー処理
+								if( false == bGpxEditSuccess )
+								{
+									LogWrapper.e("ActivityType EditError","ActivityType EditError Occured");
+								}
+				    		}
+				    	}
+						
+		        		Toast.makeText(this, R.string.data_updated, 
+		        				Toast.LENGTH_LONG).show();
+		        		finish();
+					}
+					else if(iRetUpdate == 0)
+					{
+		        		Toast.makeText(this, R.string.data_not_updated,
+		        				Toast.LENGTH_LONG).show();					
+					}
 				}
 			}
 			else if( v == btnCancel )
@@ -966,6 +987,49 @@ implements IEditViewController, OnClickListener, OnTouchListener
 		}
 		
 		return ret;
+		
+	}
+	/**
+	 * メモリのデータを、エディットされた内容で更新
+	 * @param activity
+	 * @param tableID
+	 */
+	public boolean updateMemoryData(Activity activity, int tableID)
+	{
+		// 2014/10/19 現状、メインテーブルに対してこの処理を行うことはない 
+//		if( tableID == RunHistoryTableContract.HISTORY_TABLE_ID)
+//		{
+//			RunLoggerService.getLogStocker().getLapData(mLapIndex);
+//			ret.put(RunHistoryTableContract.START_DATETIME, clmnInfos[1].getText() );
+//			//ret.put(RunHistoryTableContract.INSERT_DATETIME, clmnInfos[2].getText());
+//			ret.put(RunHistoryTableContract.NAME, clmnInfos[3].getText());
+//			//ret.put(RunHistoryTableContract.LAP_COUNT, clmnInfos[4].getText() );
+//			//ret.put(RunHistoryTableContract.PLACE_ID, clmnInfos[5].getText() );
+//			ret.put(RunHistoryTableContract.ACTIVITY_TYPE, clmnInfos[6].getText() );
+//		}
+// 		else 
+		if( tableID == RunHistoryTableContract.HISTORY_LAP_TABLE_ID)
+		{
+			LapData data = RunLoggerService.getLogStocker().getLapData(mLapIndex);
+			
+			data.setStartTime( Long.parseLong( clmnInfos[1].getText() ) );
+    		//ret.put(RunHistoryTableContract.INSERT_DATETIME, clmnInfos[2].getText() );
+			data.setName( clmnInfos[3].getText() );
+    		//ret.put( RunHistoryTableContract.PARENT_ID, clmnInfos[4].getText() );
+    		//ret.put( RunHistoryTableContract.LAP_INDEX, clmnInfos[5].getText() );
+            //ret.put( RunHistoryTableContract.LAP_DISTANCE, clmnInfos[6].getText() );
+            //ret.put( RunHistoryTableContract.LAP_TIME, clmnInfos[7].getText() );
+            //ret.put( RunHistoryTableContract.LAP_SPEED, clmnInfos[8].getText() );
+			data.setFixedDistance( Double.parseDouble(clmnInfos[9].getText() ));
+			data.setFixedTime( Long.parseLong(clmnInfos[10].getText() ));
+			// data.setFixedSpeed( Double.parseDouble( clmnInfos[11].getText() ) );
+            //ret.put( RunHistoryTableContract.GPX_FILE_PATH, clmnInfos[12].getText() );
+			data.setGpxFilePath( clmnInfos[13].getText() );
+			RunLoggerService.getLogStocker().overwriteLapData(mLapIndex, data);
+			return true;
+		}
+		
+		return false;
 		
 	}
 	public int updateData(

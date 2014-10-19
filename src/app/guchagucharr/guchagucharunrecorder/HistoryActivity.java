@@ -666,7 +666,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			long time = 0;
 			distance = data.getFixedDistance() == 0 
 					? data.getDistance() : data.getFixedDistance();
-			time = data.getTime();				
+			time = data.getFixedTime() == 0 
+					? data.getTime() : data.getFixedTime();				
 			speed = distance / ( time * UnitConversions.MS_TO_S ); 
 			String gpxFilePath = data.getGpxFilePath();
 			//boolean bGPXExists = false;			
@@ -889,7 +890,8 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 			{
 				distanceTotal += lapData.getFixedDistance() == 0 ?
 						lapData.getDistance() : lapData.getFixedDistance();
-				timeTotal += lapData.getTime();				
+				timeTotal += lapData.getFixedTime() == 0 ?
+						lapData.getTime() : lapData.getFixedTime();				
 				// speedは、時間と距離から計算したものの方が違和感がなく、圧倒的に精確
 				//speedTotal += //lapData.getSpeed();
 			}
@@ -993,6 +995,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	        // 編集メニュー
 			// launch activity for save
 			intentEdit = new Intent( this, EditActivity.class );
+			intentEdit.putExtra(EditActivity.KEY_EDIT_MODE, EditActivity.EDIT_DATA_ALREADY_SAVED);			
 			intentEdit.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_MAIN_TABLE);
 			ActivityData data4Edit 
 				= loader.getHistoryData(item.getItemId());//= RunLoggerService.getLogStocker().getLapData(item.getItemId());
@@ -1009,6 +1012,7 @@ public class HistoryActivity extends Activity implements IPageViewController, On
 	    	// TODO: DETAILかどうか判別
 			intentEdit = new Intent( this, EditActivity.class );
 			// データをそのままどこかに格納する？
+			intentEdit.putExtra(EditActivity.KEY_EDIT_MODE, EditActivity.EDIT_DATA_ALREADY_SAVED);
 			intentEdit.putExtra(EditActivity.KEY_CLMN_DATA_GEN, EditActivity.EDIT_DATA_LAP_TABLE);
 			// ActivityLapData lapData4Edit = new ActivityLapData();
 			ActivityLapData lapData4Edit 
