@@ -85,6 +85,25 @@ implements
 	public static String LOCATION_DATA = "LocData";
 	public static String LOCATION_CHANGE_NOTIFY = "LocChgNotif";
 
+	// 初回起動かどうかの調査用
+	public static final String KEY_INIT_STATE = "InitState";
+	public static final int PREFERENCE_INIT = 0;
+	public static final int PREFERENCE_BOOTED = 1;
+	//データ保存
+	private void setInitState(int state) {
+	    // SharedPreferences設定を保存
+	    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+	    sp.edit().putInt(KEY_INIT_STATE, state).commit();
+	}	 
+	//データ読み出し
+	private int getInitState() {
+	    // 読み込み
+	    int state;
+	    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+	    state = sp.getInt(KEY_INIT_STATE, PREFERENCE_INIT);
+		return state;
+	}	
+	
 	// カメラ用
 	CameraView cameraView = null;
 	boolean bCameraMode = false;
@@ -169,6 +188,7 @@ implements
         ResourceAccessor.CreateInstance(this);
         // res = ResourceAccessor.getInstance();
         // updateAssistGps();
+        setInitState( PREFERENCE_BOOTED );
 	}
 
 //	private void updateAssistGps()
